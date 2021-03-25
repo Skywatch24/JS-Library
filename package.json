@@ -6,9 +6,12 @@
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^10.0.27",
     "axios": "^0.19.2",
+    "jquery": "^3.6.0",
+    "prop-types": "^15.7.2",
     "qs": "^6.9.4",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "video.js": "^7.11.4"
   },
   "scripts": {
     "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js --open chrome",
