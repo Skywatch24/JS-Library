@@ -16,7 +16,6 @@ const ArchivesPlayer = ({
   onPlayerInit,
   onPlayerDispose,
   deviceId,
-  scope,
   archiveId,
   smart_ff,
   seek,
@@ -27,7 +26,6 @@ const ArchivesPlayer = ({
     const initPlayer = async () => {
       const res = await Requests.getArchives(
         deviceId,
-        scope,
         archiveId,
         smart_ff.toString(),
       );
@@ -73,7 +71,6 @@ ArchivesPlayer.defaultProps = {
 
 ArchivesPlayer.propTypes = {
   deviceId: PropTypes.string.isRequired,
-  scope: PropTypes.string.isRequired,
   archiveId: PropTypes.string.isRequired,
   smart_ff: PropTypes.number.isRequired,
   onPlayerInit: PropTypes.func.isRequired,

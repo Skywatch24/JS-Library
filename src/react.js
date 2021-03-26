@@ -15,7 +15,6 @@ const APP = () => {
       onPlayerInit={setPlayer}
       onPlayerDispose={setPlayer}
       deviceId={'2'}
-      scope={'CloudArchives'}
       archiveId={'202-1615967723'}
       smart_ff={0}
       seek={43}
