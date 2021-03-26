@@ -1,23 +1,24 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
-import Player from './react/Player';
+import ArchivesPlayer from './react/ArchivesPlayer';
 import {CoreManager} from './util';
 
 const {API_KEY} = CoreManager;
 
-CoreManager.set(API_KEY, 'de433ee3895aa144aea4ab27cf9a6332');
+CoreManager.set(API_KEY, '0901abd4094de632ea0cb116922c1038');
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
 
   return (
-    <Player
+    <ArchivesPlayer
       onPlayerInit={setPlayer}
       onPlayerDispose={setPlayer}
       deviceId={'2'}
       scope={'CloudArchives'}
       archiveId={'202-1615967723'}
-      smart_ff={'0'}
+      smart_ff={0}
+      seek={43}
     />
   );
 };

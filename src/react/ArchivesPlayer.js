@@ -2,9 +2,7 @@ import React, {useRef, useEffect} from 'react';
 import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
-import {CoreManager, Requests} from '../util';
-
-const {API_KEY} = CoreManager;
+import {Requests} from '../util';
 
 const defaultPlayerOptions = {
   autoplay: true,
@@ -13,7 +11,7 @@ const defaultPlayerOptions = {
   mobileView: false,
 };
 
-const Player = ({
+const ArchivesPlayer = ({
   playerOptions,
   onPlayerInit,
   onPlayerDispose,
@@ -21,6 +19,7 @@ const Player = ({
   scope,
   archiveId,
   smart_ff,
+  seek,
 }) => {
   const containerRef = useRef(null);
 
@@ -30,7 +29,7 @@ const Player = ({
         deviceId,
         scope,
         archiveId,
-        smart_ff,
+        smart_ff.toString(),
       );
       if (res.data && containerRef.current) {
         const videoEl = containerRef.current.querySelector('video');
@@ -43,6 +42,8 @@ const Player = ({
             },
           ],
         });
+
+        player.currentTime(seek);
 
         onPlayerInit && onPlayerInit(player);
 
@@ -66,14 +67,19 @@ const Player = ({
   );
 };
 
-Player.propTypes = {
+ArchivesPlayer.defaultProps = {
+  seek: 0,
+};
+
+ArchivesPlayer.propTypes = {
   deviceId: PropTypes.string.isRequired,
   scope: PropTypes.string.isRequired,
   archiveId: PropTypes.string.isRequired,
-  smart_ff: PropTypes.string.isRequired,
+  smart_ff: PropTypes.number.isRequired,
   onPlayerInit: PropTypes.func.isRequired,
   onPlayerDispose: PropTypes.func.isRequired,
+  seek: PropTypes.number,
   playerOptions: PropTypes.object,
 };
 
-export default Player;
+export default ArchivesPlayer;
