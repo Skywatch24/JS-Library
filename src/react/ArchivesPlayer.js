@@ -19,6 +19,7 @@ const ArchivesPlayer = ({
   archiveId,
   smart_ff,
   seek,
+  style,
 }) => {
   const containerRef = useRef(null);
 
@@ -60,7 +61,7 @@ const ArchivesPlayer = ({
 
   return (
     <div className="player" ref={containerRef}>
-      <video className="video-js" controls />
+      <video className="video-js" controls style={style} />
     </div>
   );
 };
@@ -77,6 +78,7 @@ ArchivesPlayer.propTypes = {
   onPlayerDispose: PropTypes.func.isRequired,
   seek: PropTypes.number,
   playerOptions: PropTypes.object,
+  style: PropTypes.object,
 };
 
 export default ArchivesPlayer;
