@@ -1,24 +1,31 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import ArchivesPlayer from './react/ArchivesPlayer';
+import FlvPlayer from './react/FlvPlayer';
 import {CoreManager} from './util';
 
 const {API_KEY} = CoreManager;
 
-CoreManager.set(API_KEY, '0901abd4094de632ea0cb116922c1038');
+CoreManager.set(API_KEY, '9d80986b0d6d4101ec4679e7bb8ff13a');
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
 
   return (
-    <ArchivesPlayer
+    <FlvPlayer
+      deviceId={'47436'}
       onPlayerInit={setPlayer}
       onPlayerDispose={setPlayer}
-      deviceId={'2'}
-      archiveId={'202-1615967723'}
-      smart_ff={0}
-      seek={43}
+      style={{width: '768px', height: '432px'}}
     />
+    // <ArchivesPlayer
+    //   onPlayerInit={setPlayer}
+    //   onPlayerDispose={setPlayer}
+    //   deviceId={'46355'}
+    //   archiveId={'157755080-1616734157'}
+    //   smart_ff={0}
+    //   seek={0}
+    // />
   );
 };
 

@@ -22,6 +22,22 @@ const getArchives = async (deviceId, archiveId, smartff) => {
   return res;
 };
 
+const getFlvStream = async deviceId => {
+  const dateTime = Date.now();
+  const timestamp = Math.floor(dateTime / 1000);
+  const res = await axios.get(
+    `${Config.apiURL}/cameras/${deviceId}/flvstream?warmup=1
+    &api_key=${CoreManager.get(API_KEY)}&_=${timestamp}`,
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+  );
+  return res;
+};
+
 export default {
   getArchives,
+  getFlvStream,
 };
