@@ -68,6 +68,7 @@ const ArchivesPlayer = ({
 
 ArchivesPlayer.defaultProps = {
   seek: 0,
+  smart_ff: 0,
 };
 
 ArchivesPlayer.propTypes = {
