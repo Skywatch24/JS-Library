@@ -11,5 +11,14 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
-  <script></script>
+  <script>
+    Skywatch.initialize('c367498bf8adcb4b403d8b92b09fa948');
+    Skywatch.ArchivesPlayer(
+      document.getElementById('root'),
+      47436,
+      124114069,
+    ).then(player => {
+      //player.currentTime(5);
+    });
+  </script>
 </html>
