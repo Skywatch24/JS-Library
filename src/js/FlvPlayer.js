@@ -1,13 +1,7 @@
 import flvjs from 'flv.js';
-import {Requests, CoreManager} from '../util';
-
-const {API_KEY} = CoreManager;
+import {Requests} from '../util';
 
 const FlvPlayer = async (videoEl, deviceId) => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
-
   if (!videoEl || !deviceId) {
     throw 'Invalid Parameter';
   }
