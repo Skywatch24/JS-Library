@@ -8,6 +8,7 @@ const Skywatch = {
 };
 
 Skywatch.ArchivesPlayer = require('./js/ArchivesPlayer').default;
+Skywatch.FlvPlayer = require('./js/FlvPlayer').default;
 
 window.Skywatch = Skywatch;
 

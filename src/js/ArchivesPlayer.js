@@ -22,6 +22,9 @@ const ArchivesPlayer = async (
   if (CoreManager.get(API_KEY) === '') {
     throw 'Please initiate token';
   }
+  if (!tagEl || !deviceId || !archiveId) {
+    throw 'Invalid Parameter';
+  }
 
   // Get source url
   const res = await Requests.getArchives(
@@ -30,26 +33,28 @@ const ArchivesPlayer = async (
     smart_ff.toString(),
   );
 
-  // Create Video tag
-  const videoEl = document.createElement('video');
-  videoEl.controls = true;
-  videoEl.className = 'video-js';
-  tagEl.appendChild(videoEl);
+  if (res.data) {
+    // Create Video tag
+    const videoEl = document.createElement('video');
+    videoEl.controls = true;
+    videoEl.className = 'video-js';
+    tagEl.appendChild(videoEl);
 
-  // Initiate video
-  const player = videojs(videoEl, {
-    ...defaultPlayerOptions,
-    ...options,
-    sources: [
-      {
-        src: res.data,
-      },
-    ],
-  });
+    // Initiate video
+    const player = videojs(videoEl, {
+      ...defaultPlayerOptions,
+      ...options,
+      sources: [
+        {
+          src: res.data,
+        },
+      ],
+    });
 
-  player.currentTime(seek);
+    player.currentTime(seek);
 
-  return player;
+    return player;
+  }
 };
 
 export default ArchivesPlayer;

@@ -6,26 +6,26 @@ import {CoreManager} from './util';
 
 const {API_KEY} = CoreManager;
 
-CoreManager.set(API_KEY, '9d80986b0d6d4101ec4679e7bb8ff13a');
+CoreManager.set(API_KEY, 'c367498bf8adcb4b403d8b92b09fa948');
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
 
   return (
-    <FlvPlayer
-      deviceId={'47436'}
-      onPlayerInit={setPlayer}
-      onPlayerDispose={setPlayer}
-      style={{width: '768px', height: '432px'}}
-    />
-    // <ArchivesPlayer
+    // <FlvPlayer
+    //   deviceId={'47436'}
     //   onPlayerInit={setPlayer}
     //   onPlayerDispose={setPlayer}
-    //   deviceId={'46355'}
-    //   archiveId={'157755080-1616734157'}
-    //   smart_ff={0}
-    //   seek={0}
+    //   style={{width: '768px', height: '432px'}}
     // />
+    <ArchivesPlayer
+      onPlayerInit={setPlayer}
+      onPlayerDispose={setPlayer}
+      deviceId={'47436'}
+      archiveId={'124114069'}
+      smart_ff={0}
+      seek={0}
+    />
   );
 };
 
