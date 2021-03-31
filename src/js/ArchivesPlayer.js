@@ -1,8 +1,6 @@
 import videojs from 'video.js';
-import {Requests, CoreManager} from '../util';
+import {Requests} from '../util';
 import 'video.js/dist/video-js.min.css';
-
-const {API_KEY} = CoreManager;
 
 const defaultPlayerOptions = {
   autoplay: true,
@@ -19,9 +17,6 @@ const ArchivesPlayer = async (
   seek = 0,
   options = {},
 ) => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
   if (!tagEl || !deviceId || !archiveId) {
     throw 'Invalid Parameter';
   }

@@ -5,6 +5,10 @@ import CoreManager from './CoreManager';
 const {API_KEY, REGION, SCOPE} = CoreManager;
 
 const getArchives = async (deviceId, archiveId, smartff) => {
+  if (CoreManager.get(API_KEY) === '') {
+    throw 'Please initiate token';
+  }
+
   const dateTime = Date.now();
   const timestamp = Math.floor(dateTime / 1000);
   const res = await axios.get(
@@ -23,6 +27,10 @@ const getArchives = async (deviceId, archiveId, smartff) => {
 };
 
 const getFlvStream = async deviceId => {
+  if (CoreManager.get(API_KEY) === '') {
+    throw 'Please initiate token';
+  }
+
   const dateTime = Date.now();
   const timestamp = Math.floor(dateTime / 1000);
   const res = await axios.get(
