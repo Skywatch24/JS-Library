@@ -46,8 +46,8 @@ const ArchivesPlayer = ({
 
         onPlayerInit && onPlayerInit(player);
 
-        // for debug purpose
-        window.player = player;
+        // // for debug purpose
+        // window.player = player;
 
         return () => {
           onPlayerDispose && onPlayerDispose(null);
