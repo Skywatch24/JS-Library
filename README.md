@@ -191,3 +191,9 @@ This is a component for playing live streaming.
 | `onPlayerInit`    | `function`     | YES      |         | Pass state into player to allow control of player. For more info please check [flv.js doc](https://github.com/bilibili/flv.js/edit/master/docs/api.md). |
 | `onPlayerDispose` | `function`     | YES      |         | Pass state into player to dispose when video is released.                                                                                               |
 | `style`           | `inline-style` | NO       |         | Custom style for video player.                                                                                                                          |
+
+## License
+
+- This project is inspired by [video.js](https://www.videojs.com).
+- This project is inspired by [flv.js](https://github.com/Bilibili/flv.js/).
+- Licensed under the Apache License, Version 2.0 (the "License");

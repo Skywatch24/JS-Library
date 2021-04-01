@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "The Skywatch JavaScript Library",
   "main": "dist/index.js",
+  "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
+  "license": "Apache-2.0",
   "private": false,
   "files": [
     "dist",
+    "LICENSE",
     "README.md"
   ],
   "dependencies": {
