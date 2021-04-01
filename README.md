@@ -9,13 +9,13 @@ A library that supports archive & live videos with Skywatch framework.
 ## Installation
 
 ```
-npm install skywatch
+npm install skywatch-library
 ```
 
 or
 
 ```
-yarn add skywatch
+yarn add skywatch-library
 ```
 
 ## Getting Started
@@ -23,7 +23,7 @@ yarn add skywatch
 - JS
 
 ```javascript
-<script src="skywatch.min.js"></script>
+<script src="skywatch-library.min.js"></script>
 <div id="root"></div>
 <script>
     const options = {
@@ -50,7 +50,7 @@ yarn add skywatch
 
 ```javascript
 import React, {useState, useEffect} from 'react';
-import {ArchivesPlayer, initialize} from 'skywatch/react';
+import {ArchivesPlayer, initialize} from 'skywatch-library/react';
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
@@ -87,7 +87,7 @@ const APP = () => {
 This is a function which has to initiate in the beginning.
 
 ```javascript
-import Skywatch from 'skywatch';
+import Skywatch from 'skywatch-library';
 Skywatch.initialize('your_token');
 ```
 
@@ -144,7 +144,7 @@ This is a function for showing live streaming.
 This is a function which has to initiate in the beginning.
 
 ```javascript
-import Skywatch from 'skywatch/react';
+import Skywatch from 'skywatch-library/react';
 
 Skywatch.initialize('your_token');
 ```

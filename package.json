@@ -1,10 +1,11 @@
 {
-  "name": "skywatch",
-  "version": "1.0.0",
+  "name": "skywatch-library",
+  "version": "1.0.1",
   "description": "The Skywatch JavaScript Library",
   "main": "dist/index.js",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "license": "Apache-2.0",
+  "author": "Adam Lee <adam.lee@skywatch.com.tw> (https://github.com/mengpeilee)",
   "private": false,
   "files": [
     "dist",
