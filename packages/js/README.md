@@ -92,3 +92,9 @@ This is a function for showing live streaming.
 | `video_element`    | `element`  | YES      |         | A HTML video element                                                                                                                        |
 | `deviceId`         | `string`   | YES      |         | Decide on which camera is going to play.                                                                                                    |
 | `Promise (player)` | `function` |          |         | A response to allow control of player. For more info please check [flv.js doc](https://github.com/bilibili/flv.js/edit/master/docs/api.md). |
+
+## License
+
+- This project is inspired by [video.js](https://www.videojs.com).
+- This project is inspired by [flv.js](https://github.com/Bilibili/flv.js/).
+- Licensed under the Apache License, Version 2.0 (the "License");
