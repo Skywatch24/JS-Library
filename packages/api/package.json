@@ -13,7 +13,9 @@
     "url": "git+ssh://git@gitlab.com/skywatch-solution/skywatch_JS_library.git"
   },
   "files": [
-    "src"
+    "src",
+    "LICENSE",
+    "README.md"
   ],
   "bugs": {
     "url": "https://gitlab.com/skywatch-solution/skywatch_JS_library/issues"
