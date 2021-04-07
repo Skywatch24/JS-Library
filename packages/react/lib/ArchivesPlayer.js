@@ -19,7 +19,7 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 require("video.js/dist/video-js.min.css");
 
-var _util = require("@skywatch/util");
+var _api = require("@skywatch/api");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -54,7 +54,7 @@ const ArchivesPlayer = (_ref) => {
   const containerRef = (0, _react.useRef)(null);
   (0, _react.useEffect)(() => {
     const initPlayer = async () => {
-      const res = await _util.Requests.getArchives(deviceId, archiveId, smart_ff.toString());
+      const res = await _api.Requests.getArchives(deviceId, archiveId, smart_ff.toString());
 
       if (res.data && containerRef.current) {
         const videoEl = containerRef.current.querySelector('video');

@@ -21,16 +21,16 @@ var _ArchivesPlayer = _interopRequireDefault(require("./ArchivesPlayer"));
 
 var _FlvPlayer = _interopRequireDefault(require("./FlvPlayer"));
 
-var _util = require("@skywatch/util");
+var _api = require("@skywatch/api");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const {
   API_KEY
-} = _util.CoreManager;
+} = _api.CoreManager;
 
 const initialize = apiKey => {
-  _util.CoreManager.set(API_KEY, apiKey);
+  _api.CoreManager.set(API_KEY, apiKey);
 };
 
 exports.initialize = initialize;

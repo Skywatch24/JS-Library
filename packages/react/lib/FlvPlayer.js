@@ -15,7 +15,7 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _flv = _interopRequireDefault(require("flv.js"));
 
-var _util = require("@skywatch/util");
+var _api = require("@skywatch/api");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33,7 +33,7 @@ const FlvPlayer = (_ref) => {
   const containerRef = (0, _react.useRef)(null);
   (0, _react.useEffect)(() => {
     const initPlayer = async () => {
-      const res = await _util.Requests.getFlvStream(deviceId);
+      const res = await _api.Requests.getFlvStream(deviceId);
 
       if (res.data && _flv.default.isSupported() && containerRef.current) {
         const videoEl = containerRef.current.querySelector('video');
