@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><title>JS App</title></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root" style="width: 768px; height: 432px"></div><video id="videoElement" controls muted style="width: 768px; height: 432px"></video><script src="/skywatch.min.js"></script></body><script>Skywatch.initialize('c367498bf8adcb4b403d8b92b09fa948');
+    Skywatch.ArchivesPlayer(
+      document.getElementById('root'),
+      47436,
+      124114069,
+    ).then(player => {
+      //player.currentTime(5);
+    });
+    Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);</script></html>

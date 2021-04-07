@@ -1,0 +1,26 @@
+{
+  "name": "@skywatch/api",
+  "version": "1.0.2",
+  "main": "src/index.js",
+  "license": "Apache-2.0",
+  "description": "The Skywatch JavaScript Library",
+  "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
+  "keywords": [],
+  "author": "Adam Lee <adam.lee@skywatch.com.tw> (https://github.com/mengpeilee)",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/skywatch-solution/skywatch_JS_library.git"
+  },
+  "files": [
+    "src"
+  ],
+  "bugs": {
+    "url": "https://gitlab.com/skywatch-solution/skywatch_JS_library/issues"
+  },
+  "homepage": "https://gitlab.com/skywatch-solution/skywatch_JS_library#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "qs": "^6.9.4"
+  }
+}
