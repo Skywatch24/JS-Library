@@ -1,3 +1,12 @@
+<h3 align="center">
+  Skwatch React Library
+</h3>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@skywatch/react"><img src="https://img.shields.io/npm/v/@skywatch/react?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/@skywatch/react"><img src="https://img.shields.io/npm/dm/@skywatch/react?style=flat-square"></a>
+</p>
+
 ## Installation
 
 ```
