@@ -9,7 +9,9 @@
   "main": "lib/index.js",
   "private": false,
   "files": [
-    "lib"
+    "lib",
+    "LICENSE",
+    "README.md"
   ],
   "repository": {
     "type": "git",
