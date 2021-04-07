@@ -1,3 +1,12 @@
+<h3 align="center">
+  Skwatch JS Library
+</h3>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@skywatch/js"><img src="https://img.shields.io/npm/v/@skywatch/js?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/@skywatch/js"><img src="https://img.shields.io/npm/dm/@skywatch/js?style=flat-square"></a>
+</p>
+
 ## Installation
 
 ```
