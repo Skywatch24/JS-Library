@@ -1,6 +1,6 @@
 {
   "name": "@skywatch/js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Skywatch JavaScript Library",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "@skywatch/api": "^1.0.2",
+    "@skywatch/api": "^1.0.3",
     "flv.js": "^1.5.0",
     "video.js": "^7.11.4"
   }
