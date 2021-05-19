@@ -9,6 +9,7 @@
   "main": "lib/index.js",
   "private": false,
   "files": [
+    "dist",
     "lib",
     "LICENSE",
     "README.md"

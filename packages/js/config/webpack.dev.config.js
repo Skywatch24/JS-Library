@@ -8,7 +8,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = merge(common, {
   mode: 'development',
   entry: {
-    index: './src/react.js',
+    index: './src/index.js',
   },
   output: {
     filename: 'js/[name].bundle.js',
