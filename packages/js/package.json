@@ -5,7 +5,7 @@
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
   "license": "Apache-2.0",
-  "author": "Adam Lee <adam.lee@skywatch.com.tw> (https://github.com/mengpeilee)",
+  "author": "mengpeilee <asdfg3865@gmail.com>",
   "main": "lib/index.js",
   "private": false,
   "files": [
