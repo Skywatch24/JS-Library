@@ -1,10 +1,11 @@
-import Constants from './Constants';
-
-const {SERVER_URL, LANG_SELECTOR} = Constants;
+import {Constants} from '@skywatch/api';
+const {API_KEY, SITE_URL, REGION, SCOPE} = Constants;
 
 const config = {
-  [SERVER_URL]: '',
-  [LANG_SELECTOR]: 'en',
+  [API_KEY]: '',
+  [SITE_URL]: 'service.skywatch24.com',
+  [REGION]: 's3-ap-northeast-1.amazonaws.com',
+  [SCOPE]: 'CloudArchives',
 };
 
 const get = key => {

@@ -1,47 +1,46 @@
 import axios from 'axios';
-import Config from './Config';
 import CoreManager from './CoreManager';
+import Constants from './Constants';
 
-const {API_KEY, REGION, SCOPE} = CoreManager;
+const {SERVER_URL, LANG_SELECTOR, GET_ARCHIVES, GET_FLV_STREAM} = Constants;
 
 const getArchives = async (deviceId, archiveId, smartff) => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
-
-  const dateTime = Date.now();
-  const timestamp = Math.floor(dateTime / 1000);
-  const res = await axios.get(
-    `${
-      Config.apiURL
-    }/cameras/${deviceId}/archives/link?archive_id=${archiveId}&smart_ff=${smartff}&
-    scope=${CoreManager.get(SCOPE)}&region=${CoreManager.get(REGION)}
-    &api_key=${CoreManager.get(API_KEY)}&_=${timestamp}`,
+  const params = {
+    device_id: deviceId,
+    archive_id: archiveId,
+    smartff: smartff,
+    lang: CoreManager.get(LANG_SELECTOR),
+    feature: GET_ARCHIVES,
+  };
+  const res = await axios.post(
+    CoreManager.get(SERVER_URL),
+    qs.stringify(params),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Access-Control-Allow-Origin': '*',
       },
     },
   );
+
   return res;
 };
 
 const getFlvStream = async deviceId => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
-
-  const dateTime = Date.now();
-  const timestamp = Math.floor(dateTime / 1000);
-  const res = await axios.get(
-    `${Config.apiURL}/cameras/${deviceId}/flvstream?warmup=1
-    &api_key=${CoreManager.get(API_KEY)}&_=${timestamp}`,
+  const params = {
+    device_id: deviceId,
+    lang: CoreManager.get(LANG_SELECTOR),
+    feature: GET_FLV_STREAM,
+  };
+  const res = await axios.post(
+    CoreManager.get(SERVER_URL),
+    qs.stringify(params),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Access-Control-Allow-Origin': '*',
       },
     },
   );
+
   return res;
 };
 

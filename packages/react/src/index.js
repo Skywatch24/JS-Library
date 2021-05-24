@@ -1,11 +1,11 @@
 import ArchivesPlayer from './ArchivesPlayer';
 import FlvPlayer from './FlvPlayer';
-import {CoreManager} from '@skywatch/api';
+import {CoreManager, Constants} from '@skywatch/api';
 
-const {API_KEY} = CoreManager;
+const {SERVER_URL} = Constants;
 
-const initialize = apiKey => {
-  CoreManager.set(API_KEY, apiKey);
+const initialize = serverUrl => {
+  CoreManager.set(SERVER_URL, serverUrl);
 };
 
 export {initialize, ArchivesPlayer, FlvPlayer};

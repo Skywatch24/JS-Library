@@ -5,7 +5,7 @@ module.exports = {
   get Requests() {
     return require('./Requests').default;
   },
-  get Config() {
-    return require('./Config').default;
+  get Constants() {
+    return require('./Constants').default;
   },
 };
