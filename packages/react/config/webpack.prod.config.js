@@ -13,7 +13,7 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 module.exports = merge(common, {
   mode: 'production',
   entry: {
-    index: './example/index.js',
+    index: './public/index.js',
     //framework: ['react', 'react-dom'],
   },
   output: {
