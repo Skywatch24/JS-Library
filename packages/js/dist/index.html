@@ -1,24 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <title>JS App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root" style="width: 768px; height: 432px"></div>
-    <video
-      id="videoElement"
-      controls
-      muted
-      style="width: 768px; height: 432px"
-    ></video>
-    <script src="/skywatch.min.js"></script>
-  </body>
-  <script>
-    Skywatch.initialize(
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><title>JS App</title></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root" style="width: 768px; height: 432px"></div><video id="videoElement" controls muted style="width: 768px; height: 432px"></video><script src="/skywatch.min.js"></script></body><script>Skywatch.initialize(
       'https://26198394ed6a.ngrok.io/skywatch_api',
       '1e307a5af268eaeb453e1ade85a36cb6',
     );
@@ -29,6 +9,4 @@
     ).then(player => {
       //player.currentTime(5);
     });
-    Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
-  </script>
-</html>
+    Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);</script></html>
