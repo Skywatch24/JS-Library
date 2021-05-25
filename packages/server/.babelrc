@@ -1,0 +1,24 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          // 大於瀏覽器的版本就不需要用 preset-env
+          "edge": 17,
+          "firefox": 60,
+          "chrome": 67,
+          "safari": "11.1"
+        },
+        // 根據在程式碼中用到的 ES6+導入，不需要全部導入
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ],
+    "@babel/preset-react"
+  ],
+  "env": {
+    "development": {},
+    "production": {}
+  }
+}

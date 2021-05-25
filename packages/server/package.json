@@ -25,7 +25,7 @@
     "url": "git+https://github.com/Skywatch24/JS-Library.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"
   },
   "bugs": {
     "url": "https://github.com/Skywatch24/JS-Library/issues"
