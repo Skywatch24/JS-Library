@@ -1,10 +1,12 @@
 import { CoreManager, Constants } from '@skywatch/api';
 const {
-  SERVER_URL
+  SERVER_URL,
+  API_KEY
 } = Constants;
 const Skywatch = {
-  initialize: serverUrl => {
+  initialize: (serverUrl, apiKey) => {
     CoreManager.set(SERVER_URL, serverUrl);
+    CoreManager.set(API_KEY, apiKey);
   }
 };
 Skywatch.ArchivesPlayer = require('./ArchivesPlayer').default;
