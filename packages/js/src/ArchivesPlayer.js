@@ -28,8 +28,6 @@ const ArchivesPlayer = async (
     smart_ff.toString(),
   );
 
-  console.log(res);
-
   if (res.data) {
     // Create Video tag
     const videoEl = document.createElement('video');
