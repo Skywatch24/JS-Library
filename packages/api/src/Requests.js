@@ -1,7 +1,7 @@
-import axios from 'axios';
-import qs from 'qs';
-import CoreManager from './CoreManager';
-import Constants from './Constants';
+const axios = require('axios');
+const qs = require('qs');
+const coreManager = require('./CoreManager');
+const constants = require('./Constants');
 
 const {
   API_KEY,
@@ -9,19 +9,19 @@ const {
   LANG_SELECTOR,
   GET_ARCHIVES,
   GET_FLV_STREAM,
-} = Constants;
+} = constants;
 
 const getArchives = async (deviceId, archiveId, smartff) => {
   const params = {
     device_id: deviceId,
     archive_id: archiveId,
     smartff: smartff,
-    lang: CoreManager.get(LANG_SELECTOR),
+    lang: coreManager.get(LANG_SELECTOR),
     feature: GET_ARCHIVES,
-    api_key: CoreManager.get(API_KEY),
+    api_key: coreManager.get(API_KEY),
   };
   const res = await axios.post(
-    CoreManager.get(SERVER_URL),
+    coreManager.get(SERVER_URL),
     qs.stringify(params),
     {
       headers: {
@@ -36,12 +36,12 @@ const getArchives = async (deviceId, archiveId, smartff) => {
 const getFlvStream = async deviceId => {
   const params = {
     device_id: deviceId,
-    lang: CoreManager.get(LANG_SELECTOR),
+    lang: coreManager.get(LANG_SELECTOR),
     feature: GET_FLV_STREAM,
-    api_key: CoreManager.get(API_KEY),
+    api_key: coreManager.get(API_KEY),
   };
   const res = await axios.post(
-    CoreManager.get(SERVER_URL),
+    coreManager.get(SERVER_URL),
     qs.stringify(params),
     {
       headers: {
@@ -53,7 +53,7 @@ const getFlvStream = async deviceId => {
   return res;
 };
 
-export default {
+module.exports = {
   getArchives,
   getFlvStream,
 };

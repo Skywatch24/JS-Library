@@ -1,8 +1,8 @@
 module.exports = {
   get CoreManager() {
-    return require('./CoreManager').default;
+    return require('./CoreManager');
   },
   get Skywatch() {
-    return require('./Server').default;
+    return require('./Server');
   },
 };

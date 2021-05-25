@@ -1,6 +1,6 @@
-import Constants from './Constants';
+const constants = require('./Constants');
 
-const {API_KEY, SERVER_URL, LANG_SELECTOR} = Constants;
+const {API_KEY, SERVER_URL, LANG_SELECTOR} = constants;
 
 const config = {
   [API_KEY]: '',
@@ -25,4 +25,4 @@ const set = (key, value) => {
   }
 };
 
-export default {get, set};
+module.exports = {get, set};

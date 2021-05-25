@@ -1,5 +1,5 @@
-import {Constants} from '@skywatch/api';
-const {SITE_URL, REGION, SCOPE} = Constants;
+const skywatchAPI = require('@skywatch/api');
+const {SITE_URL, REGION, SCOPE} = skywatchAPI.Constants;
 
 const config = {
   [SITE_URL]: 'service.skywatch24.com',
@@ -24,4 +24,4 @@ const set = (key, value) => {
   }
 };
 
-export default {get, set};
+module.exports = {get, set};

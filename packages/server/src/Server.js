@@ -1,7 +1,8 @@
-import {Constants} from '@skywatch/api';
-import {getArchives, getFlvStream} from './Requests';
+const skywatchAPI = require('@skywatch/api');
+const requests = require('./Requests');
 
-const {GET_ARCHIVES, GET_FLV_STREAM} = Constants;
+const {GET_ARCHIVES, GET_FLV_STREAM} = skywatchAPI.Constants;
+const {getArchives, getFlvStream} = requests;
 
 const Server = async (feature, params) => {
   switch (feature) {
@@ -27,4 +28,4 @@ const Server = async (feature, params) => {
   }
 };
 
-export default Server;
+module.exports = Server;

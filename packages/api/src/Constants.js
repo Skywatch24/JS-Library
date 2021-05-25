@@ -10,7 +10,7 @@ const SCOPE = 'scope';
 const GET_ARCHIVES = 'get_archives';
 const GET_FLV_STREAM = 'get_flv_stream';
 
-export default {
+module.exports = {
   API_KEY,
   LANG_SELECTOR,
   SERVER_URL,

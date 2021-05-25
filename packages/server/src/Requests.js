@@ -1,9 +1,9 @@
-import axios from 'axios';
-import {Constants} from '@skywatch/api';
-import Config from './Config';
-import CoreManager from './CoreManager';
+const axios = require('axios');
+const skywatchAPI = require('@skywatch/api');
+const config = require('./Config');
+const coreManager = require('./CoreManager');
 
-const {REGION, SCOPE} = Constants;
+const {REGION, SCOPE} = skywatchAPI.Constants;
 
 const default_lang = 'en';
 
@@ -18,9 +18,9 @@ const getArchives = async (
   const timestamp = Math.floor(dateTime / 1000);
   const res = await axios.get(
     `${
-      Config.apiURL
+      config.apiURL
     }/cameras/${deviceId}/archives/link?lang=${lang}&archive_id=${archiveId}&smart_ff=${smartff}&
-    scope=${CoreManager.get(SCOPE)}&region=${CoreManager.get(REGION)}
+    scope=${coreManager.get(SCOPE)}&region=${coreManager.get(REGION)}
     &api_key=${apiKey}&_=${timestamp}`,
     {
       headers: {
@@ -35,7 +35,7 @@ const getFlvStream = async (deviceId, lang = default_lang, apiKey) => {
   const dateTime = Date.now();
   const timestamp = Math.floor(dateTime / 1000);
   const res = await axios.get(
-    `${Config.apiURL}/cameras/${deviceId}/flvstream?lang=${lang}&warmup=1
+    `${config.apiURL}/cameras/${deviceId}/flvstream?lang=${lang}&warmup=1
     &api_key=${apiKey}&_=${timestamp}`,
     {
       headers: {
@@ -46,4 +46,4 @@ const getFlvStream = async (deviceId, lang = default_lang, apiKey) => {
   return res;
 };
 
-export {getArchives, getFlvStream};
+module.exports = {getArchives, getFlvStream};

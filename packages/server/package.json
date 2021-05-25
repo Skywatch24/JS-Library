@@ -7,13 +7,13 @@
   "keywords": [],
   "author": "mengpeilee <asdfg3865@gmail.com>",
   "private": false,
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "directories": {
-    "lib": "lib",
+    "src": "src",
     "test": "__tests__"
   },
   "files": [
-    "lib",
+    "src",
     "LICENSE",
     "README.md"
   ],
@@ -24,9 +24,7 @@
     "type": "git",
     "url": "git+https://github.com/Skywatch24/JS-Library.git"
   },
-  "scripts": {
-    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"
-  },
+  "scripts": {},
   "bugs": {
     "url": "https://github.com/Skywatch24/JS-Library/issues"
   },
@@ -34,7 +32,6 @@
   "dependencies": {
     "@skywatch/api": "^1.1.1",
     "axios": "^0.21.1",
-    "core-js": "^3.6.5",
     "qs": "^6.10.1"
   }
 }
