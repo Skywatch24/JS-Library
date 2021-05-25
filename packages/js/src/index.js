@@ -1,9 +1,10 @@
 import {CoreManager, Constants} from '@skywatch/api';
-const {SERVER_URL} = Constants;
+const {SERVER_URL, API_KEY} = Constants;
 
 const Skywatch = {
-  initialize: serverUrl => {
+  initialize: (serverUrl, apiKey) => {
     CoreManager.set(SERVER_URL, serverUrl);
+    CoreManager.set(API_KEY, apiKey);
   },
 };
 

@@ -31,7 +31,7 @@ yarn add @skywatch/js
       aspectRatio: '16:9',
       mobileView: false,
     };
-    Skywatch.initialize('skywatch_service_url');
+    Skywatch.initialize('skywatch_service_url', 'token');
     Skywatch.ArchivesPlayer(
       document.getElementById('root'),
       'device_id',
@@ -53,7 +53,7 @@ This is a function which has to initiate in the beginning.
 
 ```javascript
 import Skywatch from '@skywatch/js';
-Skywatch.initialize('skywatch_service_url');
+Skywatch.initialize('skywatch_service_url', 'token');
 ```
 
 ### ArchivesPlayer
