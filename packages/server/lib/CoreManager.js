@@ -1,8 +1,7 @@
 import {Constants} from '@skywatch/api';
-const {API_KEY, SITE_URL, REGION, SCOPE} = Constants;
+const {SITE_URL, REGION, SCOPE} = Constants;
 
 const config = {
-  [API_KEY]: '',
   [SITE_URL]: 'service.skywatch24.com',
   [REGION]: 's3-ap-northeast-1.amazonaws.com',
   [SCOPE]: 'CloudArchives',

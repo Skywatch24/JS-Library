@@ -2,7 +2,13 @@ import axios from 'axios';
 import CoreManager from './CoreManager';
 import Constants from './Constants';
 
-const {SERVER_URL, LANG_SELECTOR, GET_ARCHIVES, GET_FLV_STREAM} = Constants;
+const {
+  API_KEY,
+  SERVER_URL,
+  LANG_SELECTOR,
+  GET_ARCHIVES,
+  GET_FLV_STREAM,
+} = Constants;
 
 const getArchives = async (deviceId, archiveId, smartff) => {
   const params = {
@@ -11,6 +17,7 @@ const getArchives = async (deviceId, archiveId, smartff) => {
     smartff: smartff,
     lang: CoreManager.get(LANG_SELECTOR),
     feature: GET_ARCHIVES,
+    api_key: CoreManager.get(API_KEY),
   };
   const res = await axios.post(
     CoreManager.get(SERVER_URL),
@@ -30,6 +37,7 @@ const getFlvStream = async deviceId => {
     device_id: deviceId,
     lang: CoreManager.get(LANG_SELECTOR),
     feature: GET_FLV_STREAM,
+    api_key: CoreManager.get(API_KEY),
   };
   const res = await axios.post(
     CoreManager.get(SERVER_URL),

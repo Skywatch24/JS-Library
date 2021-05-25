@@ -1,8 +1,9 @@
 import Constants from './Constants';
 
-const {SERVER_URL, LANG_SELECTOR} = Constants;
+const {API_KEY, SERVER_URL, LANG_SELECTOR} = Constants;
 
 const config = {
+  [API_KEY]: '',
   [SERVER_URL]: '',
   [LANG_SELECTOR]: 'en',
 };
