@@ -7,4 +7,4 @@ const config = () => ({
   apiURL: `https://${coreManager.get(SITE_URL)}/api/v2`,
 });
 
-module.exports = config;
+module.exports = config();
