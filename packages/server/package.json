@@ -1,6 +1,6 @@
 {
   "name": "@skywatch/server",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Skywatch Server Library",
   "license": "Apache-2.0",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
