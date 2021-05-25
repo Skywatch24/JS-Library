@@ -4,8 +4,7 @@
   "command": {
     "publish": {
       "ignoreChanges": ["*.md", "**/test/**"],
-      "message": "chore(release): publish",
-      "conventionalCommits": true
+      "message": "chore(release): publish"
     }
   }
 }
