@@ -19,8 +19,9 @@ const get = key => {
 const set = (key, value) => {
   if (config.hasOwnProperty(key)) {
     config[key] = value;
+  } else {
+    throw new Error('Incorrect key:' + key);
   }
-  throw new Error('Incorrect key:' + key);
 };
 
 export default {get, set};
