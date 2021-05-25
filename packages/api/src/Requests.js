@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import CoreManager from './CoreManager';
 import Constants from './Constants';
 
