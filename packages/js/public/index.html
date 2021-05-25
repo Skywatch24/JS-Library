@@ -18,11 +18,14 @@
     ></video>
   </body>
   <script>
-    Skywatch.initialize('c367498bf8adcb4b403d8b92b09fa948');
+    Skywatch.initialize(
+      'https://26198394ed6a.ngrok.io/skywatch_api',
+      '1e307a5af268eaeb453e1ade85a36cb6',
+    );
     Skywatch.ArchivesPlayer(
       document.getElementById('root'),
-      47436,
-      124114069,
+      54360,
+      92299524,
     ).then(player => {
       //player.currentTime(5);
     });
