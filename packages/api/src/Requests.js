@@ -1,51 +1,59 @@
-import axios from 'axios';
-import Config from './Config';
-import CoreManager from './CoreManager';
+const axios = require('axios');
+const qs = require('qs');
+const coreManager = require('./CoreManager');
+const constants = require('./Constants');
 
-const {API_KEY, REGION, SCOPE} = CoreManager;
+const {
+  API_KEY,
+  SERVER_URL,
+  LANG_SELECTOR,
+  GET_ARCHIVES,
+  GET_FLV_STREAM,
+} = constants;
 
 const getArchives = async (deviceId, archiveId, smartff) => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
-
-  const dateTime = Date.now();
-  const timestamp = Math.floor(dateTime / 1000);
-  const res = await axios.get(
-    `${
-      Config.apiURL
-    }/cameras/${deviceId}/archives/link?archive_id=${archiveId}&smart_ff=${smartff}&
-    scope=${CoreManager.get(SCOPE)}&region=${CoreManager.get(REGION)}
-    &api_key=${CoreManager.get(API_KEY)}&_=${timestamp}`,
+  const params = {
+    device_id: deviceId,
+    archive_id: archiveId,
+    smartff: smartff,
+    lang: coreManager.get(LANG_SELECTOR),
+    feature: GET_ARCHIVES,
+    api_key: coreManager.get(API_KEY),
+  };
+  const res = await axios.post(
+    coreManager.get(SERVER_URL),
+    qs.stringify(params),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Access-Control-Allow-Origin': '*',
       },
     },
   );
+
   return res;
 };
 
 const getFlvStream = async deviceId => {
-  if (CoreManager.get(API_KEY) === '') {
-    throw 'Please initiate token';
-  }
-
-  const dateTime = Date.now();
-  const timestamp = Math.floor(dateTime / 1000);
-  const res = await axios.get(
-    `${Config.apiURL}/cameras/${deviceId}/flvstream?warmup=1
-    &api_key=${CoreManager.get(API_KEY)}&_=${timestamp}`,
+  const params = {
+    device_id: deviceId,
+    lang: coreManager.get(LANG_SELECTOR),
+    feature: GET_FLV_STREAM,
+    api_key: coreManager.get(API_KEY),
+  };
+  const res = await axios.post(
+    coreManager.get(SERVER_URL),
+    qs.stringify(params),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Access-Control-Allow-Origin': '*',
       },
     },
   );
+
   return res;
 };
 
-export default {
+module.exports = {
   getArchives,
   getFlvStream,
 };

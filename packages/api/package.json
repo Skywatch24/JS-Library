@@ -1,12 +1,12 @@
 {
   "name": "@skywatch/api",
-  "version": "1.0.3",
+  "version": "1.1.2",
   "main": "src/index.js",
   "license": "Apache-2.0",
   "description": "Skywatch API Library",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
-  "author": "Adam Lee <adam.lee@skywatch.com.tw> (https://github.com/mengpeilee)",
+  "author": "mengpeilee <asdfg3865@gmail.com>",
   "private": false,
   "repository": {
     "type": "git",

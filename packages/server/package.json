@@ -1,0 +1,37 @@
+{
+  "name": "@skywatch/server",
+  "version": "1.1.9",
+  "description": "Skywatch Server Library",
+  "license": "Apache-2.0",
+  "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
+  "keywords": [],
+  "author": "mengpeilee <asdfg3865@gmail.com>",
+  "private": false,
+  "main": "src/index.js",
+  "directories": {
+    "src": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Skywatch24/JS-Library.git"
+  },
+  "scripts": {},
+  "bugs": {
+    "url": "https://github.com/Skywatch24/JS-Library/issues"
+  },
+  "homepage": "https://github.com/Skywatch24/JS-Library#readme",
+  "dependencies": {
+    "@skywatch/api": "^1.1.2",
+    "axios": "^0.21.1",
+    "qs": "^6.10.1"
+  }
+}

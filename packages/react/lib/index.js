@@ -26,10 +26,13 @@ var _api = require("@skywatch/api");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const {
+  SERVER_URL,
   API_KEY
-} = _api.CoreManager;
+} = _api.Constants;
 
-const initialize = apiKey => {
+const initialize = (serverUrl, apiKey) => {
+  _api.CoreManager.set(SERVER_URL, serverUrl);
+
   _api.CoreManager.set(API_KEY, apiKey);
 };
 

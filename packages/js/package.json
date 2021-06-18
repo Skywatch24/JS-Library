@@ -1,14 +1,15 @@
 {
   "name": "@skywatch/js",
-  "version": "1.0.3",
+  "version": "1.1.5",
   "description": "Skywatch JavaScript Library",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
   "license": "Apache-2.0",
-  "author": "Adam Lee <adam.lee@skywatch.com.tw> (https://github.com/mengpeilee)",
+  "author": "mengpeilee <asdfg3865@gmail.com>",
   "main": "lib/index.js",
   "private": false,
   "files": [
+    "dist",
     "lib",
     "LICENSE",
     "README.md"
@@ -27,7 +28,7 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "@skywatch/api": "^1.0.3",
+    "@skywatch/api": "^1.1.2",
     "flv.js": "^1.5.0",
     "video.js": "^7.11.4"
   }

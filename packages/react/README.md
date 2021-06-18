@@ -29,7 +29,7 @@ const APP = () => {
   const [player, setPlayer] = useState(null);
 
   useEffect(() => {
-    initialize('api_key');
+    initialize('skywatch_service_url', 'token');
   }, []);
 
   const options = {
@@ -62,7 +62,7 @@ This is a function which has to initiate in the beginning.
 ```javascript
 import Skywatch from '@skywatch/react';
 
-Skywatch.initialize('your_token');
+Skywatch.initialize('skywatch_service_url', 'token');
 ```
 
 ### ArchivesPlayer

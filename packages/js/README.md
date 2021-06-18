@@ -22,7 +22,7 @@ yarn add @skywatch/js
 ## Getting Started
 
 ```javascript
-<script src="@skywatch/js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@skywatch/js/dist/skywatch.min.js"></script>
 <div id="root"></div>
 <script>
     const options = {
@@ -31,7 +31,7 @@ yarn add @skywatch/js
       aspectRatio: '16:9',
       mobileView: false,
     };
-    Skywatch.initialize('your_token');
+    Skywatch.initialize('skywatch_service_url', 'token');
     Skywatch.ArchivesPlayer(
       document.getElementById('root'),
       'device_id',
@@ -53,7 +53,7 @@ This is a function which has to initiate in the beginning.
 
 ```javascript
 import Skywatch from '@skywatch/js';
-Skywatch.initialize('your_token');
+Skywatch.initialize('skywatch_service_url', 'token');
 ```
 
 ### ArchivesPlayer
