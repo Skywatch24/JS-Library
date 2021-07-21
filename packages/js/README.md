@@ -25,7 +25,7 @@ yarn add @skywatch/js
 
 Before you start developing, you have to implement Skywatch library on your server. Please follow the guide below to create a POST method url on your server, and then keep the POST method url you generated.
 
-Ex. Implement Skywatch Library on node server, and then generate the POST API - https://localhost:3000/skywatch_service_url
+Ex. Implement Skywatch library on node server, and then generate the POST API - https://localhost:3000/skywatch_service_url
 
 
 #### Guide: 
