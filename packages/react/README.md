@@ -9,6 +9,8 @@
 
 ## Installation
 
+### Step 1
+
 ```
 npm install @skywatch/react
 ```
@@ -18,6 +20,17 @@ or
 ```
 yarn add @skywatch/react
 ```
+
+### Step 2
+
+Before you start developing, you have to implement Skywatch library on your server. Please follow the guide below to create a POST method url on your server, and then keep the POST method url you generated.
+
+Ex. Implement Skywatch Library on node server, and then generate the POST API - https://localhost:3000/skywatch_service_url
+
+
+#### Guide: 
+
+[Skywatch Server Installation Guide](/packages/server#readme)
 
 ## Usage
 
@@ -29,7 +42,7 @@ const APP = () => {
   const [player, setPlayer] = useState(null);
 
   useEffect(() => {
-    initialize('skywatch_service_url', 'token');
+    initialize('/your_server_url_with_skywatch_library', 'token');
   }, []);
 
   const options = {
@@ -62,7 +75,7 @@ This method is required before using any Skywatch API.
 ```javascript
 import Skywatch from '@skywatch/react';
 
-Skywatch.initialize('skywatch_service_url', 'token');
+Skywatch.initialize('/your_server_url_with_skywatch_library', 'token');
 ```
 
 ### ArchivesPlayer
