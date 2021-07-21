@@ -19,7 +19,7 @@ or
 yarn add @skywatch/js
 ```
 
-## Getting Started
+## Usage
 
 ```javascript
 <script src="https://cdn.jsdelivr.net/npm/@skywatch/js/dist/skywatch.min.js"></script>
@@ -58,9 +58,13 @@ Skywatch.initialize('skywatch_service_url', 'token');
 
 ### ArchivesPlayer
 
-This is a function for showing archive video component.
+This method is required before using any Skywatch API.
 
 ```javascript
+<body>
+  <div id="YOUR_ID"></div>
+</body>
+<script>
  Skywatch.ArchivesPlayer(
       ${html_element},
       ${device_id},
@@ -71,6 +75,7 @@ This is a function for showing archive video component.
     ).then(player => {
       //do something
     });
+</script>
 ```
 
 | Property           | Type       | Required | Default                                                                     | Description                                                                                                      |
@@ -88,12 +93,17 @@ This is a function for showing archive video component.
 This is a function for showing live streaming.
 
 ```javascript
+<body>
+  <video id="YOUR_ID" controls muted style="..."></video>
+</body>
+<script>
  Skywatch.ArchivesPlayer(
       ${video_element},
       ${device_id},
     ).then(player => {
       //do something
     });
+</script>
 ```
 
 | Property           | Type       | Required | Default | Description                                                                                                                                 |
