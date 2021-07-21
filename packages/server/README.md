@@ -22,7 +22,7 @@ yarn add @skywatch/server
 
 ## Usage
 
-Add a POST method into your server. Take an express framework as an example:
+Add a POST method into your server. Take [Express](https://github.com/expressjs/express) as an example:
 
 ```
 const SkywatchServer = require('@skywatch/server'); 
