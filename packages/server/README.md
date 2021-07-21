@@ -25,15 +25,38 @@ yarn add @skywatch/server
 Add a POST method into your server. Take [Express](https://github.com/expressjs/express) as an example:
 
 ```
-const SkywatchServer = require('@skywatch/server'); 
- 
-// add skywatch api library into a new route
-server.post('/skywatch_api', async (req, res) => {
-  try {
-    const result = await SkywatchServer.Skywatch(req.body.feature, req.body);
-    res.send(result.data);
-  } catch (err) {
-    res.status(err.response.status).send(err.response.data);
-  }
+const bodyParser = require('body-parser');
+const express = require('express');
+const skywatchServer = require('@skywatch/server');
+
+const port =  Number(process.env.PORT) || 3000;
+
+app.prepare().then(() => {
+  const server = express();
+  
+  const verify = (req, _, buf) => {
+    req.rawBody = buf.toString();
+  };
+  server.use(bodyParser.json({ verify }));
+  server.use(bodyParser.urlencoded({ extended: false, verify }));
+
+  // skywatch api library
+  server.post('/skywatch_api', async (req, res) => {
+    try {
+      const result = await skywatchServer.Skywatch(req.body.feature, req.body);
+      res.send(result.data);
+    } catch (err) {
+      res.status(err.response.status).send(err.response.data);
+    }
+  });
+
+  server.listen(port, (err) => {
+    if (err) return console.log(`Something bad happened: ${err}`);
+    console.log(`Node.js server listening on ${port}`);
+  });
 });
+
+
+
+
 ```
