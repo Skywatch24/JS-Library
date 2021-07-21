@@ -19,11 +19,11 @@ or
 yarn add @skywatch/react
 ```
 
-## Getting Started
+## Usage
 
 ```javascript
 import React, {useState, useEffect} from 'react';
-import {ArchivesPlayer, initialize} from '@skywatch/js/react';
+import {ArchivesPlayer, initialize} from '@skywatch/react';
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
@@ -57,7 +57,7 @@ const APP = () => {
 
 ### initialize
 
-This is a function which has to initiate in the beginning.
+This method is required before using any Skywatch API.
 
 ```javascript
 import Skywatch from '@skywatch/react';
