@@ -26,7 +26,7 @@ Create a POST method on your server.
 
 Take [Express](https://github.com/expressjs/express) as an example.
 
-### Just copy this code snippet and launch your [Express](https://github.com/expressjs/express) server on local.
+### For dev needs, you can just copy this code snippet and launch your [Express](https://github.com/expressjs/express) service on the local.
 ```javascript
 const bodyParser = require('body-parser');
 const express = require('express');
