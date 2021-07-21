@@ -20,9 +20,9 @@ yarn add @skywatch/server
 ```
 
 
-## Usage
+## How to use:
 
-Add a POST method into your server. Take [Express](https://github.com/expressjs/express) as an example:
+Create a POST method on your server. Take [Express](https://github.com/expressjs/express) as an example.
 
 ```
 const bodyParser = require('body-parser');
@@ -55,8 +55,4 @@ app.prepare().then(() => {
     console.log(`Node.js server listening on ${port}`);
   });
 });
-
-
-
-
 ```
