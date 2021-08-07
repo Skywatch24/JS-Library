@@ -1,15 +1,16 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {ArchivesPlayer, FlvPlayer, initialize} from '../src';
+import CameraView from '../src/CameraView';
 
 initialize('c367498bf8adcb4b403d8b92b09fa948');
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
-
   return (
     <div style={{width: '768px', height: '432px'}}>
-      <FlvPlayer
+      <CameraView />
+      {/* <FlvPlayer
         deviceId={'47436'}
         onPlayerInit={setPlayer}
         onPlayerDispose={setPlayer}
@@ -22,7 +23,7 @@ const APP = () => {
         archiveId={'124114069'}
         smart_ff={0}
         seek={0}
-      />
+      /> */}
     </div>
   );
 };
