@@ -10,15 +10,15 @@ const APP = () => {
   return (
     <>
       <div style={{width: '768px'}}>
-        <CameraView />
+        <CameraView deviceId={'47436'} />
       </div>
       <div style={{width: '768px', height: '432px'}}>
         {/* <FlvPlayer
-        deviceId={'47436'}
-        onPlayerInit={setPlayer}
-        onPlayerDispose={setPlayer}
-        style={{width: '768px', height: '432px'}}
-      /> */}
+          deviceId={'47436'}
+          onPlayerInit={setPlayer}
+          onPlayerDispose={setPlayer}
+          style={{width: '768px', height: '432px'}}
+        /> */}
         {/* <ArchivesPlayer
         onPlayerInit={setPlayer}
         onPlayerDispose={setPlayer}

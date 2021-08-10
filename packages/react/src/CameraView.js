@@ -1,5 +1,5 @@
-import React, {useRef, useEffect} from 'react';
-import PropTypes from 'prop-types';
+import React, {useRef, useEffect, useState} from 'react';
+import PropTypes, {string} from 'prop-types';
 
 import '../new_main.css';
 import '../../../../skywatch_platform/submodules/library/video-js/video-js.min.css';
@@ -18,13 +18,14 @@ import {camera_view} from './camera_view';
 import {view} from './view';
 import {device_view} from './device_view';
 import './model';
+const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
 const keyholder = true;
-const hide_ff = true;
-const CameraView = () => {
+const hide_ff = false;
+const CameraView = ({deviceId}) => {
   useEffect(() => {
     view();
     device_view();
-    camera_view('9141240363b4687bd32d1fe9a03211dc');
+    camera_view(API_KEY, deviceId);
   }, []);
 
   return (
@@ -129,5 +130,7 @@ const CameraView = () => {
     </>
   );
 };
-
+CameraView.propTypes = {
+  deviceId: PropTypes.string.isRequired,
+};
 export default CameraView;

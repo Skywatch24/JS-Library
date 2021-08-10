@@ -2013,8 +2013,6 @@ export const view = function() {
     },
 
     fetchCloudArchives: function() {
-      // temp
-      // this.model.addCamera('47436')
       if (Live.camera_list.getActiveCameraId() !== null) {
         Live.cameras.cancelInactivePulling([
           Live.camera_list.getActiveCameraId(),
@@ -2024,7 +2022,6 @@ export const view = function() {
         var group_model = Live.groups.get(group_id);
         // temp
         // Live.cameras.cancelInactivePulling(group_model.get('cameras'));
-        // Live.cameras.cancelInactivePulling('47436')
       }
       return Live.cameras.fetchCloudArchives(
         _.map(this._cameras, function(data) {
@@ -2866,9 +2863,6 @@ export const view = function() {
       // this.state('normal');
       this.model.set('state', 'normal');
       this.trigger('seek', this.currentTime());
-
-      // temp
-      // Skywatch.Video.live('47436')
     },
     onPauseClick: function() {
       var timeline_loading_check = this.$el.find('#timeline_container.loading')

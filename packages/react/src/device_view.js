@@ -15,7 +15,9 @@ export const device_view = function() {
     template_wrong_password: _.template(
       $('#template-camera-wrong-password').html(),
     ),
-    template_loading: _.template($('#template-camera-loading').html()),
+    // temp
+    // template_loading: _.template($('#template-camera-loading').html()),
+    template_loading: () => `<div><div class="camera-view unknown"/></div>`,
     events: {
       'click .button-settings': '_onSettingsClicked', // setting
       'click .button-single-view': '_onSingleViewClicked',
@@ -146,12 +148,13 @@ export const device_view = function() {
           }
         }
       }
-      this._.$content.remove();
+
+      // this._.$content.remove(); // temp workaround
       this._.$frame = null;
       this._.$overlay = null;
       this._.$content = null;
-      this._.rendered = false;
-      this._.rendering = $.Deferred().reject();
+      // this._.rendered = false; // temp workaround
+      this._.rendering = $.Deferred().reject(); 
       this._.frame = null;
       // unbind event from control bar
       this.stopListening(Skywatch.Live.control_bar);
@@ -549,7 +552,7 @@ export const device_view = function() {
           <div class="icon button-ptz"> </div>
         </div>
         <div class="camera-name-container">
-          <div class="camera-name">camera name</div>
+          <div class="camera-name">${Skywatch.Live.cameras.get('47436').get('name', 'device')}</div>
         </div>
 
       </div>

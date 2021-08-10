@@ -9,7 +9,7 @@ import 'backbone';
 window.Skywatch = window.Skywatch || {};
 window.parent.$ = $;
 
-export const camera_view = function(API_KEY) {
+export const camera_view = function(API_KEY, cameraId) {
   'use strict';
 
   $.ajaxSetup({
@@ -40,6 +40,8 @@ export const camera_view = function(API_KEY) {
       // get camera_protocol here
       $.get('api/v2/devices/' + camera_id + '/info', {api_key: API_KEY})
         .done(function(d) {
+          // temp
+          d = JSON.parse(d);
           Skywatch.CameraInfo = d;
           deferred.resolve(d);
           // if (model_id == 57 || model_id == 59) {
@@ -338,7 +340,7 @@ export const camera_view = function(API_KEY) {
     // get camera_protocol here
     fetchCameraInfo(camera_id).done(function(d) {
       // temp
-      d = JSON.parse(d);
+      // d = JSON.parse(d);
 
       var model_id = d['model_id'];
       self.need_webgl = self.need_webgl && d['sphere_available'] == '1';
@@ -412,11 +414,10 @@ export const camera_view = function(API_KEY) {
       }),
     );
 
-    // temp
     // temp workaround (set video to muted)
     // DOMException: play() failed because the user didn't interact with the document first
     container = `<div id="relay_flash_api" style="display: none"></div>
-    <div id="47436" style="width: 100%; height: 100%">
+    <div id=${camera_id} style="width: 100%; height: 100%">
       <canvas
         id="shaka-canvas"
         width="1920"
@@ -893,7 +894,7 @@ export const camera_view = function(API_KEY) {
 
     // temp
     $container = `<div id="relay_flash_api" style="display: none"></div>
-    <div id="47436" style="width: 100%; height: 100%">
+    <div id=${camera_id} style="width: 100%; height: 100%">
       <canvas
         id="shaka-canvas"
         width=${self.canvas_width}
@@ -969,8 +970,6 @@ export const camera_view = function(API_KEY) {
 
     // get camera_protocol here
     fetchCameraInfo(camera_id).done(function(d) {
-      // temp
-      d = JSON.parse(d);
       self._is_flv = d['is_flv'] == '1' ? true : false;
       console.log('archive, get camera info');
 
@@ -1101,7 +1100,7 @@ export const camera_view = function(API_KEY) {
     fetchCameraInfo(camera_id)
       .done(function(data) {
         // temp
-        data = JSON.parse(data);
+        // data = JSON.parse(data);
 
         var model_id = data['model_id'];
 
@@ -1536,7 +1535,7 @@ export const camera_view = function(API_KEY) {
     // temp
     // this._template = _.template($('#template-player').html());
     this._template = () => `<video
-    id="47436"
+    id=${cameraId}
     class="video-js vjs-default-skin vjs-big-play-centered"
     preload="auto"
     width="100%"
@@ -2139,7 +2138,7 @@ export const camera_view = function(API_KEY) {
   Video.live = function(camera_id) {
     var deferred = $.Deferred();
     fetchCameraInfo(camera_id).done(function(d) {
-      d = JSON.parse(d);
+      // d = JSON.parse(d);
       var is_rtmp = d['is_rtmp'];
       console.log('is_rtmp = ' + is_rtmp);
       if (is_rtmp === '0') {
@@ -2170,7 +2169,6 @@ export const camera_view = function(API_KEY) {
     console.log('Video.source: ' + url);
     if (typeof camera_id !== 'undefined') {
       fetchCameraInfo(camera_id).done(function(d) {
-        d = JSON.parse(d);
         var is_rtmp = d['is_rtmp'];
         console.log('is_rtmp = ' + is_rtmp);
         if (is_rtmp === '0') {
@@ -2252,20 +2250,17 @@ export const camera_view = function(API_KEY) {
     shaka_video._show_controls = true;
   };
 
-  // temp driver
-  // Video.live('47436');
-  // Skywatch.Live.cameras.add('47436'); // wrong usage
-
+  // fix Uncaught TypeError: url.indexOf is not a function
   $.fn.load = function(callback) {
     $(window).on('load', callback);
-  }; // fix Uncaught TypeError: url.indexOf is not a function
+  };
+
   Skywatch.Live.cameras.add({
-    id: '47436',
+    id: cameraId,
     name: 'ProCam 2 Office',
     device_type: 'camera',
     model: '78',
     type: 'share',
   });
-  // Skywatch.Live.control_bar.renderGroupTimebar('4248', false);
-  Skywatch.Live.camera_grid.setCamera('47436');
+  Skywatch.Live.camera_grid.setCamera(cameraId);
 };
