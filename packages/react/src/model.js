@@ -147,7 +147,6 @@ Live.CameraModel = SkywatchModel.extend({
   urlRoot: Skywatch.api_path + 'cameras',
 
   initialize: function() {
-    console.error('cameraModel init')
     this._cloud_archives = new Live.ArchiveCollection(undefined, {
       camera: this,
       scope: 'CloudArchives',
@@ -849,7 +848,6 @@ Live.CameraCollection = SkywatchCollection.extend({
   },
 
   fetchCloudArchives: function(camera_ids) {
-    console.error('fetch model 846')
     var deferred = $.Deferred();
     var jobs = [];
     var self = this;

@@ -8,15 +8,18 @@ initialize('c367498bf8adcb4b403d8b92b09fa948');
 const APP = () => {
   const [player, setPlayer] = useState(null);
   return (
-    <div style={{width: '768px', height: '432px'}}>
-      <CameraView />
-      {/* <FlvPlayer
+    <>
+      <div style={{width: '768px'}}>
+        <CameraView />
+      </div>
+      <div style={{width: '768px', height: '432px'}}>
+        {/* <FlvPlayer
         deviceId={'47436'}
         onPlayerInit={setPlayer}
         onPlayerDispose={setPlayer}
         style={{width: '768px', height: '432px'}}
-      />
-      <ArchivesPlayer
+      /> */}
+        {/* <ArchivesPlayer
         onPlayerInit={setPlayer}
         onPlayerDispose={setPlayer}
         deviceId={'47436'}
@@ -24,7 +27,8 @@ const APP = () => {
         smart_ff={0}
         seek={0}
       /> */}
-    </div>
+      </div>
+    </>
   );
 };
 

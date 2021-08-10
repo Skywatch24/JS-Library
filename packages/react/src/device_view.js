@@ -67,10 +67,10 @@ export const device_view = function() {
           this._.$content.droppable();
         }
         this._.rendered = true;
-// temp
-// if (typeof this.customRender == 'function') {
-//   this.customRender()
-// }
+        // temp
+        // if (typeof this.customRender == 'function') {
+        //   this.customRender()
+        // }
 
         return this;
       }
@@ -167,7 +167,6 @@ export const device_view = function() {
     },
 
     setCamera: function(camera_id) {
-      console.error('devcie view setCamera')
       var old_camera_id = this.model ? this.model.get('id') : 0;
       this.close();
 
@@ -202,6 +201,7 @@ export const device_view = function() {
     },
 
     _onSettingsClicked: function(event) {
+      console.error('onSettingClicked')
       event.preventDefault();
       event.stopPropagation();
       Skywatch.Setting.camera_setting.show(this.model.get('id'));
@@ -478,7 +478,85 @@ export const device_view = function() {
   });
 
   Live.CameraView = Live.DeviceView.extend({
-    template: _.template($('#template-camera-view').html()),
+    // temp
+    // template: _.template($('#template-camera-view').html()),
+    template: () => `<div>
+    <div class="live-overlay-container rectangle">
+      <div class="seeking-overlay"></div>
+      <div class="live-overlay">
+        <img class="icon top left icon-service-status" />
+        <div class="dropdown">
+          <a
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false">
+            <div
+              class="icon top right icon-settings-menu"
+              src="./images/v2/TopSettings.png"></div>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+                <li role="presentation">
+                  <a
+                    class="button-settings"
+                    role="menuitem"
+                    href="#">
+                    設備設定
+                  </a>
+                </li>
+                <li role="presentation" class="divider"></li>
+            <li role="presentation">
+              <a class="button-download" role="menuitem" href="#">
+                {'$lang.download_video'}
+              </a>
+            </li>
+            <li role="presentation">
+              <a
+                class="button-download-snapshot"
+                role="menuitem"
+                href="#">
+                下載截圖
+              </a>
+            </li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation">
+              <a
+                class="button-local-recording"
+                role="menuitem"
+                href="#">
+                本地錄影
+              </a>
+            </li>
+            <li role="presentation">
+              <a
+                class="button-device-timeline"
+                role="menuitem"
+                href="#">
+                雲端錄影
+              </a>
+            </li>
+            <li role="presentation">
+              <a
+                class="button-boxe-recording"
+                role="menuitem"
+                href="#">
+                {'$lang.boxe_recording'}
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="icon bottom right button-single-view"></div>
+        <div class="overlay-toolbar">
+          <div class="icon button-ptz"> </div>
+        </div>
+        <div class="camera-name-container">
+          <div class="camera-name">camera name</div>
+        </div>
+
+      </div>
+    </div>
+    <div id="container"></div>
+  </div>
+`,
 
     events: {
       'click .button-local-recording': '_onLocalRecordingClicked',
@@ -497,7 +575,6 @@ export const device_view = function() {
     },
 
     initialize: function(options) {
-      console.error('cameraview init')
       // merge parent events
       this.events = _.extend(Live.DeviceView.prototype.events, this.events);
       // call parent constructor
@@ -576,7 +653,9 @@ export const device_view = function() {
         if (!self._shouldUseArchive() && self.isOffline()) {
           return;
         }
-        self._.frame.Skywatch.Video.play(isMute);
+        // temp
+        // self._.frame.Skywatch.Video.play(isMute);
+        Skywatch.Video.play(isMute);
       });
 
       return this;
@@ -594,7 +673,7 @@ export const device_view = function() {
         }
         // temp
         // self._.frame.Skywatch.Video.pause();
-        Skywatch.Video.pause()
+        Skywatch.Video.pause();
       });
 
       return this;
@@ -605,11 +684,10 @@ export const device_view = function() {
         return this;
       }
       var self = this;
-      // temp
-      // this._.rendering.done(function() {
-      //   self._seek(timestamp);
-      // });
-      self._seek(timestamp);
+
+      this._.rendering.done(function() {
+        self._seek(timestamp);
+      });
 
       return this;
     },
@@ -777,12 +855,11 @@ export const device_view = function() {
       this._.current_archive = null;
 
       var self = this;
-
       // temp
       // var live_deferred = this._.frame.Skywatch.Video.live(
       //   this.model.get('id'),
       // );
-      var live_deferred = Skywatch.Video.live(this.model.get('id'))
+      var live_deferred = Skywatch.Video.live(this.model.get('id'));
       var status_deferred = $.Deferred();
       this._enableSingleView(!self._.parent.isSingle());
       this.model.fetchStatus().done(function(data) {
@@ -842,12 +919,10 @@ export const device_view = function() {
             self._renderOffline();
           }
         });
-
       Live.control_bar.highlight(false);
     },
 
     _seek: function(timestamp) {
-      console.log('_seek: ', timestamp)
       var self = this;
       self.$el.find('.live-overlay-container').addClass('seeking');
       var camera_id = this.model.id;
@@ -967,6 +1042,7 @@ export const device_view = function() {
       //       self._playOrPause();
       //       self._.seeking = false;
       //     });
+
       if (Skywatch) {
         archive.fetchURL(Live.control_bar.isFastForward()).done(function(url) {
           Skywatch.Video.source(url, camera_id).done(function() {
@@ -1051,6 +1127,8 @@ export const device_view = function() {
     },
 
     _onDownloadSnapshotClicked: function(event) {
+      // temp 
+      const amplitude = false
       event.preventDefault();
       if (amplitude) {
         amplitude.getInstance().logEvent('Trigger_CaptureSnapshot');

@@ -80,7 +80,7 @@ export const view = function() {
       ) {
         // temp
         // date_display = Skywatch.lang.today;
-        date_display = '今天'
+        date_display = '今天';
       } else {
         // check for 'yesterday'
         if (
@@ -88,7 +88,9 @@ export const view = function() {
           $time2.getMonth() == $now.getMonth() &&
           $time2.getDate() == $now.getDate()
         ) {
-          date_display = Skywatch.lang.yesterday;
+          // temp
+          // date_display = Skywatch.lang.yesterday;
+          date_display = '昨天';
         } else {
           date_display = $time.getMonth() + 1 + '/';
           date_display +=
@@ -1678,8 +1680,12 @@ export const view = function() {
   Live.CameraGridView = Live.TabView.extend({
     className: 'view',
     // temp
-    template: _.template($('#template-camera-grid').html()),
-    row_template: _.template($('#template-camera-row').html()),
+    // template: _.template($('#template-camera-grid').html()),
+    // row_template: _.template($('#template-camera-row').html()),
+    template: () => `<div id="group-4248-grid" class="view">
+    </div>`,
+    row_template: () => `<div class="view_row">
+    </div>`,
 
     _mode_table: {
       '1': 'view_1x1',
@@ -1738,10 +1744,8 @@ export const view = function() {
       var self = this;
 
       var data, index;
-      console.warn(Skywatch.Live.cameras)
       for (var row = 0; row < grid; ++row) {
         for (var col = 0; col < grid; ++col) {
-          console.warn('for loop')
           index = row * grid + col;
           data = cameras[index] || {
             id: '0',
@@ -1769,9 +1773,7 @@ export const view = function() {
 
       this._camera_views = camera_views;
 
-
-      // temp
-      // this._render(grid);
+      this._render(grid);
 
       $(window).trigger('resize');
 
@@ -1893,7 +1895,6 @@ export const view = function() {
     setCamera: function(camera_id) {
       this._group_id = 0;
       this._camera_id = camera_id;
-      console.log('setCamera is called');
       // update model
       if (this.model) {
         this.stopListening(this.model);
@@ -1917,7 +1918,7 @@ export const view = function() {
       // if (device_type != 'sensor' && device_type != 'gateway') {
       //   Skywatch.Live.control_bar.setActiveCamera(this._camera_id);
       // }
-      Skywatch.Live.control_bar.setActiveCamera(camera_id)
+      Skywatch.Live.control_bar.setActiveCamera(camera_id);
 
       // trigger event
       this.trigger('focus');
@@ -2015,13 +2016,10 @@ export const view = function() {
       // temp
       // this.model.addCamera('47436')
       if (Live.camera_list.getActiveCameraId() !== null) {
-        console.warn('Live.camera_list.getActiveCameraId() !== null')
         Live.cameras.cancelInactivePulling([
           Live.camera_list.getActiveCameraId(),
         ]);
       } else {
-        console.warn('Live.camera_list.getActiveCameraId() === null')
-        console.warn(Live.cameras)
         var group_id = Live.camera_list.getActiveGroupId();
         var group_model = Live.groups.get(group_id);
         // temp
@@ -2030,7 +2028,6 @@ export const view = function() {
       }
       return Live.cameras.fetchCloudArchives(
         _.map(this._cameras, function(data) {
-          console.warn(data)
           return data.id;
         }),
       );
@@ -2512,7 +2509,6 @@ export const view = function() {
           .removeClass('active');
       });
 
-
       var $timebar_content = self.$el.find('#timebar_content');
       $timebar_content.on('mousemove', function(e) {
         var time_position =
@@ -2853,7 +2849,7 @@ export const view = function() {
         right_time: right_time,
       };
       this.model.set(params);
-      console.log(timestamp)
+      console.log(timestamp);
       this.trigger('seek', timestamp);
     },
 
@@ -2873,7 +2869,6 @@ export const view = function() {
 
       // temp
       // Skywatch.Video.live('47436')
-
     },
     onPauseClick: function() {
       var timeline_loading_check = this.$el.find('#timeline_container.loading')
@@ -3020,7 +3015,7 @@ export const view = function() {
 
     // public slot
     onPlayerTick: function(view, timestamp) {
-      console.error('onPlayerTick')
+      console.error('onPlayerTick');
       var current_time = this.model.get('current_time');
 
       if (this.model.get('state') === 'fastforward') {
@@ -3735,7 +3730,6 @@ export const view = function() {
       var self = this;
 
       function render() {
-        console.error('render')
         // temp
         // check if this tab still active
         // if (Skywatch.Live.control_bar.model.get('group_id') != group_id) {
@@ -3780,14 +3774,12 @@ export const view = function() {
         self.renderScaleIndicator();
         self._setBubbleTime(self.currentTime());
       }
-      console.warn('camera_grid_view.fetchCloudArchives')
-      console.log(camera_grid_view)
       camera_grid_view.fetchCloudArchives().progress(render);
       render();
     },
 
     renderCameraTimebar: function(camera_id, animate) {
-      console.warn('renderCameraTimebar')
+      console.warn('renderCameraTimebar');
       var $timeline_container = this.$el.find('#timeline_container');
       var $meta_container = $timeline_container.find('#meta_container');
       $meta_container.empty();

@@ -9,7 +9,7 @@ import 'backbone';
 window.Skywatch = window.Skywatch || {};
 window.parent.$ = $;
 
-export const camera_view = function() {
+export const camera_view = function(API_KEY) {
   'use strict';
 
   $.ajaxSetup({
@@ -18,7 +18,6 @@ export const camera_view = function() {
   // temp
   // videojs.options.flash.swf = './library/video-js/video-js.swf';
   // var API_KEY = $.cookie('api_key');
-  var API_KEY = '9141240363b4687bd32d1fe9a03211dc';
   var Video = (Skywatch.Video = {});
   // event object, proxy jquery and videojs events
   Video.events = {};
@@ -131,9 +130,13 @@ export const camera_view = function() {
 
     // temp
     // this._template_loading = _.template($('#template-loading').html());
+    // this._template_empty = _.template($('#template-empty').html());
+    // this._template_thumbnail = _.template($('#template-thumbnail').html());
     this._template_loading = () => `<div class="loading"></div>`;
-    this._template_empty = _.template($('#template-empty').html());
-    this._template_thumbnail = _.template($('#template-thumbnail').html());
+    this._template_empty = () => `<div class="empty">
+    <div class="empty-text">try_to_buy_CR</div>
+    </div>`;
+    this._template_thumbnail = () => `<div class="thumbnail"></div>`;
 
     this._is_group = window.parent.$('.live_view').length != 1;
     console.log('is group: ' + this._is_group);
@@ -400,8 +403,6 @@ export const camera_view = function() {
 
     if (this.canvas_width == 0) this.canvas_width = 1280;
     if (this.canvas_height == 0) this.canvas_height = 720;
-
-    console.log(this.canvas_width, this.canvas_height);
 
     var container = $(
       this._template({
@@ -840,8 +841,8 @@ export const camera_view = function() {
   ShakaController.prototype._deleteLoading = function() {
     console.log('ShakaController::_deleteLoading');
     $('.loading').remove();
-    console.log($('.seeking'));
-    $('.seeking').remove();
+    // temp
+    // $('.seeking').remove();
 
     var $el = window.parent.$('.live_view#' + this.camera_id);
     $el.find('.live-overlay-container').removeClass('seeking');
@@ -895,8 +896,8 @@ export const camera_view = function() {
     <div id="47436" style="width: 100%; height: 100%">
       <canvas
         id="shaka-canvas"
-        width="1920"
-        height="1080"
+        width=${self.canvas_width}
+        height=${self.canvas_height}
         style="display: none"></canvas>
       <video
         muted
@@ -968,6 +969,8 @@ export const camera_view = function() {
 
     // get camera_protocol here
     fetchCameraInfo(camera_id).done(function(d) {
+      // temp
+      d = JSON.parse(d);
       self._is_flv = d['is_flv'] == '1' ? true : false;
       console.log('archive, get camera info');
 
@@ -1530,13 +1533,37 @@ export const camera_view = function() {
     this._relay = null;
     this._show_controls = false;
     this._last_update = true;
-    this._template = _.template($('#template-player').html());
+    // temp
+    // this._template = _.template($('#template-player').html());
+    this._template = () => `<video
+    id="47436"
+    class="video-js vjs-default-skin vjs-big-play-centered"
+    preload="auto"
+    width="100%"
+    height="100%"
+    data-setup='{ "techOrder":["flash"] }'>
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider
+      upgrading to a web browser that{' '}
+      <a
+        href="http://videojs.com/html5-video-support/"
+        target="_blank"
+        rel="noreferrer">
+        supports HTML5 video
+      </a>
+    </p>
+  </video>`;
     // this._template_loading = _.template($('#template-loading').html());
     // temp
     this._template_loading = () => `<div class="loading"></div>`;
 
-    this._template_empty = _.template($('#template-empty').html());
-    this._template_thumbnail = _.template($('#template-thumbnail').html());
+    // temp
+    // this._template_empty = _.template($('#template-empty').html());
+    // this._template_thumbnail = _.template($('#template-thumbnail').html());
+    this._template_empty = () => `<div class="empty">
+    <div class="empty-text">try_to_buy_CR</div>
+    </div>`;
+    this._template_thumbnail = () => `<div class="thumbnail"></div>`;
     this._the_thumbnail = _.template($('.thumbnail').html());
     this._zindex = 0;
     this._playing_checker = 0;
@@ -2107,9 +2134,6 @@ export const camera_view = function() {
   //var flash_video = new ShakaController(); //can test sphere
   var shaka_video = new ShakaController();
 
-  // temp
-  // shaka_video._live('47436');
-
   var video = flash_video;
 
   Video.live = function(camera_id) {
@@ -2159,7 +2183,7 @@ export const camera_view = function() {
           console.log('Because of IE, force to use flash');
           video = flash_video;
         }
-
+        // here
         return video.source(url, camera_id).done(function() {
           deferred.resolve();
         });
@@ -2242,6 +2266,6 @@ export const camera_view = function() {
     model: '78',
     type: 'share',
   });
-  Skywatch.Live.control_bar.renderGroupTimebar('4248', false);
+  // Skywatch.Live.control_bar.renderGroupTimebar('4248', false);
   Skywatch.Live.camera_grid.setCamera('47436');
 };

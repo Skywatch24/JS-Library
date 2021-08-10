@@ -1,5 +1,12 @@
+const webpack = require('webpack');
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery', // fix jQeury is not defined for bootstrap.custom.min.js
+    }),
+  ],
   module: {
     rules: [
       {

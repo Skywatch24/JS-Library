@@ -544,7 +544,7 @@ body#main {
 }
 
 #camera-grid-container {
-	width: @controlbar-initial-width;
+	// width: @controlbar-initial-width;
 	height: 60%;
 }
 
@@ -580,6 +580,7 @@ body#main {
     border: 1px solid @grayd;
     float:left;
     position: relative;
+	width: 100%;
 
     &.strong {
         border-color: @blue;
@@ -937,6 +938,7 @@ body#main {
                 background-image: url("@{image-path}../v3/controlbar/btn_web_loud.png");
                 background-size: 25px;
                 background-position: center;
+				background-repeat: no-repeat;
             }
 
             &.active {

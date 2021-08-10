@@ -541,7 +541,6 @@ body#main {
   position: relative;
 }
 #camera-grid-container {
-  width: 80%;
   height: 60%;
 }
 .center_div > div {
@@ -569,6 +568,7 @@ body#main {
   border: 1px solid #ddd;
   float: left;
   position: relative;
+  width: 100%;
 }
 .live_view.strong {
   border-color: #00a5e6;
@@ -890,6 +890,7 @@ body#main {
   background-image: url("../../../skywatch_platform/service_frontend/images/v3/controlbar/btn_web_loud.png");
   background-size: 25px;
   background-position: center;
+  background-repeat: no-repeat;
 }
 #controlbar .button_group .switch_button.active #control-volume {
   background-image: url("../../../skywatch_platform/service_frontend/images/v3/controlbar/btn_web_mute.png");
@@ -1572,7 +1573,6 @@ body#main {
 #boxe-recording .modal-content {
   border-radius: 10px;
 }
-
 #local-recording .modal-content .modal-header,
 #device-timeline .modal-content .modal-header,
 #boxe-recording .modal-content .modal-header {
