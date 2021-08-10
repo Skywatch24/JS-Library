@@ -21,11 +21,28 @@ import './model';
 const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
 const keyholder = true;
 const hide_ff = false;
+
+const init = (deviceId, {name, device_type, model_id, type}) => {
+  view();
+  device_view();
+  camera_view(API_KEY, deviceId);
+  Skywatch.Live.cameras.add({
+    id: deviceId,
+    name,
+    device_type,
+    model: model_id,
+    type,
+  });
+  Skywatch.Live.camera_grid.setCamera(deviceId);
+};
+
 const CameraView = ({deviceId}) => {
   useEffect(() => {
-    view();
-    device_view();
-    camera_view(API_KEY, deviceId);
+    fetch(`api/v2/devices/${deviceId}?api_key=${API_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        init(deviceId, data);
+      });
   }, []);
 
   return (

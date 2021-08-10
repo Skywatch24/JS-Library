@@ -468,6 +468,7 @@ export const camera_view = function(API_KEY, cameraId) {
 
     // temp
     $('#container').append(container);
+    console.warn('container.append');
 
     this._canvas = $('#container')
       .find('#shaka-canvas')
@@ -943,6 +944,7 @@ export const camera_view = function(API_KEY, cameraId) {
           value="50"></input>
       </div>`;
     $('#container').append($container);
+    console.warn('container.append 947');
 
     if (self._archive_video == null) {
       self._archive_video = $('#archive-video').get(0);
@@ -2254,13 +2256,4 @@ export const camera_view = function(API_KEY, cameraId) {
   $.fn.load = function(callback) {
     $(window).on('load', callback);
   };
-
-  Skywatch.Live.cameras.add({
-    id: cameraId,
-    name: 'ProCam 2 Office',
-    device_type: 'camera',
-    model: '78',
-    type: 'share',
-  });
-  Skywatch.Live.camera_grid.setCamera(cameraId);
 };

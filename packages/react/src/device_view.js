@@ -149,11 +149,11 @@ export const device_view = function() {
         }
       }
 
-      // this._.$content.remove(); // temp workaround
+      this._.$content.remove();
       this._.$frame = null;
       this._.$overlay = null;
       this._.$content = null;
-      // this._.rendered = false; // temp workaround
+      this._.rendered = false;
       this._.rendering = $.Deferred().reject(); 
       this._.frame = null;
       // unbind event from control bar
@@ -204,7 +204,6 @@ export const device_view = function() {
     },
 
     _onSettingsClicked: function(event) {
-      console.error('onSettingClicked')
       event.preventDefault();
       event.stopPropagation();
       Skywatch.Setting.camera_setting.show(this.model.get('id'));
@@ -660,7 +659,6 @@ export const device_view = function() {
         // self._.frame.Skywatch.Video.play(isMute);
         Skywatch.Video.play(isMute);
       });
-
       return this;
     },
 
@@ -1340,38 +1338,58 @@ export const device_view = function() {
 
       var self = this;
       var inner_deferred = $.Deferred();
+      // temp
+      self.listenTo(
+        Skywatch.Video.events,
+        'ended',
+        self._onVideoEnded,
+      );
+      // on player tick
+      self.listenTo(
+        Skywatch.Video.events,
+        'tick',
+        self._onVideoTick,
+      );
+      // on player stuck
+      self.listenTo(
+        Skywatch.Video.events,
+        'stuck',
+        self._playOrPause,
+      );
+      inner_deferred.resolve();
 
-      this._.$frame.load(function() {
-        self._.frame = this.contentWindow;
+      // temp
+      // this._.$frame.load(function() {
+      //   self._.frame = this.contentWindow;
 
-        // on archive ended
-        self.listenTo(
-          // temp
-          // self._.frame.Skywatch.Video.events,
-          Skywatch.Video.events,
-          'ended',
-          self._onVideoEnded,
-        );
-        // on player tick
-        self.listenTo(
-          // temp
-          // self._.frame.Skywatch.Video.events,
-          Skywatch.Video.events,
-          'tick',
-          self._onVideoTick,
-        );
-        // on player stuck
-        self.listenTo(
-          // temp
-          // self._.frame.Skywatch.Video.events,
-          Skywatch.Video.events,
-          'stuck',
-          self._playOrPause,
-        );
+      //   // on archive ended
+      //   self.listenTo(
+      //     // temp
+      //     // self._.frame.Skywatch.Video.events,
+      //     Skywatch.Video.events,
+      //     'ended',
+      //     self._onVideoEnded,
+      //   );
+      //   // on player tick
+      //   self.listenTo(
+      //     // temp
+      //     // self._.frame.Skywatch.Video.events,
+      //     Skywatch.Video.events,
+      //     'tick',
+      //     self._onVideoTick,
+      //   );
+      //   // on player stuck
+      //   self.listenTo(
+      //     // temp
+      //     // self._.frame.Skywatch.Video.events,
+      //     Skywatch.Video.events,
+      //     'stuck',
+      //     self._playOrPause,
+      //   );
 
-        // done
-        inner_deferred.resolve();
-      });
+      //   // done
+      //   inner_deferred.resolve();
+      // });
 
       var info_deferred = this.model.fetchInfo().done(function(data) {
         data = data.replace(/<script.*script>/, '');
