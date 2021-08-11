@@ -856,7 +856,6 @@ Live.CameraCollection = SkywatchCollection.extend({
         return;
       }
       var camera = self.get(camera_id);
-      console.warn(camera)
      if (typeof camera === 'undefined') {
         return;
       }
@@ -864,7 +863,6 @@ Live.CameraCollection = SkywatchCollection.extend({
       if (camera.get('model_id') == '61') {
         job = camera.fetchLocalArchives();
       } else {
-        console.error('job = camera.fetchCloudArchive')
         job = camera.fetchCloudArchives();
       }
 

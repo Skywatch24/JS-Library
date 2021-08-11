@@ -1,5 +1,5 @@
-import React, {useRef, useEffect, useState} from 'react';
-import PropTypes, {string} from 'prop-types';
+import React, {useEffect} from 'react';
+import PropTypes from 'prop-types';
 
 import '../new_main.css';
 import '../../../../skywatch_platform/submodules/library/video-js/video-js.min.css';
@@ -17,6 +17,7 @@ import '../lib/bootstrap.custom.min.js';
 import {camera_view} from './camera_view';
 import {view} from './view';
 import {device_view} from './device_view';
+import {ArchivesPlayer, FlvPlayer} from '../src';
 import './model';
 const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
 const keyholder = true;
