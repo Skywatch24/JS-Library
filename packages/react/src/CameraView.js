@@ -20,7 +20,7 @@ import {device_view} from './device_view';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import './model';
 import {_} from 'core-js';
-
+import {useInterval} from './useInterval';
 const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
 const keyholder = true;
 const hide_ff = false;
@@ -145,91 +145,6 @@ const getScaleStartTime = function(timestamp, scale) {
 
   return Math.floor(date.getTime() / 1000);
 };
-const setBubbleTime = (timestamp, type, set_cursor) => {
-  var now = Math.floor(new Date().getTime() / 1000);
-  var left_time = getScaleStartTime(now, 'hour');
-  var right_time = left_time + scale_table.get('hour', left_time);
-  var now = Math.ceil(new Date().getTime() / 1000);
-  if (timestamp > now) {
-    timestamp = now;
-  }
-  var new_left_time = left_time;
-  var new_right_time = right_time;
-
-  var offset =
-    ((timestamp - new_left_time) / (new_right_time - new_left_time)) *
-    $('#playbar-container').width();
-  const $el = $('#timebar');
-  const $bubble =
-    type === 'normal' ? $('#cursor_bubble') : $('#cursor_bubble_preview');
-
-  if (set_cursor) $el.find('#played').css('width', offset);
-  var total_offset =
-    ((now - new_left_time) / (new_right_time - new_left_time)) *
-    $('#playbar-container').width();
-  if (set_cursor) $el.find('#playbar').css('width', total_offset);
-
-  // move seek cursor
-  var $cursor = $el.find('#cursor');
-  var left =
-    $('#timebar_content').offset().left -
-    $('#controlbar_container').offset().left +
-    offset;
-  if (set_cursor) $cursor.css('left', left);
-
-  $bubble.removeClass('right');
-  $bubble.removeClass('left');
-  if (timestamp >= new_left_time && timestamp <= new_right_time) {
-    $el.find('#cursor').show();
-
-    var time_data = getTimeData(timestamp);
-    $bubble
-      .find('span')
-      .first()
-      .html(time_data.date_display);
-    $bubble
-      .find('span')
-      .last()
-      .html(time_data.time_display);
-    $bubble.css('left', left - 28);
-  } else {
-    $('#cursor').hide();
-    var time_data = getTimeData(timestamp);
-
-    if (timestamp < new_left_time) {
-      $bubble
-        .find('span')
-        .first()
-        .html(time_data.date_display);
-      $bubble
-        .find('span')
-        .last()
-        .html(time_data.time_display);
-      $bubble.css(
-        'left',
-        $('#timebar_content').offset().left - $('#timebar').offset().left - 20,
-      );
-      $bubble.addClass('left');
-    } else if (timestamp > new_right_time) {
-      $bubble
-        .find('span')
-        .first()
-        .html(time_data.date_display);
-      $bubble
-        .find('span')
-        .last()
-        .html(time_data.time_display);
-      $bubble.css(
-        'left',
-        $('#timebar_content').width() +
-          $('#timebar_content').offset().left -
-          $('#timebar_container').offset().left -
-          111,
-      );
-      $bubble.addClass('right');
-    }
-  }
-};
 let Skywatch = {archives: [], all_dataset: {}};
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
@@ -244,6 +159,7 @@ const CameraView = ({deviceId}) => {
   const [rightTimestamp, setRightTimestamp] = useState(
     leftTimestamp + scale_table.get('hour', leftTimestamp),
   );
+  const [smart_ff, setSmart_ff] = useState(0);
 
   const _fetchAllInterval = function(camera_id, scope, archives) {
     var deferred = $.Deferred();
@@ -424,6 +340,7 @@ const CameraView = ({deviceId}) => {
     setShowStreaming(timestamp >= now);
   };
   const onPreviousClick = function() {
+    // TODO
     // var scale = this.scale();
     var scale = 'hour';
     var start_time = getScaleStartTime(leftTimestamp - 100);
@@ -726,6 +643,90 @@ const CameraView = ({deviceId}) => {
     //   }
     // });
   };
+  const setBubbleTime = (timestamp, type, set_cursor) => {
+    var now = Math.ceil(new Date().getTime() / 1000);
+    if (timestamp > now) {
+      timestamp = now;
+    }
+    var new_left_time = leftTimestamp;
+    var new_right_time = rightTimestamp;
+
+    var offset =
+      ((timestamp - new_left_time) / (new_right_time - new_left_time)) *
+      $('#playbar-container').width();
+    const $el = $('#timebar');
+    const $bubble =
+      type === 'normal' ? $('#cursor_bubble') : $('#cursor_bubble_preview');
+
+    if (set_cursor) $el.find('#played').css('width', offset);
+    var total_offset =
+      ((now - new_left_time) / (new_right_time - new_left_time)) *
+      $('#playbar-container').width();
+    if (set_cursor) $el.find('#playbar').css('width', total_offset);
+
+    // move seek cursor
+    var $cursor = $('#cursor');
+    var left =
+      $('#timebar_content').offset().left -
+      $('#controlbar_container').offset().left +
+      offset;
+    if (set_cursor) $cursor.css('left', left);
+
+    $bubble.removeClass('right');
+    $bubble.removeClass('left');
+    if (timestamp >= new_left_time && timestamp <= new_right_time) {
+      $el.find('#cursor').show();
+
+      var time_data = getTimeData(timestamp);
+      $bubble
+        .find('span')
+        .first()
+        .html(time_data.date_display);
+      $bubble
+        .find('span')
+        .last()
+        .html(time_data.time_display);
+      $bubble.css('left', left - 28);
+    } else {
+      $('#cursor').hide();
+      var time_data = getTimeData(timestamp);
+
+      if (timestamp < new_left_time) {
+        $bubble
+          .find('span')
+          .first()
+          .html(time_data.date_display);
+        $bubble
+          .find('span')
+          .last()
+          .html(time_data.time_display);
+        $bubble.css(
+          'left',
+          $('#timebar_content').offset().left -
+            $('#timebar').offset().left -
+            20,
+        );
+        $bubble.addClass('left');
+      } else if (timestamp > new_right_time) {
+        $bubble
+          .find('span')
+          .first()
+          .html(time_data.date_display);
+        $bubble
+          .find('span')
+          .last()
+          .html(time_data.time_display);
+        $bubble.css(
+          'left',
+          $('#timebar_content').width() +
+            $('#timebar_content').offset().left -
+            $('#timebar_container').offset().left -
+            111,
+        );
+        $bubble.addClass('right');
+      }
+    }
+  };
 
   const handleMouseMove = e => {
     var time_position = e.pageX - $('#timebar_content').offset().left;
@@ -736,7 +737,6 @@ const CameraView = ({deviceId}) => {
       (time_position / timebar_width) * (right_time - left_time) + left_time;
 
     var $bubble = $('#cursor_bubble_preview');
-
     var date_data = getTimeData(timestamp);
     $bubble
       .find('span')
@@ -1053,11 +1053,80 @@ const CameraView = ({deviceId}) => {
       });
   };
 
+  const updateCurrentTime = function(timestamp) {
+    // check data to update
+    var left_time = leftTimestamp;
+    var right_time = rightTimestamp;
+    var current_time = showStreaming ? _.now() / 1000 : currentTime + 1;
+    timestamp = timestamp || current_time;
+    var params = {
+      current_time: timestamp,
+    };
+    // right_time <= current_time && right_time < timestamp  is the same ??
+    // determine that user is face to cursor page
+
+    if (
+      left_time <= current_time &&
+      right_time <= current_time &&
+      timestamp > right_time
+    ) {
+      params.right_time = getScaleStartTime(right_time + 10);
+      params.left_time =
+        // TODO: this.scale() temp set to 'hour'
+        params.right_time - scale_table.get('hour', right_time + 10);
+      // if live only and is not animating timeline, automatically go next block
+      // TODO
+      // if (this.model.get('timeline_disabled') && !this._animating) {
+      if (false) {
+        // avoid event mess up
+        // setTimeout(function() {
+        //   $('#to_next').click();
+        // }, 100);
+      } else if (right_time + 1 == current_time) {
+        setTimeout(function() {
+          $('#to_next').click();
+        }, 100);
+      }
+    }
+
+    if (left_time <= current_time && right_time <= current_time) {
+      setBubbleTime(current_time, 'normal', true);
+    } else if (left_time >= current_time && right_time >= current_time) {
+      setBubbleTime(current_time, 'normal', true);
+    }
+
+    // this.model.set(params);
+    setCurrentTime(timestamp); // TODO: this will not update
+    _onChangeCurrentTime(timestamp);
+    if (params.left_time) setLeftTimestamp(left_time);
+    if (params.right_time) setRightTimestamp(right_time);
+  };
+
+  const updateMeta = function() {
+    var $timeline_container = $('#timeline_container');
+    var $meta_container = $timeline_container.find('#meta_container');
+    $meta_container.empty();
+    $meta_container.removeClass('group');
+
+    // TODO: temp set scale() to 'hour'
+    var view_info = getMetaTimebar('hour', leftTimestamp);
+    var html = view_info.html;
+
+    $meta_container.html(html);
+    $meta_container.css('left', '0');
+    $meta_container.css('width', '100%');
+  };
+
+  const _onChangeCurrentTime = function(current_time) {
+    // TODO: handle drag
+    // if (this.is_dragging) return;
+    // update bubble place
+    setBubbleTime(current_time, 'normal', true);
+  };
+
   const refactor = () => {
-    // setInterval(() => {
-    //   setBubbleTime(currentTime + 1000, 'normal', true);
-    // }, 1000);
     setBubbleTime(Math.floor(new Date().getTime() / 1000), 'normal', true);
+    // TODO: handle _onVideoEnded
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
         const view_info = getMetaTimebar('hour', leftTimestamp, archive);
@@ -1076,6 +1145,11 @@ const CameraView = ({deviceId}) => {
       });
   }, []);
 
+  useInterval(function() {
+    updateCurrentTime();
+    updateMeta();
+  }, 1000);
+
   return (
     <>
       <div id="group-view-camera">
@@ -1091,12 +1165,12 @@ const CameraView = ({deviceId}) => {
               />
             ) : (
               <ArchivesPlayer
-                key={timestamp}
+                key={timestamp + smart_ff}
                 onPlayerInit={setPlayer}
                 onPlayerDispose={setPlayer}
                 deviceId={deviceId}
                 archiveId={archive.id}
-                smart_ff={0}
+                smart_ff={smart_ff}
                 seek={timestamp - archive.timestamp}
                 style={{width: '768px', height: '432px'}}
                 controls={false}
@@ -1138,7 +1212,7 @@ const CameraView = ({deviceId}) => {
                     <div id="played"></div>
                   </div>
                 </div>
-                <div id="cursor">
+                <div id="cursor" className={showStreaming ? 'live' : ''}>
                   <div id="cursor_clickable"></div>
                 </div>
                 <div className="right_button" onClick={onNextClick}>
@@ -1175,7 +1249,13 @@ const CameraView = ({deviceId}) => {
                     <div id="control-play"></div>
                   </div>
                   {!hide_ff && (
-                    <div className="control_button">
+                    <div
+                      className="control_button"
+                      onClick={e => {
+                        if (!smart_ff)
+                          e.target.parentElement.classList.add('active');
+                        setSmart_ff(smart_ff === 0 ? 1 : 0);
+                      }}>
                       <div id="control-fastforward"></div>
                     </div>
                   )}
