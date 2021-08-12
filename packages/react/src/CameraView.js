@@ -121,7 +121,8 @@ const getTimeData = function(timestamp) {
 };
 const getScaleStartTime = function(timestamp, scale) {
   // use current as default
-  if (typeof scale === 'undefined') scale = this.scale();
+  // if (typeof scale === 'undefined') scale = this.scale();
+  if (typeof scale === 'undefined') scale = 'hour';
 
   var date = new Date(timestamp * 1000);
   date.setSeconds(0);
@@ -191,8 +192,8 @@ const setBubbleTime = (timestamp, type, set_cursor) => {
       .html(time_data.time_display);
     $bubble.css('left', left - 28);
   } else {
-    $el.find('#cursor').hide();
-    var time_data = this.getTimeData(timestamp);
+    $('#cursor').hide();
+    var time_data = getTimeData(timestamp);
 
     if (timestamp < new_left_time) {
       $bubble
@@ -230,10 +231,18 @@ const setBubbleTime = (timestamp, type, set_cursor) => {
 };
 let Skywatch = {archives: []};
 const CameraView = ({deviceId}) => {
+  const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
   const [showStreaming, setShowStreaming] = useState(true);
-  const [timestamp, setTimestamp] = useState('');
+  const [timestamp, setTimestamp] = useState(now);
+  const [currentTime, setCurrentTime] = useState(now);
   const [archiveId, setArchiveId] = useState('');
+  const [leftTimestamp, setLeftTimestamp] = useState(
+    getScaleStartTime(now, 'hour'),
+  );
+  const [rightTimestamp, setRightTimestamp] = useState(
+    leftTimestamp + scale_table.get('hour', leftTimestamp),
+  );
 
   const _fetchAllInterval = function(camera_id, scope, archives) {
     var deferred = $.Deferred();
@@ -380,19 +389,20 @@ const CameraView = ({deviceId}) => {
 
   const handleTimebarContentClicked = e => {
     var time_position = e.pageX - $('#timebar_content').offset().left;
-    // var left_time = Skywatch.Live.control_bar.leftTimestamp();
-    // var right_time = Skywatch.Live.control_bar.rightTimestamp();
-    var now = Math.floor(new Date().getTime() / 1000);
-    var left_time = getScaleStartTime(now, 'hour');
-    var right_time = left_time + scale_table.get('hour', left_time);
+    var left_time = leftTimestamp;
+    var right_time = rightTimestamp;
+    // var now = Math.floor(new Date().getTime() / 1000);
+    // var left_time = getScaleStartTime(now, 'hour');
+    // var right_time = left_time + scale_table.get('hour', left_time);
     var timebar_width = $('#timebar_content').width();
     var timestamp =
       (time_position / timebar_width) * (right_time - left_time) + left_time;
+    var now = Math.ceil(new Date().getTime() / 1000);
+    if (timestamp > now) {
+      timestamp = now;
+    }
     setTimestamp(timestamp);
-    // if (timestamp < now)
-    //   document
-    //     .getElementsByClassName('video-js')[0]
-    //     .removeAttribute('controls');
+    setCurrentTime(timestamp);
 
     // see getCloudArchive in model.js
     const targetArchive = Skywatch.archives
@@ -404,52 +414,352 @@ const CameraView = ({deviceId}) => {
         return {...archive, diff};
       })
       .sort((a, b) => a.diff - b.diff)[0];
+
+    setBubbleTime(timestamp, 'nomal', true);
     setArchiveId(targetArchive.id);
     setShowStreaming(timestamp >= now);
+  };
+  const onPreviousClick = function() {
+    // var scale = this.scale();
+    var scale = 'hour';
+    var start_time = getScaleStartTime(leftTimestamp - 100);
+    var right_time = start_time + scale_table.get(scale, start_time);
+
+    moveTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
+    setLeftTimestamp(start_time);
+    setRightTimestamp(right_time);
+  };
+  const onNextClick = function() {
+    // TODO
+    // var scale = this.scale();
+    var scale = 'hour';
+    var start_time = getScaleStartTime(rightTimestamp + 100);
+    var right_time = start_time + scale_table.get(scale, start_time);
+
+    moveTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
+    setLeftTimestamp(start_time);
+    setRightTimestamp(right_time);
+  };
+  const moveTimebar = (
+    old_left_time,
+    old_right_time,
+    new_left_time,
+    new_right_time,
+  ) => {
+    var self = this;
+
+    var current_time = timestamp;
+
+    // update display
+    _.each(
+      {
+        '#date_left': new_left_time,
+        '#date_right': new_right_time,
+      },
+      function(timestamp, selector) {
+        var date_data = getTimeData(timestamp);
+        $(
+          $(selector)
+            .find('span')
+            .get(0),
+        ).html(date_data.date_display);
+        $(
+          $(selector)
+            .find('span')
+            .get(1),
+        ).html(date_data.hour_time_display);
+      },
+    );
+
+    // calculate animation
+    // var old_left_time = prevLeftTimestamp;
+    // var old_right_time = prevRightTimestamp;
+
+    var animate_time = 500;
+
+    var timeline_animation = false;
+    var timeline_child_animation = false;
+    var cursor_animation = false;
+    var played_animation = false;
+    var timebar_width = $('#timebar_content').width();
+    var shift;
+    var distance;
+
+    var bubble_animation = false;
+    var bubble_dalay = false;
+    var bubble_animate_time = animate_time;
+
+    // calculate element delay
+    var element_delay = false;
+    var element_animation_time = animate_time;
+    if (old_left_time !== 0 && old_right_time !== 0) {
+      if (
+        (old_left_time < new_left_time && old_right_time < new_right_time) ||
+        (old_left_time > new_left_time && old_right_time > new_right_time)
+      ) {
+        if (
+          !(current_time >= old_left_time && current_time <= old_right_time) &&
+          current_time >= new_left_time &&
+          current_time <= new_right_time
+        ) {
+          if (old_left_time < new_left_time) {
+            element_delay =
+              (animate_time * (current_time - new_left_time)) /
+              (new_right_time - new_left_time);
+            element_animation_time =
+              (animate_time * (new_right_time - current_time)) /
+              (new_right_time - new_left_time);
+          } else {
+            element_delay =
+              (animate_time * (new_right_time - current_time)) /
+              (new_right_time - new_left_time);
+            element_animation_time =
+              (animate_time * (current_time - new_left_time)) /
+              (new_right_time - new_left_time);
+          }
+        }
+      }
+    }
+
+    // ignore initial
+    if (old_left_time !== 0 && old_right_time !== 0) {
+      if (
+        (old_left_time < new_left_time && old_right_time < new_right_time) ||
+        (old_left_time > new_left_time && old_right_time > new_right_time)
+      ) {
+        // shifts
+        if (old_left_time < new_left_time) {
+          shift = '-=';
+        } else {
+          shift = '+=';
+        }
+
+        timeline_animation = {
+          left: shift + '100%',
+        };
+
+        // animate out
+        if (current_time >= old_left_time && current_time <= old_right_time) {
+          // calculate distance
+          if (shift == '-=') {
+            distance =
+              ((current_time - old_left_time) /
+                (old_right_time - old_left_time)) *
+              $('#timebar_content').width();
+            bubble_animate_time =
+              (bubble_animate_time * (current_time - old_left_time)) /
+              (old_right_time - old_left_time);
+          } else {
+            distance =
+              ((old_right_time - current_time) /
+                (old_right_time - old_left_time)) *
+              $('#timebar_content').width();
+            bubble_animate_time =
+              (bubble_animate_time * (old_right_time - current_time)) /
+              (old_right_time - old_left_time);
+          }
+          bubble_animation = {
+            left: shift + distance,
+          };
+        } else if (
+          current_time >= new_left_time &&
+          current_time <= new_right_time
+        ) {
+          // animate in
+          if (shift == '-=') {
+            distance =
+              ((new_right_time - current_time) /
+                (new_right_time - new_left_time)) *
+                $('#timebar_content').width() +
+              28;
+            bubble_animate_time =
+              (animate_time * (new_right_time - current_time)) /
+              (new_right_time - new_left_time);
+          } else {
+            distance =
+              ((current_time - new_left_time) /
+                (new_right_time - new_left_time)) *
+              $('#timebar_content').width();
+            bubble_animate_time =
+              (animate_time * (current_time - new_left_time)) /
+              (new_right_time - new_left_time);
+          }
+          bubble_animation = {
+            left: shift + distance,
+          };
+        }
+      } else if (
+        old_right_time - old_left_time !==
+        new_right_time - new_left_time
+      ) {
+        // enlarge or reduce
+        timeline_animation = {};
+        var times =
+          (old_right_time - old_left_time) / (new_right_time - new_left_time);
+        timeline_animation.width = times * 300 + '%';
+        timeline_animation.left =
+          times * -100 +
+          ((old_left_time - new_left_time) / (new_right_time - new_left_time)) *
+            100 +
+          '%';
+        timeline_child_animation = {
+          opacity: 0.4,
+        };
+      }
+    }
+
+    var show_cursor = false;
+    if (current_time >= new_left_time && current_time <= new_right_time) {
+      var offset =
+        ((current_time - new_left_time) / (new_right_time - new_left_time)) *
+        $('#playbar-container').width();
+      played_animation = {
+        width: offset,
+      };
+      cursor_animation = {
+        left:
+          $('#timebar_content').offset().left -
+          $('#controlbar_container').offset().left +
+          offset,
+      };
+      show_cursor = true;
+    } else {
+      if (current_time < new_left_time) {
+        played_animation = {
+          width: '-=100%',
+        };
+      } else {
+        played_animation = {
+          width: '+=100%',
+        };
+      }
+
+      $('#cursor').hide();
+    }
+
+    var animations = [];
+    var animation_queue = [];
+
+    if (timeline_animation !== false) {
+      animations.push(
+        $('#timeline_container').animate(timeline_animation, animate_time),
+      );
+    }
+    if (bubble_animation !== false) {
+      if (element_delay !== false) {
+        animations.push(
+          $('#cursor_bubble')
+            .delay(element_delay)
+            .animate(bubble_animation, element_animation_time, function() {
+              setBubbleTime(currentTime, 'normal', true);
+            }),
+        );
+      } else {
+        animations.push(
+          $('#cursor_bubble').animate(
+            bubble_animation,
+            element_animation_time,
+            function() {
+              setBubbleTime(currentTime, 'normal', true);
+            },
+          ),
+        );
+      }
+    }
+    if (timeline_child_animation !== false) {
+      animations.push(
+        $('#timeline_container')
+          .children()
+          .animate(timeline_child_animation, animate_time),
+      );
+    }
+    if (cursor_animation !== false) {
+      if (element_delay !== false) {
+        animations.push(
+          $('#cursor')
+            .delay(element_delay)
+            .animate(cursor_animation, element_animation_time),
+        );
+      } else {
+        animations.push(
+          $('#cursor').animate(cursor_animation, element_animation_time),
+        );
+      }
+    }
+    if (played_animation !== false) {
+      if (element_delay !== false) {
+        animations.push(
+          $('#played')
+            .delay(element_delay)
+            .animate(played_animation, element_animation_time),
+        );
+      } else {
+        animations.push(
+          $('#played').animate(played_animation, element_animation_time),
+        );
+      }
+    }
+    if (show_cursor) $('#cursor').fadeIn(80);
+
+    // this._animating = true;
+    // $.when.apply($, animations).done(function() {
+    //   self._animating = false;
+    //   if (Skywatch.Live.camera_grid.isSingle()) {
+    //     // handle change camera case
+    //     var camera_id = Skywatch.Live.camera_list.getActiveCameraId();
+    //     if (camera_id !== null) {
+    //       self.renderCameraTimebar(
+    //         camera_id,
+    //         timeline_child_animation !== false,
+    //       );
+    //     }
+    //   } else {
+    //     // handle change group case
+    //     var group_id = Skywatch.Live.camera_list.getActiveGroupId();
+    //     if (group_id !== null) {
+    //       self.renderGroupTimebar(group_id, timeline_child_animation !== false);
+    //     }
+    //   }
+    // });
+  };
+
+  const handleMouseMove = e => {
+    var time_position = e.pageX - $('#timebar_content').offset().left;
+    var left_time = leftTimestamp;
+    var right_time = rightTimestamp;
+    var timebar_width = $('#timebar_content').width();
+    var timestamp =
+      (time_position / timebar_width) * (right_time - left_time) + left_time;
+
+    var $bubble = $('#cursor_bubble_preview');
+
+    var date_data = getTimeData(timestamp);
+    $bubble
+      .find('span')
+      .first()
+      .html(date_data.date_display);
+    $bubble
+      .find('span')
+      .last()
+      .html(date_data.time_display);
+    setBubbleTime(timestamp, 'preview', false);
+    $bubble.addClass('active');
+    $bubble.show();
+    $('#cursor_bubble').hide();
+  };
+  const handleMouseOut = e => {
+    var $bubble = $('#cursor_bubble_preview');
+    $bubble.removeClass('active');
+    $bubble.hide();
+    $('#cursor_bubble').show();
   };
 
   const refactor = () => {
     document.getElementById('timeline_container').classList.remove('loading');
     // setInterval(() => {
-    //   setBubbleTime(Math.floor(new Date().getTime() / 1000));
+    //   setBubbleTime(currentTime + 1000, 'normal', true);
     // }, 1000);
     setBubbleTime(Math.floor(new Date().getTime() / 1000), 'normal', true);
-    const $timebar_content = $('#timebar_content');
-    $timebar_content.on('mousemove', function(e) {
-      var time_position = e.pageX - $('#timebar_content').offset().left;
-      // var left_time = Skywatch.Live.control_bar.leftTimestamp();
-      // var right_time = Skywatch.Live.control_bar.rightTimestamp();
-      var now = Math.floor(new Date().getTime() / 1000);
-      var left_time = getScaleStartTime(now, 'hour');
-      var right_time = left_time + scale_table.get('hour', left_time);
-      var timebar_width = $('#timebar_content').width();
-      var timestamp =
-        (time_position / timebar_width) * (right_time - left_time) + left_time;
-
-      var $bubble = $('#cursor_bubble_preview');
-
-      var date_data = getTimeData(timestamp);
-      $bubble
-        .find('span')
-        .first()
-        .html(date_data.date_display);
-      $bubble
-        .find('span')
-        .last()
-        .html(date_data.time_display);
-      setBubbleTime(timestamp, 'preview', false);
-      $bubble.addClass('active');
-      $bubble.show();
-      $('#cursor_bubble').hide();
-    });
-
-    $timebar_content.on('mouseout', function(e) {
-      var $bubble = $('#cursor_bubble_preview');
-      $bubble.removeClass('active');
-      $bubble.hide();
-      $('#cursor_bubble').show();
-    });
-
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives);
   };
   useEffect(() => {
@@ -500,10 +810,14 @@ const CameraView = ({deviceId}) => {
             </div>
             <div id="timebar_container">
               <div id="timebar">
-                <div className="left_button">
+                <div className="left_button" onClick={onPreviousClick}>
                   <div className="btn btn-default" id="to_previous"></div>
                 </div>
-                <div id="timebar_content" onClick={handleTimebarContentClicked}>
+                <div
+                  id="timebar_content"
+                  onClick={handleTimebarContentClicked}
+                  onMouseMove={handleMouseMove}
+                  onMouseOut={handleMouseOut}>
                   <div id="timeline_container" className="loading">
                     <div id="scale_container">
                       <div id="shades">
@@ -521,7 +835,7 @@ const CameraView = ({deviceId}) => {
                 <div id="cursor">
                   <div id="cursor_clickable"></div>
                 </div>
-                <div className="right_button">
+                <div className="right_button" onClick={onNextClick}>
                   <div className="btn btn-default" id="to_next"></div>
                 </div>
               </div>
