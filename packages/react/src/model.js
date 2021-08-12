@@ -773,7 +773,6 @@ Live.CameraModel = SkywatchModel.extend({
       if (typeof all_dataset['' + scale][index] == 'undefined') {
         data.meta = false;
         // check whether is cache time
-
         // NVR camera use local archives, can not fetchCacheTime
         if (is_nvr_camera) {
           data.meta = 1;
@@ -1375,6 +1374,7 @@ Live.ArchiveCollection = SkywatchCollection.extend({
   },
 
   parseMeta: function(archive) {
+    console.log('parseMeta')
     var scale_arr = this.scale_arr;
     var scale,
       i,

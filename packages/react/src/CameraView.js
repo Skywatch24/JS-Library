@@ -19,6 +19,7 @@ import {view} from './view';
 import {device_view} from './device_view';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import './model';
+import {_} from 'core-js';
 
 const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
 const keyholder = true;
@@ -229,14 +230,14 @@ const setBubbleTime = (timestamp, type, set_cursor) => {
     }
   }
 };
-let Skywatch = {archives: []};
+let Skywatch = {archives: [], all_dataset: {}};
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
   const [showStreaming, setShowStreaming] = useState(true);
   const [timestamp, setTimestamp] = useState(now);
   const [currentTime, setCurrentTime] = useState(now);
-  const [archiveId, setArchiveId] = useState('');
+  const [archive, setArchive] = useState(null);
   const [leftTimestamp, setLeftTimestamp] = useState(
     getScaleStartTime(now, 'hour'),
   );
@@ -272,9 +273,9 @@ const CameraView = ({deviceId}) => {
     }).done(function(timestamp) {
       timestamp = timestamp.replace(/<script.*script>/, '');
       if (timestamp) {
-        const _cache_time = parseInt(timestamp, 10);
+        Skywatch._cache_time = parseInt(timestamp, 10);
       } else {
-        const _cache_time = 0;
+        Skywatch._cache_time = 0;
       }
     });
   };
@@ -335,20 +336,22 @@ const CameraView = ({deviceId}) => {
         if (data.stop === 'true') {
           if (scope == 'CloudArchives') {
             // TODO:
-            self._fetched_cloud_archives_done = true;
+            // self._fetched_cloud_archives_done = true;
             // remove pulling mark
             // if (self.collection) {
             //   self.collection.removePulling(self.get('id'));
             // }
-            return deferred.resolve(self._cloud_archives.models);
+            // return deferred.resolve(self._cloud_archives.models);
+            return deferred.resolve();
           } else {
             self._fetched_local_archives_done = true;
-            return deferred.resolve(self._local_archives.models);
+            // return deferred.resolve(self._local_archives.models);
+            return deferred.resolve();
           }
         } else {
           deferred.notify(data.archives);
-          console.log(data);
           // archives.add(data.archives);
+          data.archives.forEach(a => parseMeta(a));
           Skywatch.archives = [...Skywatch.archives, ...data.archives];
           const _current_clould_archive_request_timer = setTimeout(function() {
             if (typeof data.next_url != 'undefined') {
@@ -391,9 +394,6 @@ const CameraView = ({deviceId}) => {
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
-    // var now = Math.floor(new Date().getTime() / 1000);
-    // var left_time = getScaleStartTime(now, 'hour');
-    // var right_time = left_time + scale_table.get('hour', left_time);
     var timebar_width = $('#timebar_content').width();
     var timestamp =
       (time_position / timebar_width) * (right_time - left_time) + left_time;
@@ -416,7 +416,11 @@ const CameraView = ({deviceId}) => {
       .sort((a, b) => a.diff - b.diff)[0];
 
     setBubbleTime(timestamp, 'nomal', true);
-    setArchiveId(targetArchive.id);
+    setArchive(targetArchive);
+    Skywatch.highlight_start = parseInt(targetArchive.timestamp);
+    Skywatch.highlight_end =
+      parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+    onHighLightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
     setShowStreaming(timestamp >= now);
   };
   const onPreviousClick = function() {
@@ -425,7 +429,7 @@ const CameraView = ({deviceId}) => {
     var start_time = getScaleStartTime(leftTimestamp - 100);
     var right_time = start_time + scale_table.get(scale, start_time);
 
-    moveTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
+    updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
   };
@@ -436,11 +440,11 @@ const CameraView = ({deviceId}) => {
     var start_time = getScaleStartTime(rightTimestamp + 100);
     var right_time = start_time + scale_table.get(scale, start_time);
 
-    moveTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
+    updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
   };
-  const moveTimebar = (
+  const updateTimebar = (
     old_left_time,
     old_right_time,
     new_left_time,
@@ -753,21 +757,322 @@ const CameraView = ({deviceId}) => {
     $bubble.hide();
     $('#cursor_bubble').show();
   };
+  const getCacheTime = () => Skywatch._cache_time;
+  const getMetaList = function(time_i_width, left_time, right_time) {
+    var i = false;
+    // var scale_arr = this._cloud_archives.scale_arr;
+    // var all_dataset = this._cloud_archives.all_dataset;
+    var scale_arr = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
+    var all_dataset = Skywatch.all_dataset;
+    var is_nvr_camera = false;
+    // TODO
+    // if (this.get('model_id') == '61') {
+    //   is_nvr_camera = true;
+    //   scale_arr = this._local_archives.scale_arr;
+    //   all_dataset = this._local_archives.all_dataset;
+    // }
+    var scale = scale_arr[scale_arr.length - 1]; // deafult use the largest
+    for (i = 0; i < scale_arr.length; i++) {
+      if (time_i_width < scale_arr[i]) {
+        scale = scale_arr[i];
+        break;
+      }
+    }
+
+    if (typeof all_dataset['' + scale] == 'undefined') {
+      return [];
+    }
+
+    var meta_list = [];
+    var timebar_width = right_time - left_time;
+    var data, index;
+    var now = Math.floor(new Date().getTime() / 1000);
+    for (i = 0; i * time_i_width < timebar_width; i++) {
+      if (left_time + i * time_i_width >= now) break;
+      index = '' + Math.floor((left_time + i * time_i_width) / scale) * scale;
+
+      data = {
+        start: left_time + i * time_i_width,
+        end: left_time + (i + 1) * time_i_width,
+      };
+      if (typeof all_dataset['' + scale][index] == 'undefined') {
+        data.meta = false;
+        // check whether is cache time
+        // NVR camera use local archives, can not fetchCacheTime
+        // TODO
+        if (is_nvr_camera) {
+          data.meta = 1;
+        } else {
+          if (getCacheTime() !== 0 && data.start >= getCacheTime()) {
+            data.meta = 1;
+          }
+        }
+      } else {
+        data.meta = all_dataset['' + scale][index];
+      }
+      meta_list.push(data);
+    }
+    return meta_list;
+  };
+  const getTimelineBlockMetric = function(
+    start,
+    end,
+    left_time,
+    right_time,
+    timebar_width,
+  ) {
+    var left = ((start - left_time) / (right_time - left_time)) * 100;
+    var width = ((end - start) / (right_time - left_time)) * 100;
+    return {
+      left: left,
+      width: width,
+    };
+  };
+  const getMetaTimebar = function(scale, start_time, targetArchive) {
+    var start_time_index = '' + start_time;
+    // var scale_table = Skywatch.Live.control_bar.scale_table;
+    // scale = Skywatch.Live.control_bar.scale();
+    scale = 'hour';
+    var self = this;
+
+    var highlight_start = Skywatch.highlight_start || 0;
+    var highlight_end = Skywatch.highlight_end || 0;
+    // console.log(targetArchive);
+    // if (targetArchive) {
+    //   highlight_start = parseInt(targetArchive.timestamp);
+    //   highlight_end =
+    //     parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+    // }
+    // TODO
+    // if (!Skywatch.Live.camera_grid.isSingle()) {
+    //   highlight_start = 0;
+    //   highlight_end = 0;
+    // }
+
+    // render 3 views for animation to use
+    var timebar_width_i = $('#timebar_content').width();
+    var timebar_width = timebar_width_i * 3;
+    var time_width_i = scale_table.get(scale, start_time);
+    var time_width = time_width_i * 3;
+    var left_time = start_time - time_width_i;
+    var right_time = start_time + time_width_i * 2;
+
+    var meta_width = 5;
+    var meta_count = Math.floor(timebar_width / meta_width);
+    var meta_time_width = time_width / meta_width;
+
+    var seconds_in_bar = time_width / meta_count;
+
+    // use each although there should be only one camera_view
+    var meta_list = [];
+    var timeline_block_html = '';
+    // _.each(this._camera_views, function(camera_view, index) {
+    _.each([deviceId], function(camera_view, index) {
+      // if (!camera_view || !camera_view.model) {
+      //   return;
+      // }
+      meta_list = getMetaList(seconds_in_bar, left_time, right_time);
+      var i, interval, metric;
+
+      if (meta_list.length > 0) {
+        timeline_block_html += '<div class="camera-' + deviceId + '">';
+        for (i = 0; i < meta_list.length; i++) {
+          interval = meta_list[i];
+          metric = getTimelineBlockMetric(
+            interval.start,
+            interval.end,
+            left_time,
+            right_time,
+            timebar_width,
+          );
+          timeline_block_html += '<div class="meta_timeline_i ';
+          if (
+            interval.start >= highlight_start &&
+            interval.end <= highlight_end
+          ) {
+            timeline_block_html += 'highlight';
+          }
+          timeline_block_html +=
+            '" start="' + interval.start + '" end="' + interval.end + '"';
+          timeline_block_html += 'style="width:4px; bottom:0;height:';
+          timeline_block_html +=
+            interval.meta === false
+              ? '0px;'
+              : (interval.meta * 40) / 100 + 5 + 'px;';
+          timeline_block_html += 'left:' + metric.left + '%;"></div>';
+        }
+        timeline_block_html += '</div>';
+      }
+    });
+
+    return {
+      html: timeline_block_html,
+      timebar_width: timebar_width,
+    };
+  };
+  const parseMeta = function(archive) {
+    var scale_arr = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
+    var scale,
+      i,
+      j,
+      second,
+      base_scale = false,
+      meta_data,
+      tmp_meta,
+      timestamp,
+      length,
+      meta,
+      index;
+    // fake meta data for non-smart-ff file
+    var default_meta = {
+      '0': [false, 1],
+      '20': [false, 1],
+      '40': [false, 1],
+      '60': [false, 1],
+      '80': [false, 1],
+      '100': [false, 1],
+      '120': [false, 1],
+      '140': [false, 1],
+      '160': [false, 1],
+      '180': [false, 1],
+      '200': [false, 1],
+      '220': [false, 1],
+      '240': [false, 1],
+      '260': [false, 1],
+      '280': [false, 1],
+      '300': [false, 1],
+      '320': [false, 1],
+      '340': [false, 1],
+      '360': [false, 1],
+      '380': [false, 1],
+      '400': [false, 1],
+      '420': [false, 1],
+      '440': [false, 1],
+      '460': [false, 1],
+      '480': [false, 1],
+      '500': [false, 1],
+      '520': [false, 1],
+      '540': [false, 1],
+      '560': [false, 1],
+      '580': [false, 1],
+      '600': [false, 1],
+    };
+
+    timestamp = parseInt(archive.timestamp);
+    if (
+      typeof archive.length == 'undefined'
+      // &&
+      // this._camera.get('model_id') == '61'
+    ) {
+      length = 60;
+    } else {
+      length = parseInt(archive.length);
+    }
+
+    tmp_meta = false;
+    meta_data = false;
+    if (length <= 20) return;
+
+    if (!archive.smart_ff || archive.smart_ff == '0') {
+      // use zero as meta
+      meta = default_meta;
+    } else {
+      try {
+        meta = JSON.parse(archive.meta);
+      } catch (e) {
+        console.error('Parse json meta data error');
+        console.error(archive.meta);
+        return;
+      }
+
+      /**
+       *  Shift min to 1 to seperate no data case
+       */
+      var i;
+      for (i in meta) {
+        meta[i][1]++;
+      }
+    }
+
+    for (j = 0; j < scale_arr.length; j++) {
+      scale = scale_arr[j];
+      if (typeof Skywatch.all_dataset['' + scale] == 'undefined') {
+        Skywatch.all_dataset['' + scale] = {};
+      }
+      if (meta_data === false) {
+        meta_data = {};
+        /**
+         *   Drop meta that exceed length
+         */
+        var k = 0;
+        for (k = 0; k < length; k += 20) {
+          index = '' + Math.floor((k + timestamp) / scale) * scale;
+          if (meta['' + k]) {
+            meta_data[index] = meta['' + k][1];
+          } else {
+            meta_data[index] = 0; //default_meta[""+k][1];
+          }
+        }
+      }
+      tmp_meta = {};
+      for (second in meta_data) {
+        index = '' + Math.floor(parseInt(second) / scale) * scale;
+        if (typeof Skywatch.all_dataset[scale][index] == 'undefined') {
+          Skywatch.all_dataset[scale][index] = meta_data[second];
+          tmp_meta[index] = meta_data[second];
+        } else {
+          if (Skywatch.all_dataset[scale][index] < meta_data[second]) {
+            Skywatch.all_dataset[scale][index] = meta_data[second];
+            tmp_meta[index] = meta_data[second];
+          }
+        }
+      }
+      meta_data = tmp_meta;
+    }
+  };
+
+  const onHighLightTimeChange = function(highlight_start, highlight_end) {
+    highlight_start = highlight_start || 0;
+    highlight_end = highlight_end || 0;
+    var camera_id = deviceId;
+    if (!camera_id) {
+      return;
+    }
+    $('#meta_container')
+      .find('.camera-' + camera_id + ' .meta_timeline_i')
+      .each(function() {
+        var $el = $(this);
+        if (
+          parseInt($el.attr('start')) >= highlight_start &&
+          parseInt($el.attr('end')) <= highlight_end
+        ) {
+          $el.addClass('highlight');
+        } else {
+          $el.removeClass('highlight');
+        }
+      });
+  };
 
   const refactor = () => {
-    document.getElementById('timeline_container').classList.remove('loading');
     // setInterval(() => {
     //   setBubbleTime(currentTime + 1000, 'normal', true);
     // }, 1000);
     setBubbleTime(Math.floor(new Date().getTime() / 1000), 'normal', true);
-    _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives);
+    _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
+      () => {
+        const view_info = getMetaTimebar('hour', leftTimestamp, archive);
+        $('#meta_container').html(view_info.html);
+        document
+          .getElementById('timeline_container')
+          .classList.remove('loading');
+      },
+    );
   };
   useEffect(() => {
     fetch(`api/v2/devices/${deviceId}?api_key=${API_KEY}`)
       .then(res => res.json())
       .then(data => {
-        // init(deviceId, data);
-        refactor();
+        Skywatch.archives ? refactor() : init(deviceId, data);
       });
   }, []);
 
@@ -775,27 +1080,28 @@ const CameraView = ({deviceId}) => {
     <>
       <div id="group-view-camera">
         <div id="camera-grid-container">
-          {showStreaming ? (
-            <FlvPlayer
-              deviceId={deviceId}
-              onPlayerInit={setPlayer}
-              onPlayerDispose={setPlayer}
-              style={{width: '768px', height: '432px'}}
-              controls={false}
-            />
-          ) : (
-            <ArchivesPlayer
-              key={timestamp}
-              onPlayerInit={setPlayer}
-              onPlayerDispose={setPlayer}
-              deviceId={deviceId}
-              archiveId={archiveId}
-              smart_ff={0}
-              seek={timestamp - archiveId.split('-')[1]}
-              style={{width: '768px', height: '432px'}}
-              controls={false}
-            />
-          )}
+          {Skywatch.archives &&
+            (showStreaming ? (
+              <FlvPlayer
+                deviceId={deviceId}
+                onPlayerInit={setPlayer}
+                onPlayerDispose={setPlayer}
+                style={{width: '768px', height: '432px'}}
+                controls={false}
+              />
+            ) : (
+              <ArchivesPlayer
+                key={timestamp}
+                onPlayerInit={setPlayer}
+                onPlayerDispose={setPlayer}
+                deviceId={deviceId}
+                archiveId={archive.id}
+                smart_ff={0}
+                seek={timestamp - archive.timestamp}
+                style={{width: '768px', height: '432px'}}
+                controls={false}
+              />
+            ))}
         </div>
         <div id="buffer_container"></div>
         <div id="controlbar_container" style={{height: 140}}>
@@ -885,6 +1191,7 @@ const CameraView = ({deviceId}) => {
                     }`}>
                     <div
                       id="control-golive"
+                      // TODO: set bubble time
                       onClick={() => setShowStreaming(true)}></div>
                   </div>
                 </div>
