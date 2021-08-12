@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import flvjs from 'flv.js';
 import {Requests} from '@skywatch/api';
 
-const FlvPlayer = ({deviceId, onPlayerInit, onPlayerDispose, style}) => {
+const FlvPlayer = ({
+  deviceId,
+  onPlayerInit,
+  onPlayerDispose,
+  style,
+  controls,
+}) => {
   const containerRef = useRef(null);
   useEffect(() => {
     const initPlayer = async () => {
@@ -39,18 +45,21 @@ const FlvPlayer = ({deviceId, onPlayerInit, onPlayerDispose, style}) => {
 
   return (
     <div className="player" ref={containerRef}>
-      <video id="videoElement" controls muted style={style} />
+      <video id="videoElement" controls={controls} muted style={style} />
     </div>
   );
 };
 
-FlvPlayer.defaultProps = {};
+FlvPlayer.defaultProps = {
+  controls: true,
+};
 
 FlvPlayer.propTypes = {
   deviceId: PropTypes.string.isRequired,
   onPlayerInit: PropTypes.func.isRequired,
   onPlayerDispose: PropTypes.func.isRequired,
   style: PropTypes.object,
+  controls: PropTypes.bool,
 };
 
 export default FlvPlayer;

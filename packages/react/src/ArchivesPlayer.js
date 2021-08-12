@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
@@ -20,6 +20,7 @@ const ArchivesPlayer = ({
   smart_ff,
   seek,
   style,
+  controls,
 }) => {
   const containerRef = useRef(null);
 
@@ -57,11 +58,11 @@ const ArchivesPlayer = ({
     };
 
     initPlayer();
-  }, [onPlayerInit, onPlayerDispose, playerOptions]);
+  }, [onPlayerInit, onPlayerDispose, playerOptions, archiveId, seek]);
 
   return (
     <div className="player" ref={containerRef}>
-      <video className="video-js" controls style={style} />
+      <video className="video-js" controls={controls} style={style} />
     </div>
   );
 };
@@ -69,6 +70,7 @@ const ArchivesPlayer = ({
 ArchivesPlayer.defaultProps = {
   seek: 0,
   smart_ff: 0,
+  controls: true,
 };
 
 ArchivesPlayer.propTypes = {
@@ -80,6 +82,7 @@ ArchivesPlayer.propTypes = {
   seek: PropTypes.number,
   playerOptions: PropTypes.object,
   style: PropTypes.object,
+  controls: PropTypes.bool,
 };
 
 export default ArchivesPlayer;
