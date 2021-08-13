@@ -177,6 +177,7 @@ const CameraView = ({deviceId}) => {
     setLeftTimestamp(updatedLeftTimestamp);
     setRightTimestamp(updatedRightTimestamp);
     setShowStreaming(true);
+    _onChangeTimeAndScale(updatedLeftTimestamp, updatedRightTimestamp);
   };
 
   const _fetchAllInterval = function(camera_id, scope, archives) {
@@ -324,6 +325,22 @@ const CameraView = ({deviceId}) => {
     return xhr;
   };
 
+  const _onChangeTimeAndScale = function(new_left_time, new_right_time) {
+    var now = Math.floor(new Date().getTime() / 1000);
+    if (now < new_right_time) {
+      $('#to_next').attr('disabled', 'disabled');
+    } else {
+      $('#to_next').attr('disabled', false);
+    }
+    if (now - this.scale_table.get('month', now) > new_left_time) {
+      $('#to_previous').attr('disabled', 'disabled');
+    } else {
+      $('#to_previous').attr('disabled', false);
+    }
+    // TODO
+    // this.renderScaleIndicator();
+  };
+
   const handleTimebarContentClicked = e => {
     if (!Skywatch.archives) return; // testing
     var time_position = e.pageX - $('#timebar_content').offset().left;
@@ -367,6 +384,7 @@ const CameraView = ({deviceId}) => {
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
+    _onChangeTimeAndScale(start_time, right_time);
   };
   const onNextClick = function() {
     // TODO
@@ -378,6 +396,7 @@ const CameraView = ({deviceId}) => {
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
+    _onChangeTimeAndScale(start_time, right_time);
   };
   const updateTimebar = (
     old_left_time,
@@ -1098,8 +1117,7 @@ const CameraView = ({deviceId}) => {
       setBubbleTime(current_time, 'normal', true);
     }
 
-    // this.model.set(params);
-    setCurrentTime(timestamp); // TODO: this will not update
+    setCurrentTime(timestamp);
     _onChangeCurrentTime(timestamp);
     if (params.left_time) setLeftTimestamp(left_time);
     if (params.right_time) setRightTimestamp(right_time);
@@ -1220,7 +1238,7 @@ const CameraView = ({deviceId}) => {
                   <div id="cursor_clickable"></div>
                 </div>
                 <div className="right_button" onClick={onNextClick}>
-                  <div className="btn btn-default" id="to_next"></div>
+                  <div className="btn btn-default" id="to_next" disabled></div>
                 </div>
               </div>
             </div>
