@@ -3705,6 +3705,7 @@ export const view = function() {
     },
 
     renderGroupTimebar: function(group_id, animate) {
+      console.warn('renderGroupTimebar')
       var $timeline_container = this.$el.find('#timeline_container');
       var $meta_container = $timeline_container.find('#meta_container');
       $meta_container.empty();
@@ -3953,7 +3954,7 @@ export const view = function() {
 
     _updateMeta: function() {
       // updata timeline meta
-      //console.log("_updateMeta");
+      console.warn("_updateMeta");
 
       var $timeline_container = this.$el.find('#timeline_container');
       var $meta_container = $timeline_container.find('#meta_container');

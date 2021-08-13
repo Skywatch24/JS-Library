@@ -1374,7 +1374,6 @@ Live.ArchiveCollection = SkywatchCollection.extend({
   },
 
   parseMeta: function(archive) {
-    console.log('parseMeta')
     var scale_arr = this.scale_arr;
     var scale,
       i,

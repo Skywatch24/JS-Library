@@ -160,6 +160,24 @@ const CameraView = ({deviceId}) => {
     leftTimestamp + scale_table.get('hour', leftTimestamp),
   );
   const [smart_ff, setSmart_ff] = useState(0);
+  const [delay, setDelay] = useState(null);
+
+  const goLive = () => {
+    const now = Math.floor(new Date().getTime() / 1000);
+    const updatedLeftTimestamp = getScaleStartTime(now, 'hour');
+    const updatedRightTimestamp =
+      updatedLeftTimestamp + scale_table.get('hour', updatedLeftTimestamp);
+    updateTimebar(
+      leftTimestamp,
+      rightTimestamp,
+      updatedLeftTimestamp,
+      updatedRightTimestamp,
+    );
+    setCurrentTime(now);
+    setLeftTimestamp(updatedLeftTimestamp);
+    setRightTimestamp(updatedRightTimestamp);
+    setShowStreaming(true);
+  };
 
   const _fetchAllInterval = function(camera_id, scope, archives) {
     var deferred = $.Deferred();
@@ -307,6 +325,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const handleTimebarContentClicked = e => {
+    if (!Skywatch.archives) return; // testing
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
@@ -336,7 +355,7 @@ const CameraView = ({deviceId}) => {
     Skywatch.highlight_start = parseInt(targetArchive.timestamp);
     Skywatch.highlight_end =
       parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-    onHighLightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
+    onHighlightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
     setShowStreaming(timestamp >= now);
   };
   const onPreviousClick = function() {
@@ -345,7 +364,6 @@ const CameraView = ({deviceId}) => {
     var scale = 'hour';
     var start_time = getScaleStartTime(leftTimestamp - 100);
     var right_time = start_time + scale_table.get(scale, start_time);
-
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
@@ -367,9 +385,7 @@ const CameraView = ({deviceId}) => {
     new_left_time,
     new_right_time,
   ) => {
-    var self = this;
-
-    var current_time = timestamp;
+    var current_time = currentTime;
 
     // update display
     _.each(
@@ -393,8 +409,6 @@ const CameraView = ({deviceId}) => {
     );
 
     // calculate animation
-    // var old_left_time = prevLeftTimestamp;
-    // var old_right_time = prevRightTimestamp;
 
     var animate_time = 500;
 
@@ -559,11 +573,13 @@ const CameraView = ({deviceId}) => {
     }
 
     var animations = [];
-    var animation_queue = [];
 
     if (timeline_animation !== false) {
       animations.push(
-        $('#timeline_container').animate(timeline_animation, animate_time),
+        $('#timeline_container').animate(timeline_animation, animate_time, () =>
+          // TODO (HACK): reset position after animation completed
+          $('#timeline_container').css('left', '-100%'),
+        ),
       );
     }
     if (bubble_animation !== false) {
@@ -623,25 +639,26 @@ const CameraView = ({deviceId}) => {
     if (show_cursor) $('#cursor').fadeIn(80);
 
     // this._animating = true;
-    // $.when.apply($, animations).done(function() {
-    //   self._animating = false;
-    //   if (Skywatch.Live.camera_grid.isSingle()) {
-    //     // handle change camera case
-    //     var camera_id = Skywatch.Live.camera_list.getActiveCameraId();
-    //     if (camera_id !== null) {
-    //       self.renderCameraTimebar(
-    //         camera_id,
-    //         timeline_child_animation !== false,
-    //       );
-    //     }
-    //   } else {
-    //     // handle change group case
-    //     var group_id = Skywatch.Live.camera_list.getActiveGroupId();
-    //     if (group_id !== null) {
-    //       self.renderGroupTimebar(group_id, timeline_child_animation !== false);
-    //     }
-    //   }
-    // });
+    $.when.apply($, animations).done(function() {
+      console.log('done');
+      // self._animating = false;
+      // if (Skywatch.Live.camera_grid.isSingle()) {
+      //   // handle change camera case
+      //   var camera_id = Skywatch.Live.camera_list.getActiveCameraId();
+      //   if (camera_id !== null) {
+      //     self.renderCameraTimebar(
+      //       camera_id,
+      //       timeline_child_animation !== false,
+      //     );
+      //   }
+      // } else {
+      //   // handle change group case
+      //   var group_id = Skywatch.Live.camera_list.getActiveGroupId();
+      //   if (group_id !== null) {
+      //     self.renderGroupTimebar(group_id, timeline_child_animation !== false);
+      //   }
+      // }
+    });
   };
   const setBubbleTime = (timestamp, type, set_cursor) => {
     var now = Math.ceil(new Date().getTime() / 1000);
@@ -814,13 +831,7 @@ const CameraView = ({deviceId}) => {
     }
     return meta_list;
   };
-  const getTimelineBlockMetric = function(
-    start,
-    end,
-    left_time,
-    right_time,
-    timebar_width,
-  ) {
+  const getTimelineBlockMetric = function(start, end, left_time, right_time) {
     var left = ((start - left_time) / (right_time - left_time)) * 100;
     var width = ((end - start) / (right_time - left_time)) * 100;
     return {
@@ -828,21 +839,14 @@ const CameraView = ({deviceId}) => {
       width: width,
     };
   };
-  const getMetaTimebar = function(scale, start_time, targetArchive) {
-    var start_time_index = '' + start_time;
+  const getMetaTimebar = function(scale, start_time) {
     // var scale_table = Skywatch.Live.control_bar.scale_table;
+    // TODO
     // scale = Skywatch.Live.control_bar.scale();
     scale = 'hour';
-    var self = this;
 
     var highlight_start = Skywatch.highlight_start || 0;
     var highlight_end = Skywatch.highlight_end || 0;
-    // console.log(targetArchive);
-    // if (targetArchive) {
-    //   highlight_start = parseInt(targetArchive.timestamp);
-    //   highlight_end =
-    //     parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-    // }
     // TODO
     // if (!Skywatch.Live.camera_grid.isSingle()) {
     //   highlight_start = 0;
@@ -859,7 +863,6 @@ const CameraView = ({deviceId}) => {
 
     var meta_width = 5;
     var meta_count = Math.floor(timebar_width / meta_width);
-    var meta_time_width = time_width / meta_width;
 
     var seconds_in_bar = time_width / meta_count;
 
@@ -883,13 +886,13 @@ const CameraView = ({deviceId}) => {
             interval.end,
             left_time,
             right_time,
-            timebar_width,
           );
           timeline_block_html += '<div class="meta_timeline_i ';
           if (
             interval.start >= highlight_start &&
             interval.end <= highlight_end
           ) {
+            // console.log(interval);
             timeline_block_html += 'highlight';
           }
           timeline_block_html +=
@@ -1031,7 +1034,7 @@ const CameraView = ({deviceId}) => {
     }
   };
 
-  const onHighLightTimeChange = function(highlight_start, highlight_end) {
+  const onHighlightTimeChange = function(highlight_start, highlight_end) {
     highlight_start = highlight_start || 0;
     highlight_end = highlight_end || 0;
     var camera_id = deviceId;
@@ -1082,9 +1085,9 @@ const CameraView = ({deviceId}) => {
         // setTimeout(function() {
         //   $('#to_next').click();
         // }, 100);
-      } else if (right_time + 1 == current_time) {
+      } else if (right_time + 1 === Math.floor(current_time)) {
         setTimeout(function() {
-          $('#to_next').click();
+          onNextClick();
         }, 100);
       }
     }
@@ -1129,26 +1132,27 @@ const CameraView = ({deviceId}) => {
     // TODO: handle _onVideoEnded
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
-        const view_info = getMetaTimebar('hour', leftTimestamp, archive);
-        $('#meta_container').html(view_info.html);
         document
           .getElementById('timeline_container')
           .classList.remove('loading');
+        setDelay(1000);
       },
     );
   };
   useEffect(() => {
-    fetch(`api/v2/devices/${deviceId}?api_key=${API_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        Skywatch.archives ? refactor() : init(deviceId, data);
-      });
+    Skywatch.archives
+      ? refactor()
+      : fetch(`api/v2/devices/${deviceId}?api_key=${API_KEY}`)
+          .then(res => res.json())
+          .then(data => {
+            init(deviceId, data);
+          });
   }, []);
 
   useInterval(function() {
     updateCurrentTime();
     updateMeta();
-  }, 1000);
+  }, delay);
 
   return (
     <>
@@ -1171,7 +1175,7 @@ const CameraView = ({deviceId}) => {
                 deviceId={deviceId}
                 archiveId={archive.id}
                 smart_ff={smart_ff}
-                seek={timestamp - archive.timestamp}
+                seek={smart_ff ? timestamp : timestamp - archive.timestamp}
                 style={{width: '768px', height: '432px'}}
                 controls={false}
               />
@@ -1236,6 +1240,7 @@ const CameraView = ({deviceId}) => {
                     className="control_button"
                     onClick={e => {
                       e.target.classList.add('active');
+                      setDelay(null);
                       player && player.pause();
                     }}>
                     <div id="control-pause"></div>
@@ -1244,6 +1249,7 @@ const CameraView = ({deviceId}) => {
                     className="control_button active"
                     onClick={e => {
                       e.target.classList.add('active');
+                      setDelay(1000);
                       player && player.play();
                     }}>
                     <div id="control-play"></div>
@@ -1269,10 +1275,7 @@ const CameraView = ({deviceId}) => {
                     className={`switch_button button_long ${
                       showStreaming ? 'active' : ''
                     }`}>
-                    <div
-                      id="control-golive"
-                      // TODO: set bubble time
-                      onClick={() => setShowStreaming(true)}></div>
+                    <div id="control-golive" onClick={goLive}></div>
                   </div>
                 </div>
                 <div className="button_group pull-right">
