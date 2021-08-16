@@ -1325,7 +1325,6 @@ const CameraView = ({deviceId}) => {
     function() {
       updateCurrentTime();
       updateMeta();
-      console.log(delay);
     },
     smart_ff ? null : delay,
   );
@@ -1353,7 +1352,7 @@ const CameraView = ({deviceId}) => {
                 smart_ff={smart_ff}
                 seek={
                   smart_ff
-                    ? toArchiveTime(currentTime, true)
+                    ? toArchiveTime(timestamp, true)
                     : timestamp - archive.timestamp
                 }
                 style={{width: '768px', height: '432px'}}
@@ -1367,9 +1366,8 @@ const CameraView = ({deviceId}) => {
                       // so we need to filter out 0
                       // TODO check && !this._.seeking
                       if (video_time !== 0) {
-                        // TODO: update current time
                         const ffTimestamp = getSmartFFTimestamp(video_time);
-                        // updateCurrentTime(ffTimestamp);
+                        updateCurrentTime(ffTimestamp);
                       }
                     }
                     // report every 1 seconds
@@ -1474,7 +1472,8 @@ const CameraView = ({deviceId}) => {
                         if (!smart_ff)
                           e.target.parentElement.classList.add('active');
                         setSmart_ff(smart_ff === 0 ? 1 : 0);
-                        // stop timer
+                        setTimestamp(currentTime);
+                        // TODO: stop timer here instead of useInterval
                       }}>
                       <div id="control-fastforward"></div>
                     </div>
