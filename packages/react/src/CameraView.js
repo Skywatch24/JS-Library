@@ -153,20 +153,21 @@ const CameraView = ({deviceId}) => {
   const [timestamp, setTimestamp] = useState(now);
   const [currentTime, setCurrentTime] = useState(now);
   const [archive, setArchive] = useState(null);
+  const [scale, setScale] = useState('hour');
   const [leftTimestamp, setLeftTimestamp] = useState(
-    getScaleStartTime(now, 'hour'),
+    getScaleStartTime(now, scale),
   );
   const [rightTimestamp, setRightTimestamp] = useState(
-    leftTimestamp + scale_table.get('hour', leftTimestamp),
+    leftTimestamp + scale_table.get(scale, leftTimestamp),
   );
   const [smart_ff, setSmart_ff] = useState(0);
   const [delay, setDelay] = useState(null);
 
   const goLive = () => {
     const now = Math.floor(new Date().getTime() / 1000);
-    const updatedLeftTimestamp = getScaleStartTime(now, 'hour');
+    const updatedLeftTimestamp = getScaleStartTime(now, scale);
     const updatedRightTimestamp =
-      updatedLeftTimestamp + scale_table.get('hour', updatedLeftTimestamp);
+      updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
     updateTimebar(
       leftTimestamp,
       rightTimestamp,
@@ -177,7 +178,39 @@ const CameraView = ({deviceId}) => {
     setLeftTimestamp(updatedLeftTimestamp);
     setRightTimestamp(updatedRightTimestamp);
     setShowStreaming(true);
-    _onChangeTimeAndScale(updatedLeftTimestamp, updatedRightTimestamp);
+    _onChangeTimeAndScale(scale, updatedLeftTimestamp, updatedRightTimestamp);
+  };
+
+  const onScaleClick = function($el) {
+    var timeline_loading_check = $('#timeline_container.loading').length; // 1 : is loading, 0: finish loading
+    if (timeline_loading_check == 0) {
+      var key = 'hour';
+      var id = $el.attr('id');
+      if (id == 'control-day') {
+        key = 'day';
+      } else if (id == 'control-week') {
+        key = 'week';
+      } else if (id == 'control-month') {
+        key = 'month';
+      }
+      changeScale(key);
+
+      $el
+        .parents('.button_group')
+        .find('.control_button')
+        .removeClass('active');
+      $el.parents('.control_button').addClass('active');
+    }
+  };
+  const changeScale = function(scale) {
+    var current_time = currentTime;
+    var start_time = false;
+    start_time = getScaleStartTime(current_time, scale);
+    var end_time = start_time + scale_table.get(scale);
+    setScale(scale);
+    setLeftTimestamp(start_time);
+    setRightTimestamp(end_time);
+    _onChangeTimeAndScale(scale, start_time, end_time);
   };
 
   const _fetchAllInterval = function(camera_id, scope, archives) {
@@ -325,24 +358,102 @@ const CameraView = ({deviceId}) => {
     return xhr;
   };
 
-  const _onChangeTimeAndScale = function(new_left_time, new_right_time) {
+  const _onChangeTimeAndScale = function(scale, new_left_time, new_right_time) {
     var now = Math.floor(new Date().getTime() / 1000);
     if (now < new_right_time) {
       $('#to_next').attr('disabled', 'disabled');
     } else {
       $('#to_next').attr('disabled', false);
     }
-    if (now - this.scale_table.get('month', now) > new_left_time) {
+    if (now - scale_table.get('month', now) > new_left_time) {
       $('#to_previous').attr('disabled', 'disabled');
     } else {
       $('#to_previous').attr('disabled', false);
     }
-    // TODO
-    // this.renderScaleIndicator();
+    renderScaleIndicator(scale, new_left_time, new_right_time);
+  };
+  const renderScaleIndicator = function(
+    new_scale,
+    new_left_time,
+    new_right_time,
+  ) {
+    var new_scale = new_scale || scale;
+    var left_time = new_left_time || leftTimestamp;
+    var right_time = new_right_time || rightTimestamp;
+
+    var time_width = 24 * 60 * 60;
+    if (new_scale == 'hour') {
+      time_width = 10 * 60;
+    } else if (new_scale == 'day') {
+      time_width = 2 * 60 * 60;
+    } else {
+      time_width = 24 * 60 * 60;
+    }
+
+    // shade
+    var start_time = left_time; // - (right_time - left_time);
+    var end_time = right_time; // + (right_time - left_time);
+
+    var content = '';
+    var label = '';
+    var width = (time_width / (end_time - start_time)) * 100;
+    var left = 0;
+    var time = start_time;
+    var date;
+    var month, day, hour, min;
+    var offset = new Date().getTimezoneOffset();
+    var i = 0;
+    while (time < end_time) {
+      content += '<div class="';
+      content += 'shade ';
+      if (new_scale == 'hour' || new_scale == 'day') {
+        content += 'shade-grid';
+      } else {
+        if (Math.floor((time - offset * 60) / (24 * 60 * 60)) % 2 === 1) {
+          content += 'shade-light';
+        } else {
+          content += 'shade-dark';
+        }
+      }
+
+      content += '" style="width:' + width + '%;left:' + left + '%;"></div>';
+      // calculate label
+      date = new Date(parseInt(time) * 1000);
+      if (i > 0) {
+        // 1 label/ 2 days when month mode
+        if (!(new_scale == 'month' && date.getDate() % 2 === 1)) {
+          label += '<span class="time_label" style="left:' + left + '%;">';
+          if (new_scale == 'month' || new_scale == 'week') {
+            month = date.getMonth() + 1;
+            day = date.getDate();
+            if (month < 10) month = '0' + month;
+            if (day < 10) day = '0' + day;
+            label += month + '/' + day;
+          } else {
+            hour = date.getHours();
+            min = date.getMinutes();
+            if (hour < 10) hour = '0' + hour;
+            if (min < 10) min = '0' + min;
+            label += hour + ':' + min;
+          }
+          label += '</span>';
+        }
+      }
+
+      left += width;
+      time += time_width;
+      i++;
+    }
+    $('#shades').html(content);
+    $('#label_content').html(label);
+    $('#timeline_container')
+      .children()
+      .css('opacity', 1);
   };
 
   const handleTimebarContentClicked = e => {
-    if (!Skywatch.archives) return; // testing
+    if (!Skywatch.archives) return; // for testing
+    // TODO: handle click on gap
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
@@ -378,25 +489,25 @@ const CameraView = ({deviceId}) => {
   const onPreviousClick = function() {
     // TODO
     // var scale = this.scale();
-    var scale = 'hour';
+    // var scale = 'hour';
     var start_time = getScaleStartTime(leftTimestamp - 100);
     var right_time = start_time + scale_table.get(scale, start_time);
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
-    _onChangeTimeAndScale(start_time, right_time);
+    _onChangeTimeAndScale(scale, start_time, right_time);
   };
   const onNextClick = function() {
     // TODO
     // var scale = this.scale();
-    var scale = 'hour';
+    // var scale = 'hour';
     var start_time = getScaleStartTime(rightTimestamp + 100);
     var right_time = start_time + scale_table.get(scale, start_time);
 
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
-    _onChangeTimeAndScale(start_time, right_time);
+    _onChangeTimeAndScale(scale, start_time, right_time);
   };
   const updateTimebar = (
     old_left_time,
@@ -659,7 +770,6 @@ const CameraView = ({deviceId}) => {
 
     // this._animating = true;
     $.when.apply($, animations).done(function() {
-      console.log('done');
       // self._animating = false;
       // if (Skywatch.Live.camera_grid.isSingle()) {
       //   // handle change camera case
@@ -862,7 +972,7 @@ const CameraView = ({deviceId}) => {
     // var scale_table = Skywatch.Live.control_bar.scale_table;
     // TODO
     // scale = Skywatch.Live.control_bar.scale();
-    scale = 'hour';
+    // scale = 'hour';
 
     var highlight_start = Skywatch.highlight_start || 0;
     var highlight_end = Skywatch.highlight_end || 0;
@@ -1095,7 +1205,7 @@ const CameraView = ({deviceId}) => {
       params.right_time = getScaleStartTime(right_time + 10);
       params.left_time =
         // TODO: this.scale() temp set to 'hour'
-        params.right_time - scale_table.get('hour', right_time + 10);
+        params.right_time - scale_table.get(scale, right_time + 10);
       // if live only and is not animating timeline, automatically go next block
       // TODO
       // if (this.model.get('timeline_disabled') && !this._animating) {
@@ -1130,7 +1240,7 @@ const CameraView = ({deviceId}) => {
     $meta_container.removeClass('group');
 
     // TODO: temp set scale() to 'hour'
-    var view_info = getMetaTimebar('hour', leftTimestamp);
+    var view_info = getMetaTimebar(scale, leftTimestamp);
     var html = view_info.html;
 
     $meta_container.html(html);
@@ -1147,12 +1257,15 @@ const CameraView = ({deviceId}) => {
 
   const refactor = () => {
     setBubbleTime(Math.floor(new Date().getTime() / 1000), 'normal', true);
+    renderScaleIndicator();
     // TODO: handle _onVideoEnded
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
         document
           .getElementById('timeline_container')
           .classList.remove('loading');
+        $('#timeline_container').css('left', '-100%');
+        $('#timeline_container').css('width', '300%');
         setDelay(1000);
       },
     );
@@ -1297,16 +1410,24 @@ const CameraView = ({deviceId}) => {
                   </div>
                 </div>
                 <div className="button_group pull-right">
-                  <div className="control_button active">
+                  <div
+                    className="control_button active"
+                    onClick={() => onScaleClick($('#control-hour'))}>
                     <div id="control-hour">{'時'}</div>
                   </div>
-                  <div className="control_button">
+                  <div
+                    className="control_button"
+                    onClick={() => onScaleClick($('#control-day'))}>
                     <div id="control-day">{'日'}</div>
                   </div>
-                  <div className="control_button">
+                  <div
+                    className="control_button"
+                    onClick={() => onScaleClick($('#control-week'))}>
                     <div id="control-week">{'週'}</div>
                   </div>
-                  <div className="control_button">
+                  <div
+                    className="control_button"
+                    onClick={() => onScaleClick($('#control-month'))}>
                     <div id="control-month">{'月'}</div>
                   </div>
                 </div>
