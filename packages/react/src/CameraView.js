@@ -145,7 +145,7 @@ const getScaleStartTime = function(timestamp, scale) {
 
   return Math.floor(date.getTime() / 1000);
 };
-let Skywatch = {archives: [], all_dataset: {}};
+let Skywatch = {archives: [], all_dataset: {}, tick_counter: 0};
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
@@ -458,8 +458,10 @@ const CameraView = ({deviceId}) => {
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
     var timebar_width = $('#timebar_content').width();
-    var timestamp =
-      (time_position / timebar_width) * (right_time - left_time) + left_time;
+    var timestamp = parseInt(
+      (time_position / timebar_width) * (right_time - left_time) + left_time,
+      10,
+    );
     var now = Math.ceil(new Date().getTime() / 1000);
     if (timestamp > now) {
       timestamp = now;
@@ -487,9 +489,6 @@ const CameraView = ({deviceId}) => {
     setShowStreaming(timestamp >= now);
   };
   const onPreviousClick = function() {
-    // TODO
-    // var scale = this.scale();
-    // var scale = 'hour';
     var start_time = getScaleStartTime(leftTimestamp - 100);
     var right_time = start_time + scale_table.get(scale, start_time);
     updateTimebar(leftTimestamp, rightTimestamp, start_time, right_time);
@@ -498,9 +497,6 @@ const CameraView = ({deviceId}) => {
     _onChangeTimeAndScale(scale, start_time, right_time);
   };
   const onNextClick = function() {
-    // TODO
-    // var scale = this.scale();
-    // var scale = 'hour';
     var start_time = getScaleStartTime(rightTimestamp + 100);
     var right_time = start_time + scale_table.get(scale, start_time);
 
@@ -903,6 +899,32 @@ const CameraView = ({deviceId}) => {
     $bubble.hide();
     $('#cursor_bubble').show();
   };
+  const getSmartFFTimestamp = function(video_time) {
+    var meta;
+    try {
+      meta = JSON.parse(archive.meta);
+    } catch (e) {
+      console.warn('json error', archive.meta);
+      return 0;
+    }
+    var ff_second, ff_second_next;
+    var meta_keys = _.keys(meta);
+    var time = false;
+
+    for (var i = 0; i < meta_keys.length - 1; i++) {
+      ff_second = parseFloat(meta[meta_keys[i]][0]);
+      ff_second_next = parseFloat(meta[meta_keys[i + 1]][0]);
+      if (ff_second <= video_time && ff_second_next >= video_time) {
+        time =
+          ((video_time - ff_second) / (ff_second_next - ff_second)) *
+            (parseInt(meta_keys[i + 1], 10) - parseInt(meta_keys[i], 10)) +
+          parseInt(meta_keys[i], 10);
+      }
+    }
+    var timestamp = parseInt(archive.timestamp, 10) + Math.floor(time);
+    //             console.log(video_time, time,  new Date(timestamp * 1000), this.get('meta'));
+    return timestamp;
+  };
   const getCacheTime = () => Skywatch._cache_time;
   const getMetaList = function(time_i_width, left_time, right_time) {
     var i = false;
@@ -969,11 +991,6 @@ const CameraView = ({deviceId}) => {
     };
   };
   const getMetaTimebar = function(scale, start_time) {
-    // var scale_table = Skywatch.Live.control_bar.scale_table;
-    // TODO
-    // scale = Skywatch.Live.control_bar.scale();
-    // scale = 'hour';
-
     var highlight_start = Skywatch.highlight_start || 0;
     var highlight_end = Skywatch.highlight_end || 0;
     // TODO
@@ -1204,7 +1221,6 @@ const CameraView = ({deviceId}) => {
     ) {
       params.right_time = getScaleStartTime(right_time + 10);
       params.left_time =
-        // TODO: this.scale() temp set to 'hour'
         params.right_time - scale_table.get(scale, right_time + 10);
       // if live only and is not animating timeline, automatically go next block
       // TODO
@@ -1239,7 +1255,6 @@ const CameraView = ({deviceId}) => {
     $meta_container.empty();
     $meta_container.removeClass('group');
 
-    // TODO: temp set scale() to 'hour'
     var view_info = getMetaTimebar(scale, leftTimestamp);
     var html = view_info.html;
 
@@ -1255,8 +1270,34 @@ const CameraView = ({deviceId}) => {
     setBubbleTime(current_time, 'normal', true);
   };
 
+  const toArchiveTime = function(unix_time, is_smart_ff) {
+    var video_time = Math.floor(unix_time - archive.timestamp);
+    if (!is_smart_ff) {
+      // normal archive: global time - start time
+      return video_time;
+    }
+
+    var meta;
+    try {
+      meta = JSON.parse(archive.meta);
+    } catch (e) {
+      console.warn('json error', archive.meta);
+      return 0;
+    }
+    var meta_keys = _.keys(meta);
+    var time = 0;
+
+    for (var i = 0; i < meta_keys.length - 1; i++) {
+      if (!(meta_keys[i] <= video_time && video_time <= meta_keys[i + 1])) {
+        continue;
+      }
+      time = meta[meta_keys[i]][0];
+      break;
+    }
+    return Math.floor(time);
+  };
+
   const refactor = () => {
-    setBubbleTime(Math.floor(new Date().getTime() / 1000), 'normal', true);
     renderScaleIndicator();
     // TODO: handle _onVideoEnded
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
@@ -1280,10 +1321,14 @@ const CameraView = ({deviceId}) => {
           });
   }, []);
 
-  useInterval(function() {
-    updateCurrentTime();
-    updateMeta();
-  }, delay);
+  useInterval(
+    function() {
+      updateCurrentTime();
+      updateMeta();
+      console.log(delay);
+    },
+    smart_ff ? null : delay,
+  );
 
   return (
     <>
@@ -1306,9 +1351,46 @@ const CameraView = ({deviceId}) => {
                 deviceId={deviceId}
                 archiveId={archive.id}
                 smart_ff={smart_ff}
-                seek={smart_ff ? timestamp : timestamp - archive.timestamp}
+                seek={
+                  smart_ff
+                    ? toArchiveTime(currentTime, true)
+                    : timestamp - archive.timestamp
+                }
                 style={{width: '768px', height: '432px'}}
-                controls={false}
+                // controls={false}
+                onTimeUpdate={() => {
+                  const video_time = player.currentTime();
+                  if (smart_ff) {
+                    // smart ff need to update timestamp frequently
+                    if (Skywatch.tick_counter === 0) {
+                      // video timestamp will not immediately update to seeked time
+                      // so we need to filter out 0
+                      // TODO check && !this._.seeking
+                      if (video_time !== 0) {
+                        // TODO: update current time
+                        const ffTimestamp = getSmartFFTimestamp(video_time);
+                        // updateCurrentTime(ffTimestamp);
+                      }
+                    }
+                    // report every 1 seconds
+                    Skywatch.tick_counter = (Skywatch.tick_counter + 1) % 4;
+                  } else {
+                    if (Skywatch.tick_counter === 0) {
+                      const normalTimestamp =
+                        parseInt(archive.timestamp, 10) +
+                        Math.floor(video_time);
+                      if (Math.abs(normalTimestamp - currentTime) >= 10) {
+                        // console.log('sync video to cursor', new Date(current_time * 1000));
+                        // TODO: temp sync cursor to video
+                        updateCurrentTime(normalTimestamp);
+                        // view.seek(current_time);
+                      }
+                    }
+                    // report every 5 seconds
+                    Skywatch.tick_counter =
+                      (Skywatch.tick_counter + 1) % (4 * 5);
+                  }
+                }}
               />
             ))}
         </div>
@@ -1361,8 +1443,8 @@ const CameraView = ({deviceId}) => {
             <div id="controlbar_content">
               <div id="date_left">
                 <div>
-                  <span></span>
-                  <span></span>
+                  <span>{getTimeData(leftTimestamp).date_display}</span>
+                  <span>{getTimeData(leftTimestamp).time_display}</span>
                 </div>
               </div>
               <div className="button_group_container">
@@ -1392,6 +1474,7 @@ const CameraView = ({deviceId}) => {
                         if (!smart_ff)
                           e.target.parentElement.classList.add('active');
                         setSmart_ff(smart_ff === 0 ? 1 : 0);
+                        // stop timer
                       }}>
                       <div id="control-fastforward"></div>
                     </div>
@@ -1434,8 +1517,8 @@ const CameraView = ({deviceId}) => {
               </div>
               <div id="date_right">
                 <div>
-                  <span></span>
-                  <span></span>
+                  <span>{getTimeData(rightTimestamp).date_display}</span>
+                  <span>{getTimeData(rightTimestamp).time_display}</span>
                 </div>
               </div>
             </div>

@@ -154,7 +154,7 @@ export const device_view = function() {
       this._.$overlay = null;
       this._.$content = null;
       this._.rendered = false;
-      this._.rendering = $.Deferred().reject(); 
+      this._.rendering = $.Deferred().reject();
       this._.frame = null;
       // unbind event from control bar
       this.stopListening(Skywatch.Live.control_bar);
@@ -551,7 +551,9 @@ export const device_view = function() {
           <div class="icon button-ptz"> </div>
         </div>
         <div class="camera-name-container">
-          <div class="camera-name">${Skywatch.Live.cameras.get('47436').get('name', 'device')}</div>
+          <div class="camera-name">${Skywatch.Live.cameras
+            .get('47436')
+            .get('name', 'device')}</div>
         </div>
 
       </div>
@@ -794,7 +796,7 @@ export const device_view = function() {
           // so we need to filter out 0
           if (video_time !== 0 && !this._.seeking) {
             timestamp = this._.current_archive.getSmartFFTimestamp(video_time);
-            this.trigger('tick', this, timestamp);
+            this.trigger('tick', this, timestamp); // trigger onPlayerTick
           }
         }
         // report every 1 seconds
@@ -1128,8 +1130,8 @@ export const device_view = function() {
     },
 
     _onDownloadSnapshotClicked: function(event) {
-      // temp 
-      const amplitude = false
+      // temp
+      const amplitude = false;
       event.preventDefault();
       if (amplitude) {
         amplitude.getInstance().logEvent('Trigger_CaptureSnapshot');
@@ -1339,23 +1341,11 @@ export const device_view = function() {
       var self = this;
       var inner_deferred = $.Deferred();
       // temp
-      self.listenTo(
-        Skywatch.Video.events,
-        'ended',
-        self._onVideoEnded,
-      );
+      self.listenTo(Skywatch.Video.events, 'ended', self._onVideoEnded);
       // on player tick
-      self.listenTo(
-        Skywatch.Video.events,
-        'tick',
-        self._onVideoTick,
-      );
+      self.listenTo(Skywatch.Video.events, 'tick', self._onVideoTick);
       // on player stuck
-      self.listenTo(
-        Skywatch.Video.events,
-        'stuck',
-        self._playOrPause,
-      );
+      self.listenTo(Skywatch.Video.events, 'stuck', self._playOrPause);
       inner_deferred.resolve();
 
       // temp

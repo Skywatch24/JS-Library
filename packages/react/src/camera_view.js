@@ -953,6 +953,7 @@ export const camera_view = function(API_KEY, cameraId) {
     $('#archive-video').on('timeupdate', function() {
       // console.log('timeupdate: ' + $('#archive-video').get(0).currentTime);
       Video.events.trigger('tick', $('#archive-video').get(0).currentTime);
+      // trigger _onVideoTick
     });
     // $('#archive-video').on('ended', self._control_bar_callback.onVideoEnded);
     $('#archive-video').on('ended', function() {

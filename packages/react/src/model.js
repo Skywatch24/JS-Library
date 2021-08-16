@@ -541,9 +541,9 @@ Live.CameraModel = SkywatchModel.extend({
     }
 
     // temp
-    Skywatch.api_path = "http://localhost:3000/api/v2/"
-    $.cookie('username', 'switch+')
-    $.cookie('api_key', '377db4a8c589b71011250d131b5da390')
+    Skywatch.api_path = 'http://localhost:3000/api/v2/';
+    $.cookie('username', 'switch+');
+    $.cookie('api_key', '377db4a8c589b71011250d131b5da390');
 
     var xhr = $.get(Skywatch.api_path + 'cameras/' + camera_id + '/archives', {
       // api_key: $.cookie('api_key'),
@@ -855,7 +855,7 @@ Live.CameraCollection = SkywatchCollection.extend({
         return;
       }
       var camera = self.get(camera_id);
-     if (typeof camera === 'undefined') {
+      if (typeof camera === 'undefined') {
         return;
       }
       var job;
@@ -943,7 +943,7 @@ Live.GroupModel = SkywatchModel.extend({
   },
 
   addCamera: function(camera_id) {
-    console.error('addCamera is called')
+    console.error('addCamera is called');
     // check duplication
     Live.groups.each(function(group) {
       // NOTE group may be deleted during iteration

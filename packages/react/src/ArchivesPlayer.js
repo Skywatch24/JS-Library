@@ -21,6 +21,7 @@ const ArchivesPlayer = ({
   seek,
   style,
   controls,
+  onTimeUpdate,
 }) => {
   const containerRef = useRef(null);
 
@@ -62,7 +63,13 @@ const ArchivesPlayer = ({
 
   return (
     <div className="player" ref={containerRef}>
-      <video className="video-js" controls={controls} style={style} />
+      <video
+        className="video-js"
+        controls={controls}
+        style={style}
+        id="archive-video"
+        onTimeUpdate={onTimeUpdate}
+      />
     </div>
   );
 };
@@ -71,6 +78,7 @@ ArchivesPlayer.defaultProps = {
   seek: 0,
   smart_ff: 0,
   controls: true,
+  onTimeUpdate: () => {},
 };
 
 ArchivesPlayer.propTypes = {
@@ -83,6 +91,7 @@ ArchivesPlayer.propTypes = {
   playerOptions: PropTypes.object,
   style: PropTypes.object,
   controls: PropTypes.bool,
+  onTimeUpdate: PropTypes.func,
 };
 
 export default ArchivesPlayer;
