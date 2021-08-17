@@ -407,10 +407,12 @@ Live.CameraModel = SkywatchModel.extend({
 
   getNextCloudArchive: function(archive, smart_ff) {
     var i = this._cloud_archives.indexOf(archive);
+    console.log(this.this._cloud_archives[i]);
     var next_archive;
     while (true) {
       ++i;
       next_archive = this._cloud_archives.at(i);
+      console.log(next_archive);
       // invalid
       if (!next_archive) {
         break;

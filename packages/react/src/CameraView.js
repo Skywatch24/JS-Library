@@ -179,6 +179,8 @@ const CameraView = ({deviceId}) => {
       updatedLeftTimestamp,
       updatedRightTimestamp,
     );
+    Skywatch.highlight_start = 0;
+    Skywatch.highlight_end = 0;
     setCurrentTime(now);
     setLeftTimestamp(updatedLeftTimestamp);
     setRightTimestamp(updatedRightTimestamp);
@@ -484,6 +486,16 @@ const CameraView = ({deviceId}) => {
         return {...archive, diff};
       })
       .sort((a, b) => a.diff - b.diff)[0];
+
+    // handle click n gap
+    if (targetArchive.timestamp) {
+      var timestamp_found = parseInt(targetArchive.timestamp);
+      var length = parseInt(targetArchive.length);
+      if (timestamp > timestamp_found + length) {
+        goLive();
+        return;
+      }
+    }
 
     setBubbleTime(timestamp, 'nomal', true);
     setArchive(targetArchive);
@@ -1310,7 +1322,8 @@ const CameraView = ({deviceId}) => {
     if (data.status === 'end') {
       console.info('no archive');
       setArchive(null);
-      this._.next_archive = null;
+      Skywatch.next_archive = null;
+      goLive();
       // TODO
       // let control bar decide what should do
       // this.trigger('ended');
@@ -1356,7 +1369,7 @@ const CameraView = ({deviceId}) => {
     if (edge > 0) {
       setTimestamp(edge);
       updateCurrentTime(edge);
-      // TODO: refactor, duplicated
+      // TODO: refactor, duplicated with handleTimebarContentClicked
       const targetArchive = Skywatch.archives
         .map(archive => {
           let diff = archive.timestamp - timestamp;
@@ -1450,14 +1463,14 @@ const CameraView = ({deviceId}) => {
   };
 
   const getNextCloudArchive = function(archive, smart_ff) {
-    console.log(Skywatch.archives);
+    Skywatch.archives = Skywatch.archives.sort(
+      (a, b) => a.timestamp - b.timestamp,
+    );
     var i = Skywatch.archives.findIndex(a => a.id === archive.id);
-    console.log(i);
     var next_archive;
     while (true) {
       ++i;
       next_archive = Skywatch.archives.at(i);
-      console.log(next_archive);
       // invalid
       if (!next_archive) {
         break;
