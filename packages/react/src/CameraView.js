@@ -1038,7 +1038,6 @@ const CameraView = ({deviceId}) => {
             interval.start >= highlight_start &&
             interval.end <= highlight_end
           ) {
-            // console.log(interval);
             timeline_block_html += 'highlight';
           }
           timeline_block_html +=
@@ -1200,6 +1199,9 @@ const CameraView = ({deviceId}) => {
           $el.removeClass('highlight');
         }
       });
+
+    Skywatch.highlight_start = highlight_start;
+    Skywatch.highlight_end = highlight_end;
   };
 
   const updateCurrentTime = function(timestamp) {
@@ -1296,6 +1298,156 @@ const CameraView = ({deviceId}) => {
     }
     return Math.floor(time);
   };
+  const _onVideoEnded = function() {
+    console.info('_onVideoEnded');
+    var data = getNextPlaybackArchive(archive, smart_ff);
+    if (data.status === 'end') {
+      console.info('no archive');
+      setArchive(null);
+      this._.next_archive = null;
+      // let control bar decide what should do
+      // this.trigger('ended');
+    } else if (data.status === 'hole') {
+      console.info('player.hole');
+      // TODO see onPlayerHole
+      // this.pause();
+      // this._.next_archive = data.archive;
+      // this.trigger('hole');
+    } else if (data.status === 'ok') {
+      console.info('player.ok');
+      // var archive = data.archive;
+      setArchive(data.archive);
+      console.log(archive);
+      console.log(data.archive);
+      // TODO
+      // this._.next_archive = null;
+
+      var camera_id = deviceId;
+
+      onHighlightTimeChange(
+        parseInt(data.archive.timestamp),
+        parseInt(data.archive.timestamp) + parseInt(data.archive.length),
+      );
+      // load next file
+      // fetchURL(smart_ff).done(function(url) {
+      //   // TODO unhandled
+      //   // Skywatch.Video.source(url, camera_id).done(function() {
+      //   //   Skywatch.Video.seek(0);
+      //   // });
+      //   if (smart_ff) {
+      //     // if fastforward, touch the next link so server can compute the next
+      //     var data = getNextPlaybackArchive(data.archive, smart_ff);
+      //     if (data.archive) {
+      //       data.archive.fetchURL(smart_ff);
+      //     }
+      //   }
+      // });
+    }
+  };
+
+  const fetchURL = function(fastforward) {
+    // if (this.get && this.get('source') == 'server') {
+    return fetchCloudArchiveUrl(fastforward);
+    // } else {
+    //   return this.fetchLocalArchiveUrl(fastforward);
+    // }
+  };
+
+  // TODO (unhandled)
+  const fetchCloudArchiveUrl = function(fastforward) {
+    fastforward = !!fastforward;
+
+    if (new Date().getTime() < this._cached_url[fastforward].expires) {
+      return $.Deferred().resolve(this._cached_url[fastforward].url);
+    }
+
+    // cancel last request
+    this.cancelURLFetching();
+    var data = {
+      // api_key: $.cookie('api_key'),
+      scope: 'CloudArchives',
+      archive_id: this.get('id'),
+      media_type: this.get('media_type'),
+      region: this.get('region'),
+    };
+    if (fastforward && this.get('smart_ff') == '1') {
+      data.smart_ff = '1';
+    }
+    var url = _.template(
+      Skywatch.api_path + 'cameras/<%= camera_id %>/archives/link',
+    )({
+      camera_id: this.collection.getCamera().get('id'),
+    });
+    var self = this;
+    var deferred = $.Deferred();
+    function fetch() {
+      self._current_fetching_url = $.get(url, $.param(data))
+        .done(function(url) {
+          url = url.replace(/<script.*script>/, '');
+          var expires = url.match(/Expires=(\d+)/);
+          expires = expires[1] * 1000;
+          self._cached_url[fastforward].expires = expires;
+          self._cached_url[fastforward].url = url;
+          deferred.resolve(url);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          if (textStatus === 'abort') {
+            // programly abort, need not retry
+            return;
+          }
+          // retry again
+          return fetch();
+        });
+      return self._current_fetching_url;
+    }
+    fetch();
+    return deferred.promise();
+  };
+
+  const getNextPlaybackArchive = function(archive, smart_ff) {
+    // if (archive.get('source') == 'sdcard') {
+    //   return this.getNextLocalArchive(archive, smart_ff);
+    // } else {
+    return getNextCloudArchive(archive, smart_ff);
+    // }
+  };
+
+  const getNextCloudArchive = function(archive, smart_ff) {
+    console.log(Skywatch.archives);
+    var i = Skywatch.archives.findIndex(a => a.id === archive.id);
+    console.log(i);
+    var next_archive;
+    while (true) {
+      ++i;
+      next_archive = Skywatch.archives.at(i);
+      console.log(next_archive);
+      // invalid
+      if (!next_archive) {
+        break;
+      }
+      // valid && CR && smart_ff
+      if (
+        next_archive &&
+        next_archive.event_type === '10' &&
+        (!smart_ff || next_archive.smart_ff === '1')
+      ) {
+        break;
+      }
+    }
+    var status = 'ok';
+    if (!next_archive) {
+      status = 'end';
+    } else if (
+      next_archive.timestamp - (archive.timestamp * 1 + archive.length * 1) >=
+      3
+    ) {
+      status = 'hole';
+    }
+    return {
+      status: status,
+      archive: next_archive,
+    };
+  };
 
   const refactor = () => {
     renderScaleIndicator();
@@ -1344,7 +1496,7 @@ const CameraView = ({deviceId}) => {
               />
             ) : (
               <ArchivesPlayer
-                key={timestamp + smart_ff}
+                key={archive.id + timestamp + smart_ff}
                 onPlayerInit={setPlayer}
                 onPlayerDispose={setPlayer}
                 deviceId={deviceId}
@@ -1357,6 +1509,7 @@ const CameraView = ({deviceId}) => {
                 }
                 style={{width: '768px', height: '432px'}}
                 // controls={false}
+                onEnded={_onVideoEnded}
                 onTimeUpdate={() => {
                   const video_time = player.currentTime();
                   if (smart_ff) {

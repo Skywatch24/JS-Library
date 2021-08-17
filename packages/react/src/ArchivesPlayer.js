@@ -22,6 +22,7 @@ const ArchivesPlayer = ({
   style,
   controls,
   onTimeUpdate,
+  onEnded,
 }) => {
   const containerRef = useRef(null);
 
@@ -69,6 +70,7 @@ const ArchivesPlayer = ({
         style={style}
         id="archive-video"
         onTimeUpdate={onTimeUpdate}
+        onEnded={onEnded}
       />
     </div>
   );
@@ -79,6 +81,7 @@ ArchivesPlayer.defaultProps = {
   smart_ff: 0,
   controls: true,
   onTimeUpdate: () => {},
+  onEnded: () => {},
 };
 
 ArchivesPlayer.propTypes = {
@@ -92,6 +95,7 @@ ArchivesPlayer.propTypes = {
   style: PropTypes.object,
   controls: PropTypes.bool,
   onTimeUpdate: PropTypes.func,
+  onEnded: PropTypes.func,
 };
 
 export default ArchivesPlayer;

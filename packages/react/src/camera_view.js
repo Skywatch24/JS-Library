@@ -958,7 +958,7 @@ export const camera_view = function(API_KEY, cameraId) {
     // $('#archive-video').on('ended', self._control_bar_callback.onVideoEnded);
     $('#archive-video').on('ended', function() {
       // console.log('ended');
-      Video.events.trigger('ended');
+      Video.events.trigger('ended'); // trigger _onVideoEnded
     });
 
     self._canvas = $('#container')
