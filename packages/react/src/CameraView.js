@@ -145,7 +145,12 @@ const getScaleStartTime = function(timestamp, scale) {
 
   return Math.floor(date.getTime() / 1000);
 };
-let Skywatch = {archives: [], all_dataset: {}, tick_counter: 0};
+let Skywatch = {
+  archives: [],
+  all_dataset: {},
+  tick_counter: 0,
+  next_archive: null,
+};
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
@@ -1298,6 +1303,7 @@ const CameraView = ({deviceId}) => {
     }
     return Math.floor(time);
   };
+
   const _onVideoEnded = function() {
     console.info('_onVideoEnded');
     var data = getNextPlaybackArchive(archive, smart_ff);
@@ -1305,22 +1311,20 @@ const CameraView = ({deviceId}) => {
       console.info('no archive');
       setArchive(null);
       this._.next_archive = null;
+      // TODO
       // let control bar decide what should do
       // this.trigger('ended');
     } else if (data.status === 'hole') {
       console.info('player.hole');
-      // TODO see onPlayerHole
       // this.pause();
-      // this._.next_archive = data.archive;
-      // this.trigger('hole');
+      setDelay(null);
+      Skywatch.next_archive = data.archive;
+      onPlayerHole();
     } else if (data.status === 'ok') {
       console.info('player.ok');
       // var archive = data.archive;
       setArchive(data.archive);
-      console.log(archive);
-      console.log(data.archive);
-      // TODO
-      // this._.next_archive = null;
+      Skywatch.next_archive = null;
 
       var camera_id = deviceId;
 
@@ -1328,9 +1332,10 @@ const CameraView = ({deviceId}) => {
         parseInt(data.archive.timestamp),
         parseInt(data.archive.timestamp) + parseInt(data.archive.length),
       );
+      // TODO unhandled
       // load next file
       // fetchURL(smart_ff).done(function(url) {
-      //   // TODO unhandled
+      //
       //   // Skywatch.Video.source(url, camera_id).done(function() {
       //   //   Skywatch.Video.seek(0);
       //   // });
@@ -1343,6 +1348,38 @@ const CameraView = ({deviceId}) => {
       //   }
       // });
     }
+  };
+
+  const onPlayerHole = function() {
+    var edge = getNextEdge();
+    console.info('edge', edge);
+    if (edge > 0) {
+      setTimestamp(edge);
+      updateCurrentTime(edge);
+      // TODO: refactor, duplicated
+      const targetArchive = Skywatch.archives
+        .map(archive => {
+          let diff = archive.timestamp - timestamp;
+          if (diff < 0 && Math.abs(diff) >= archive.length) {
+            diff = Number.MAX_VALUE;
+          }
+          return {...archive, diff};
+        })
+        .sort((a, b) => a.diff - b.diff)[0];
+
+      setBubbleTime(timestamp, 'nomal', true);
+      setArchive(targetArchive);
+      Skywatch.highlight_start = parseInt(targetArchive.timestamp);
+      Skywatch.highlight_end =
+        parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+      onHighlightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
+      setShowStreaming(timestamp >= now);
+      setDelay(1000);
+    }
+  };
+
+  const getNextEdge = function() {
+    return Skywatch.next_archive ? Skywatch.next_archive.timestamp * 1 : 0;
   };
 
   const fetchURL = function(fastforward) {
@@ -1451,7 +1488,6 @@ const CameraView = ({deviceId}) => {
 
   const refactor = () => {
     renderScaleIndicator();
-    // TODO: handle _onVideoEnded
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
         document
