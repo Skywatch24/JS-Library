@@ -412,7 +412,6 @@ Live.CameraModel = SkywatchModel.extend({
     while (true) {
       ++i;
       next_archive = this._cloud_archives.at(i);
-      console.log(next_archive);
       // invalid
       if (!next_archive) {
         break;

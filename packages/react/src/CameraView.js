@@ -145,6 +145,19 @@ const getScaleStartTime = function(timestamp, scale) {
 
   return Math.floor(date.getTime() / 1000);
 };
+
+const resetActiveButton = () => {
+  $('#control-pause')
+    .parent()
+    .removeClass('active');
+  $('#control-fastforward')
+    .parent()
+    .removeClass('active');
+  $('#control-play')
+    .parent()
+    .removeClass('active');
+};
+
 let Skywatch = {
   archives: [],
   all_dataset: {},
@@ -167,8 +180,16 @@ const CameraView = ({deviceId}) => {
   );
   const [smart_ff, setSmart_ff] = useState(0);
   const [delay, setDelay] = useState(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const goLive = () => {
+    resetActiveButton();
+    $('#control-play')
+      .parent()
+      .addClass('active');
+    // TODO: weird from smart_ff to live
+    setSmart_ff(0);
+    setDelay(1000);
     const now = Math.floor(new Date().getTime() / 1000);
     const updatedLeftTimestamp = getScaleStartTime(now, scale);
     const updatedRightTimestamp =
@@ -181,10 +202,12 @@ const CameraView = ({deviceId}) => {
     );
     Skywatch.highlight_start = 0;
     Skywatch.highlight_end = 0;
+    onHighlightTimeChange(0, 0);
     setCurrentTime(now);
     setLeftTimestamp(updatedLeftTimestamp);
     setRightTimestamp(updatedRightTimestamp);
     setShowStreaming(true);
+    setIsMuted(true);
     _onChangeTimeAndScale(scale, updatedLeftTimestamp, updatedRightTimestamp);
   };
 
@@ -504,6 +527,7 @@ const CameraView = ({deviceId}) => {
       parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
     onHighlightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
     setShowStreaming(timestamp >= now);
+    setIsMuted(true);
   };
   const onPreviousClick = function() {
     var start_time = getScaleStartTime(leftTimestamp - 100);
@@ -1324,18 +1348,13 @@ const CameraView = ({deviceId}) => {
       setArchive(null);
       Skywatch.next_archive = null;
       goLive();
-      // TODO
-      // let control bar decide what should do
-      // this.trigger('ended');
     } else if (data.status === 'hole') {
       console.info('player.hole');
-      // this.pause();
       setDelay(null);
       Skywatch.next_archive = data.archive;
       onPlayerHole();
     } else if (data.status === 'ok') {
       console.info('player.ok');
-      // var archive = data.archive;
       setArchive(data.archive);
       Skywatch.next_archive = null;
 
@@ -1403,7 +1422,6 @@ const CameraView = ({deviceId}) => {
     // }
   };
 
-  // TODO (unhandled)
   const fetchCloudArchiveUrl = function(fastforward) {
     fastforward = !!fastforward;
 
@@ -1526,6 +1544,7 @@ const CameraView = ({deviceId}) => {
     function() {
       updateCurrentTime();
       updateMeta();
+      console.log('updateMeta');
     },
     smart_ff ? null : delay,
   );
@@ -1541,7 +1560,7 @@ const CameraView = ({deviceId}) => {
                 onPlayerInit={setPlayer}
                 onPlayerDispose={setPlayer}
                 style={{width: '768px', height: '432px'}}
-                controls={false}
+                // controls={false}
               />
             ) : (
               <ArchivesPlayer
@@ -1652,8 +1671,10 @@ const CameraView = ({deviceId}) => {
                   <div
                     className="control_button"
                     onClick={e => {
-                      e.target.classList.add('active');
+                      resetActiveButton();
+                      e.target.parentElement.classList.add('active');
                       setDelay(null);
+                      setSmart_ff(0);
                       player && player.pause();
                     }}>
                     <div id="control-pause"></div>
@@ -1661,8 +1682,9 @@ const CameraView = ({deviceId}) => {
                   <div
                     className="control_button active"
                     onClick={e => {
-                      e.target.classList.add('active');
-                      setDelay(1000);
+                      resetActiveButton();
+                      e.target.parentElement.classList.add('active');
+                      !smart_ff && setDelay(1000);
                       player && player.play();
                     }}>
                     <div id="control-play"></div>
@@ -1671,8 +1693,8 @@ const CameraView = ({deviceId}) => {
                     <div
                       className="control_button"
                       onClick={e => {
-                        if (!smart_ff)
-                          e.target.parentElement.classList.add('active');
+                        resetActiveButton();
+                        e.target.parentElement.classList.add('active');
                         setSmart_ff(smart_ff === 0 ? 1 : 0);
                         setTimestamp(currentTime);
                         // TODO: stop timer here instead of useInterval
@@ -1682,7 +1704,19 @@ const CameraView = ({deviceId}) => {
                   )}
                 </div>
                 <div className="button_group">
-                  <div className="switch_button">
+                  <div
+                    className={`switch_button ${isMuted ? 'active' : ''}`}
+                    onClick={() => {
+                      if (showStreaming && player) {
+                        // flvjs
+                        player.muted = !isMuted;
+                      } else {
+                        // videojs
+                        player && player.muted(!isMuted);
+                      }
+                      setIsMuted(!isMuted);
+                      console.log(isMuted);
+                    }}>
                     <div id="control-volume"></div>
                   </div>
 

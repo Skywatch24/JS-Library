@@ -2877,9 +2877,6 @@ export const view = function() {
         // this.state('pause');
         this.model.set('state', 'pause');
         this.trigger('pause');
-
-        // temp
-        // Skywatch.Video.pause()
       }
     },
     onFastforwardClick: function() {
