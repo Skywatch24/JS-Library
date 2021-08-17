@@ -1222,6 +1222,8 @@ Live.ArchiveModel = SkywatchModel.extend({
 
     // cancel last request
     this.cancelURLFetching();
+    console.log(this.get('media_type'));
+    console.log(this.get('region'));
     var data = {
       // api_key: $.cookie('api_key'),
       scope: 'CloudArchives',

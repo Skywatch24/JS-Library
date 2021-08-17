@@ -870,8 +870,6 @@ export const camera_view = function(API_KEY, cameraId) {
 
   ShakaController.prototype._source = function(camera_id, url, deferred) {
     console.log('ShakaController::_source');
-    console.log('url = ' + url);
-    console.log('camera_id = ' + camera_id);
 
     this._deletePlayers();
     this._deleteLoading();

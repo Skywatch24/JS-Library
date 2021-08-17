@@ -187,7 +187,6 @@ const CameraView = ({deviceId}) => {
     $('#control-play')
       .parent()
       .addClass('active');
-    // TODO: weird from smart_ff to live
     setSmart_ff(0);
     setDelay(1000);
     const now = Math.floor(new Date().getTime() / 1000);
@@ -333,17 +332,9 @@ const CameraView = ({deviceId}) => {
 
         if (data.stop === 'true') {
           if (scope == 'CloudArchives') {
-            // TODO:
-            // self._fetched_cloud_archives_done = true;
-            // remove pulling mark
-            // if (self.collection) {
-            //   self.collection.removePulling(self.get('id'));
-            // }
-            // return deferred.resolve(self._cloud_archives.models);
             return deferred.resolve();
           } else {
             self._fetched_local_archives_done = true;
-            // return deferred.resolve(self._local_archives.models);
             return deferred.resolve();
           }
         } else {
@@ -483,7 +474,6 @@ const CameraView = ({deviceId}) => {
 
   const handleTimebarContentClicked = e => {
     if (!Skywatch.archives) return; // for testing
-    // TODO: handle click on gap
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
@@ -510,7 +500,7 @@ const CameraView = ({deviceId}) => {
       })
       .sort((a, b) => a.diff - b.diff)[0];
 
-    // handle click n gap
+    // handle click on gap
     if (targetArchive.timestamp) {
       var timestamp_found = parseInt(targetArchive.timestamp);
       var length = parseInt(targetArchive.length);
@@ -583,7 +573,6 @@ const CameraView = ({deviceId}) => {
     var timeline_child_animation = false;
     var cursor_animation = false;
     var played_animation = false;
-    var timebar_width = $('#timebar_content').width();
     var shift;
     var distance;
 
@@ -805,25 +794,9 @@ const CameraView = ({deviceId}) => {
     }
     if (show_cursor) $('#cursor').fadeIn(80);
 
-    // this._animating = true;
+    Skywatch._animating = true;
     $.when.apply($, animations).done(function() {
-      // self._animating = false;
-      // if (Skywatch.Live.camera_grid.isSingle()) {
-      //   // handle change camera case
-      //   var camera_id = Skywatch.Live.camera_list.getActiveCameraId();
-      //   if (camera_id !== null) {
-      //     self.renderCameraTimebar(
-      //       camera_id,
-      //       timeline_child_animation !== false,
-      //     );
-      //   }
-      // } else {
-      //   // handle change group case
-      //   var group_id = Skywatch.Live.camera_list.getActiveGroupId();
-      //   if (group_id !== null) {
-      //     self.renderGroupTimebar(group_id, timeline_child_animation !== false);
-      //   }
-      // }
+      Skywatch._animating = false;
     });
   };
   const setBubbleTime = (timestamp, type, set_cursor) => {
@@ -1266,13 +1239,11 @@ const CameraView = ({deviceId}) => {
       params.left_time =
         params.right_time - scale_table.get(scale, right_time + 10);
       // if live only and is not animating timeline, automatically go next block
-      // TODO
-      // if (this.model.get('timeline_disabled') && !this._animating) {
-      if (false) {
+      if (!Skywatch._animating) {
         // avoid event mess up
-        // setTimeout(function() {
-        //   $('#to_next').click();
-        // }, 100);
+        setTimeout(function() {
+          onNextClick();
+        }, 100);
       } else if (right_time + 1 === Math.floor(current_time)) {
         setTimeout(function() {
           onNextClick();
@@ -1364,21 +1335,6 @@ const CameraView = ({deviceId}) => {
         parseInt(data.archive.timestamp),
         parseInt(data.archive.timestamp) + parseInt(data.archive.length),
       );
-      // TODO unhandled
-      // load next file
-      // fetchURL(smart_ff).done(function(url) {
-      //
-      //   // Skywatch.Video.source(url, camera_id).done(function() {
-      //   //   Skywatch.Video.seek(0);
-      //   // });
-      //   if (smart_ff) {
-      //     // if fastforward, touch the next link so server can compute the next
-      //     var data = getNextPlaybackArchive(data.archive, smart_ff);
-      //     if (data.archive) {
-      //       data.archive.fetchURL(smart_ff);
-      //     }
-      //   }
-      // });
     }
   };
 
@@ -1406,70 +1362,11 @@ const CameraView = ({deviceId}) => {
         parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
       onHighlightTimeChange(Skywatch.highlight_start, Skywatch.highlight_end);
       setShowStreaming(timestamp >= now);
-      setDelay(1000);
     }
   };
 
   const getNextEdge = function() {
     return Skywatch.next_archive ? Skywatch.next_archive.timestamp * 1 : 0;
-  };
-
-  const fetchURL = function(fastforward) {
-    // if (this.get && this.get('source') == 'server') {
-    return fetchCloudArchiveUrl(fastforward);
-    // } else {
-    //   return this.fetchLocalArchiveUrl(fastforward);
-    // }
-  };
-
-  const fetchCloudArchiveUrl = function(fastforward) {
-    fastforward = !!fastforward;
-
-    if (new Date().getTime() < this._cached_url[fastforward].expires) {
-      return $.Deferred().resolve(this._cached_url[fastforward].url);
-    }
-
-    // cancel last request
-    this.cancelURLFetching();
-    var data = {
-      // api_key: $.cookie('api_key'),
-      scope: 'CloudArchives',
-      archive_id: this.get('id'),
-      media_type: this.get('media_type'),
-      region: this.get('region'),
-    };
-    if (fastforward && this.get('smart_ff') == '1') {
-      data.smart_ff = '1';
-    }
-    var url = _.template(
-      Skywatch.api_path + 'cameras/<%= camera_id %>/archives/link',
-    )({
-      camera_id: this.collection.getCamera().get('id'),
-    });
-    var self = this;
-    var deferred = $.Deferred();
-    function fetch() {
-      self._current_fetching_url = $.get(url, $.param(data))
-        .done(function(url) {
-          url = url.replace(/<script.*script>/, '');
-          var expires = url.match(/Expires=(\d+)/);
-          expires = expires[1] * 1000;
-          self._cached_url[fastforward].expires = expires;
-          self._cached_url[fastforward].url = url;
-          deferred.resolve(url);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          if (textStatus === 'abort') {
-            // programly abort, need not retry
-            return;
-          }
-          // retry again
-          return fetch();
-        });
-      return self._current_fetching_url;
-    }
-    fetch();
-    return deferred.promise();
   };
 
   const getNextPlaybackArchive = function(archive, smart_ff) {
@@ -1519,6 +1416,7 @@ const CameraView = ({deviceId}) => {
 
   const refactor = () => {
     renderScaleIndicator();
+    setDelay(1000);
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
         document
@@ -1526,7 +1424,6 @@ const CameraView = ({deviceId}) => {
           .classList.remove('loading');
         $('#timeline_container').css('left', '-100%');
         $('#timeline_container').css('width', '300%');
-        setDelay(1000);
       },
     );
   };
@@ -1540,14 +1437,10 @@ const CameraView = ({deviceId}) => {
           });
   }, []);
 
-  useInterval(
-    function() {
-      updateCurrentTime();
-      updateMeta();
-      console.log('updateMeta');
-    },
-    smart_ff ? null : delay,
-  );
+  useInterval(function() {
+    updateCurrentTime();
+    updateMeta();
+  }, delay);
 
   return (
     <>
@@ -1684,7 +1577,8 @@ const CameraView = ({deviceId}) => {
                     onClick={e => {
                       resetActiveButton();
                       e.target.parentElement.classList.add('active');
-                      !smart_ff && setDelay(1000);
+                      setDelay(1000);
+                      setSmart_ff(0);
                       player && player.play();
                     }}>
                     <div id="control-play"></div>
@@ -1693,11 +1587,13 @@ const CameraView = ({deviceId}) => {
                     <div
                       className="control_button"
                       onClick={e => {
-                        resetActiveButton();
-                        e.target.parentElement.classList.add('active');
-                        setSmart_ff(smart_ff === 0 ? 1 : 0);
-                        setTimestamp(currentTime);
-                        // TODO: stop timer here instead of useInterval
+                        if (!smart_ff) {
+                          setDelay(null);
+                          resetActiveButton();
+                          e.target.parentElement.classList.add('active');
+                          setSmart_ff(1);
+                          setTimestamp(currentTime);
+                        }
                       }}>
                       <div id="control-fastforward"></div>
                     </div>
