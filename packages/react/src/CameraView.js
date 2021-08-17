@@ -163,6 +163,7 @@ let Skywatch = {
   all_dataset: {},
   tick_counter: 0,
   next_archive: null,
+  last_timestamp: false,
 };
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
@@ -1238,13 +1239,8 @@ const CameraView = ({deviceId}) => {
       params.right_time = getScaleStartTime(right_time + 10);
       params.left_time =
         params.right_time - scale_table.get(scale, right_time + 10);
-      // if live only and is not animating timeline, automatically go next block
-      if (!Skywatch._animating) {
-        // avoid event mess up
-        setTimeout(function() {
-          onNextClick();
-        }, 100);
-      } else if (right_time + 1 === Math.floor(current_time)) {
+
+      if (right_time + 1 === Math.floor(current_time)) {
         setTimeout(function() {
           onNextClick();
         }, 100);
@@ -1278,8 +1274,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const _onChangeCurrentTime = function(current_time) {
-    // TODO: handle drag
-    // if (this.is_dragging) return;
+    if (Skywatch.is_dragging) return;
     // update bubble place
     setBubbleTime(current_time, 'normal', true);
   };
@@ -1415,6 +1410,44 @@ const CameraView = ({deviceId}) => {
   };
 
   const refactor = () => {
+    var $cursor = $('#cursor');
+    $cursor.draggable({
+      axis: 'x',
+      containment: '#playbar-container',
+      stop: function(e, ui) {
+        handleTimebarContentClicked(e);
+        $('#cursor_bubble').removeClass('active');
+        Skywatch.is_dragging = false;
+      },
+      drag: function(e, ui) {
+        // set played bar width
+        var $target = $(e.target);
+        var containment = $target.draggable('option', 'containment');
+        var time_position = ui.offset.left - $(containment).offset().left;
+        $('#played').css('width', time_position);
+        var left_time = leftTimestamp;
+        var right_time = rightTimestamp;
+        var timebar_width = $(containment).width();
+        var timestamp =
+          (time_position / timebar_width) * (right_time - left_time) +
+          left_time;
+
+        if (
+          timestamp > Math.ceil(new Date().getTime() / 1000) &&
+          Skywatch.last_timestamp !== false &&
+          timestamp > Skywatch.last_timestamp
+        ) {
+          return false;
+        }
+        Skywatch.last_timestamp = timestamp;
+        setBubbleTime(timestamp, 'normal', true);
+      },
+      start: function(e, ui) {
+        Skywatch.last_timestamp = false;
+        $('#cursor_bubble').addClass('active');
+        Skywatch.is_dragging = true;
+      },
+    });
     renderScaleIndicator();
     setDelay(1000);
     _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
