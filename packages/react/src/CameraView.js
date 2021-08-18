@@ -21,7 +21,7 @@ import {ArchivesPlayer, FlvPlayer} from '../src';
 import './model';
 import {_} from 'core-js';
 import {useInterval} from './useInterval';
-const API_KEY = '9141240363b4687bd32d1fe9a03211dc';
+const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
 const keyholder = true;
 const hide_ff = false;
 
@@ -184,6 +184,7 @@ const CameraView = ({deviceId}) => {
   const [isMuted, setIsMuted] = useState(true);
 
   const goLive = () => {
+    // TODO: handle pause then go live
     resetActiveButton();
     $('#control-play')
       .parent()
@@ -319,7 +320,7 @@ const CameraView = ({deviceId}) => {
     }
 
     $.cookie('username', 'switch+');
-    $.cookie('api_key', '9141240363b4687bd32d1fe9a03211dc');
+    $.cookie('api_key', API_KEY);
 
     var xhr = $.get('api/v2/cameras/' + camera_id + '/archives', {
       // api_key: $.cookie('api_key'),
@@ -364,8 +365,8 @@ const CameraView = ({deviceId}) => {
       .fail(function() {
         console.warn('request failed');
         if (scope === 'CloudArchives') {
-          self._current_clould_archive_request = null;
-          self._current_clould_archive_request_timer = 0;
+          Skywatch._current_clould_archive_request = null;
+          Skywatch._current_clould_archive_request_timer = 0;
           // remove pulling mark
           // if (self.collection) {
           //   self.collection.removePulling(self.get('id'));

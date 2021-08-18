@@ -5,7 +5,7 @@ import CameraView from '../src/CameraView';
 
 initialize(
   'https://bot.skywatch24.com:31502/skywatch_api',
-  '9141240363b4687bd32d1fe9a03211dc',
+  '98c0fda1cd2c875a4379e9b8e7eea7fa',
 );
 
 const APP = () => {

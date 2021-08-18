@@ -3,6 +3,7 @@ import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
 import {Requests} from '@skywatch/api';
+import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
 
 const defaultPlayerOptions = {
   autoplay: true,
@@ -24,6 +25,7 @@ const ArchivesPlayer = ({
   onTimeUpdate,
   onEnded,
 }) => {
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -62,8 +64,22 @@ const ArchivesPlayer = ({
     initPlayer();
   }, [onPlayerInit, onPlayerDispose, playerOptions, archiveId, seek]);
 
+  const loadingStyle = {
+    height: style.height,
+    width: style.width,
+    backgroundImage: `url(${LoadingSpinner})`,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '70px 70px',
+    transition: 'opacity .20s linear',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    position: 'absolute',
+    zIndex: 5,
+  };
+
   return (
-    <div className="player" ref={containerRef}>
+    <div className="player" ref={containerRef} style={{}}>
+      {loading && <div style={loadingStyle}></div>}
       <video
         className="video-js"
         controls={controls}
@@ -71,6 +87,10 @@ const ArchivesPlayer = ({
         id="archive-video"
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
+        onSeeked={() => setLoading(false)}
+        onPlaying={() => {
+          if (!seek) setLoading(false);
+        }}
       />
     </div>
   );

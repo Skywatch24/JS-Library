@@ -1,7 +1,8 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import flvjs from 'flv.js';
 import {Requests} from '@skywatch/api';
+import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
 
 const FlvPlayer = ({
   deviceId,
@@ -10,6 +11,7 @@ const FlvPlayer = ({
   style,
   controls,
 }) => {
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
   useEffect(() => {
     const initPlayer = async () => {
@@ -27,7 +29,7 @@ const FlvPlayer = ({
         });
         flvPlayer.attachMediaElement(videoEl);
         flvPlayer.load();
-        flvPlayer.play();
+        flvPlayer.play().then(() => setLoading(false));
         flvPlayer.on(flvjs.Events.ERROR, (errType, errDetail) => {
           console.log(errType, errDetail);
         });
@@ -42,9 +44,21 @@ const FlvPlayer = ({
 
     initPlayer();
   }, []);
-
+  const loadingStyle = {
+    height: style.height,
+    width: style.width,
+    backgroundImage: `url(${LoadingSpinner})`,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '70px 70px',
+    transition: 'opacity .20s linear',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    position: 'absolute',
+    zIndex: 5,
+  };
   return (
     <div className="player" ref={containerRef}>
+      {loading && <div style={loadingStyle}></div>}
       <video id="videoElement" controls={controls} muted style={style} />
     </div>
   );
