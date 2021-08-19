@@ -24,8 +24,8 @@ const ArchivesPlayer = ({
   controls,
   onTimeUpdate,
   onEnded,
+  setLoading,
 }) => {
-  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -64,22 +64,8 @@ const ArchivesPlayer = ({
     initPlayer();
   }, [onPlayerInit, onPlayerDispose, playerOptions, archiveId, seek]);
 
-  const loadingStyle = {
-    height: style.height,
-    width: style.width,
-    backgroundImage: `url(${LoadingSpinner})`,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '70px 70px',
-    transition: 'opacity .20s linear',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    position: 'absolute',
-    zIndex: 5,
-  };
-
   return (
-    <div className="player" ref={containerRef} style={{}}>
-      {loading && <div style={loadingStyle}></div>}
+    <div className="player" ref={containerRef}>
       <video
         className="video-js"
         controls={controls}
@@ -102,6 +88,7 @@ ArchivesPlayer.defaultProps = {
   controls: true,
   onTimeUpdate: () => {},
   onEnded: () => {},
+  setLoading: () => {},
 };
 
 ArchivesPlayer.propTypes = {
@@ -116,6 +103,7 @@ ArchivesPlayer.propTypes = {
   controls: PropTypes.bool,
   onTimeUpdate: PropTypes.func,
   onEnded: PropTypes.func,
+  setLoading: PropTypes.func,
 };
 
 export default ArchivesPlayer;

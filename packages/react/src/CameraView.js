@@ -21,6 +21,8 @@ import {ArchivesPlayer, FlvPlayer} from '../src';
 import './model';
 import {_} from 'core-js';
 import {useInterval} from './useInterval';
+import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
+
 const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
 const hide_ff = false;
 
@@ -163,6 +165,7 @@ let Skywatch = {
 const CameraView = ({deviceId}) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(true);
   const [timestamp, setTimestamp] = useState(now);
   const [currentTime, setCurrentTime] = useState(now);
@@ -188,8 +191,11 @@ const CameraView = ({deviceId}) => {
     onChangeCurrentTime(currentTime);
   }, [currentTime]);
 
+  useEffect(() => {
+    loading ? setDelay(null) : setDelay(1000);
+  }, [loading]);
+
   const goLive = () => {
-    // TODO: handle pause then go live / pause then play
     resetActiveButton();
     $('#control-play')
       .parent()
@@ -208,6 +214,7 @@ const CameraView = ({deviceId}) => {
     );
     onHighlightTimeChange(0, 0);
     setCurrentTime(now);
+    setArchive(null);
     setIsLive(true);
     setIsMuted(true);
     setLeftTimestamp(updatedLeftTimestamp);
@@ -470,6 +477,7 @@ const CameraView = ({deviceId}) => {
 
   const handleTimebarContentClicked = e => {
     if (!Skywatch.archives) return; // for testing
+    setLoading(true);
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
     var right_time = rightTimestamp;
@@ -1157,6 +1165,19 @@ const CameraView = ({deviceId}) => {
 
   // done
   const onHighlightTimeChange = function(highlight_start, highlight_end) {
+    $('#meta_container')
+      .find('.camera-' + deviceId + ' .meta_timeline_i')
+      .each(function() {
+        const $el = $(this);
+        if (
+          parseInt($el.attr('start')) >= highlight_start &&
+          parseInt($el.attr('end')) <= highlight_end
+        ) {
+          $el.addClass('highlight');
+        } else {
+          $el.removeClass('highlight');
+        }
+      });
     sethigHlightStart(highlight_start);
     sethigHlightEnd(highlight_end);
   };
@@ -1245,7 +1266,7 @@ const CameraView = ({deviceId}) => {
     return Math.floor(time);
   };
 
-  const _onVideoEnded = function() {
+  const onVideoEnded = function() {
     const data = getNextCloudArchive(archive, smart_ff);
     if (data.status === 'end') {
       console.info('no archive');
@@ -1258,6 +1279,7 @@ const CameraView = ({deviceId}) => {
       onPlayerHole();
     } else if (data.status === 'ok') {
       console.info('player.ok');
+      setLoading(true);
       setArchive(data.archive);
       Skywatch.next_archive = null;
       onHighlightTimeChange(
@@ -1405,10 +1427,23 @@ const CameraView = ({deviceId}) => {
     console.log('updateCurrentTime');
   }, delay);
 
+  const loadingStyle = {
+    height: '432px',
+    width: '768px',
+    backgroundImage: `url(${LoadingSpinner})`,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '70px 70px',
+    transition: 'opacity .20s linear',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    position: 'absolute',
+    zIndex: 5,
+  };
   return (
     <>
       <div id="group-view-camera">
         <div id="camera-grid-container">
+          {loading && <div style={loadingStyle}></div>}
           {Skywatch.archives &&
             (isLive ? (
               <FlvPlayer
@@ -1416,6 +1451,7 @@ const CameraView = ({deviceId}) => {
                 onPlayerInit={setPlayer}
                 onPlayerDispose={setPlayer}
                 style={{width: '768px', height: '432px'}}
+                setLoading={setLoading}
                 // controls={false}
               />
             ) : (
@@ -1433,7 +1469,8 @@ const CameraView = ({deviceId}) => {
                 }
                 style={{width: '768px', height: '432px'}}
                 // controls={false}
-                onEnded={_onVideoEnded}
+                onEnded={onVideoEnded}
+                setLoading={setLoading}
                 onTimeUpdate={() => {
                   const video_time = player.currentTime();
                   if (smart_ff) {
@@ -1548,7 +1585,6 @@ const CameraView = ({deviceId}) => {
                       e.target.parentElement.classList.add('active');
                       setDelay(1000);
                       setSmart_ff(0);
-                      setIsLive(false);
                       player && player.play();
                     }}>
                     <div id="control-play"></div>
@@ -1558,6 +1594,7 @@ const CameraView = ({deviceId}) => {
                       className="control_button"
                       onClick={e => {
                         if (!smart_ff) {
+                          setLoading(true);
                           setDelay(null);
                           resetActiveButton();
                           e.target.parentElement.classList.add('active');
@@ -1581,7 +1618,6 @@ const CameraView = ({deviceId}) => {
                         player && player.muted(!isMuted);
                       }
                       setIsMuted(!isMuted);
-                      console.log(isMuted);
                     }}>
                     <div id="control-volume"></div>
                   </div>

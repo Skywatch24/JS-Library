@@ -2,7 +2,6 @@ import React, {useRef, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import flvjs from 'flv.js';
 import {Requests} from '@skywatch/api';
-import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
 
 const FlvPlayer = ({
   deviceId,
@@ -10,8 +9,8 @@ const FlvPlayer = ({
   onPlayerDispose,
   style,
   controls,
+  setLoading,
 }) => {
-  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
   useEffect(() => {
     const initPlayer = async () => {
@@ -21,6 +20,7 @@ const FlvPlayer = ({
         const flvPlayer = flvjs.createPlayer({
           type: 'flv',
           url: res.data,
+          isLive: true,
           config: {
             enableWorker: true,
             enableStashBuffer: false,
@@ -44,21 +44,9 @@ const FlvPlayer = ({
 
     initPlayer();
   }, []);
-  const loadingStyle = {
-    height: style.height,
-    width: style.width,
-    backgroundImage: `url(${LoadingSpinner})`,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '70px 70px',
-    transition: 'opacity .20s linear',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    position: 'absolute',
-    zIndex: 5,
-  };
+
   return (
     <div className="player" ref={containerRef}>
-      {loading && <div style={loadingStyle}></div>}
       <video id="videoElement" controls={controls} muted style={style} />
     </div>
   );
@@ -66,6 +54,7 @@ const FlvPlayer = ({
 
 FlvPlayer.defaultProps = {
   controls: true,
+  setLoading: () => {},
 };
 
 FlvPlayer.propTypes = {
@@ -74,6 +63,7 @@ FlvPlayer.propTypes = {
   onPlayerDispose: PropTypes.func.isRequired,
   style: PropTypes.object,
   controls: PropTypes.bool,
+  setLoading: PropTypes.func,
 };
 
 export default FlvPlayer;
