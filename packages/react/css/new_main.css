@@ -1,0 +1,566 @@
+#camera-grid-container {
+  height: 60%;
+}
+#controlbar_container {
+  height: 110px;
+  background-color: #00a5e6;
+  width: 100%;
+  position: relative;
+}
+#controlbar {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  padding-top: 5px;
+}
+#controlbar #label_container {
+  height: 16px;
+  border-radius: 4px;
+  width: 80%;
+  margin: -5px 10% 0 10%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  cursor: pointer;
+  color: #91d6f0;
+  font-size: 12px;
+}
+#controlbar #label_container #label_content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+}
+#controlbar #label_container #label_content > span {
+  position: absolute;
+  margin-left: -18px;
+}
+#controlbar #controlbar_content {
+  width: 100%;
+  height: 60px;
+  margin-top: 4px;
+}
+#controlbar .button_group_container {
+  width: 100%;
+  text-align: center;
+}
+#controlbar .button_group {
+  float: left;
+  margin-top: 6px;
+}
+#controlbar .button_group.playback-control-group {
+  margin-left: 42px;
+}
+#controlbar .button_group.pull-right {
+  margin-right: 42px;
+}
+#controlbar .button_group .switch_button {
+  float: left;
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  margin: 3px;
+  cursor: pointer;
+  border-radius: 25px;
+  border: 2px solid transparent;
+  position: relative;
+  line-height: 28px;
+  color: #fff;
+  font-weight: bold;
+}
+#controlbar .button_group .switch_button > div {
+  width: 100%;
+  height: 100%;
+}
+#controlbar .button_group .switch_button.active #control-golive {
+  width: 70px;
+  background-image: url("./controlbar//btn_timebar_live_n.png");
+}
+#controlbar .button_group .switch_button.active:hover #control-golive {
+  width: 70px;
+  background-image: url("./controlbar//btn_timebar_live_n.png");
+}
+#controlbar .button_group .switch_button:hover #control-golive {
+  width: 70px;
+  background-image: url("./controlbar//btn_timebar_live_n.png");
+}
+#controlbar .button_group .switch_button #control-golive {
+  width: 70px;
+  background: url("./controlbar//btn_timebar_nlive_n.png") center no-repeat;
+}
+#controlbar .button_group .switch_button .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: orange;
+  margin-right: 5px;
+}
+#controlbar .button_group .switch_button #control-volume {
+  background-image: url("./controlbar//btn_web_loud.png");
+  background-size: 25px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+#controlbar .button_group .switch_button.active #control-volume {
+  background-image: url("./controlbar//btn_web_mute.png");
+  background-size: 25px;
+  background-position: center;
+}
+#controlbar .button_group .switch_button.button_long {
+  width: 80px;
+  padding-left: 3px;
+}
+#controlbar .button_group .switch_button:hover {
+  border-color: #fff;
+}
+#controlbar .button_group .switch_button.pressed:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+#controlbar .button_group .control_button {
+  float: left;
+  width: 40px;
+  height: 40px;
+  margin: 3px;
+  cursor: pointer;
+  border-radius: 25px;
+  border: 2px solid transparent;
+  position: relative;
+  line-height: 40px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+#controlbar .button_group .control_button > div {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: 25px;
+  background-repeat: no-repeat;
+}
+#controlbar .button_group .control_button.active {
+  background-color: #fff;
+  border-color: #fff;
+  color: #00a5e6;
+}
+#controlbar .button_group .control_button.active #control-pause {
+  background-image: url("./controlbar//BarPause.png");
+}
+#controlbar .button_group .control_button.active #control-play {
+  background-image: url("./controlbar//BarPlay.png");
+}
+#controlbar .button_group .control_button.active #control-fastforward {
+  background-image: url("./controlbar//BarFast.png");
+}
+#controlbar .button_group .control_button:hover {
+  border-color: #fff;
+}
+#controlbar .button_group .control_button.disabled {
+  background-color: #0080ab;
+  cursor: not-allowed;
+}
+#controlbar .button_group .control_button.pressed:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+#controlbar .button_group .control_button #control-pause {
+  background-image: url("./controlbar//btn_web_pause.png");
+}
+#controlbar .button_group .control_button #control-play {
+  background-image: url("./controlbar//btn_web_play.png");
+}
+#controlbar .button_group .control_button #control-fastforward {
+  background-image: url("./controlbar//btn_web_ff.png");
+}
+#controlbar #date_left,
+#controlbar #date_right {
+  margin-top: -15px;
+  width: 5%;
+  min-width: 120px;
+  position: absolute;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 0px 10px;
+}
+#controlbar #date_left#date_left div,
+#controlbar #date_right#date_left div {
+  float: right;
+}
+#controlbar #date_left#date_right div,
+#controlbar #date_right#date_right div {
+  float: left;
+}
+#controlbar #date_left span,
+#controlbar #date_right span {
+  font-weight: normal;
+}
+#controlbar #date_left span:first-child,
+#controlbar #date_right span:first-child {
+  margin-right: 5px;
+}
+#controlbar #cursor_bubble,
+#controlbar #cursor_bubble_preview {
+  position: absolute;
+  width: 130px;
+  height: 35px;
+  padding: 8px;
+  font-size: 13px;
+  color: #666666;
+  background-color: rgba(255, 255, 255, 0.9);
+  bottom: 75px;
+  left: -25px;
+  border-radius: 2px;
+  z-index: 56;
+  top: -12px;
+  text-align: center;
+  -webkit-box-shadow: 0px 0px 10px -2px #919191;
+  -moz-box-shadow: 0px 0px 10px -2px #919191;
+  box-shadow: 0px 0px 10px -2px #919191;
+  cursor: pointer;
+  display: none;
+}
+#controlbar #cursor_bubble span:first-child,
+#controlbar #cursor_bubble_preview span:first-child {
+  font-weight: bold;
+  margin-right: 5px;
+}
+#controlbar #cursor_bubble.active,
+#controlbar #cursor_bubble_preview.active {
+  background-color: #fff;
+}
+#controlbar #cursor_bubble:after,
+#controlbar #cursor_bubble_preview:after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fff;
+  font-size: 0;
+  line-height: 0;
+  bottom: -8px;
+  left: 19px;
+}
+#controlbar #cursor_bubble:before,
+#controlbar #cursor_bubble_preview:before {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid #c4c4c4;
+  font-size: 0;
+  line-height: 0;
+  bottom: -9px;
+  left: 18px;
+}
+#controlbar #cursor_bubble.right:after,
+#controlbar #cursor_bubble_preview.right:after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 8px solid #fff;
+  font-size: 0;
+  line-height: 0;
+  bottom: -6px;
+  left: 90px;
+  -ms-transform: rotate(-152deg);
+  /* IE 9 */
+  -webkit-transform: rotate(-152deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(-152deg);
+}
+#controlbar #cursor_bubble.right:before,
+#controlbar #cursor_bubble_preview.right:before {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 9px solid #c4c4c4;
+  font-size: 0;
+  line-height: 0;
+  bottom: -7px;
+  left: 90px;
+  -ms-transform: rotate(-152deg);
+  /* IE 9 */
+  -webkit-transform: rotate(-152deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(-152deg);
+}
+#controlbar #cursor_bubble.left:after,
+#controlbar #cursor_bubble_preview.left:after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fff;
+  font-size: 0;
+  line-height: 0;
+  bottom: -6px;
+  left: 19px;
+  -ms-transform: rotate(152deg);
+  /* IE 9 */
+  -webkit-transform: rotate(152deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(152deg);
+}
+#controlbar #cursor_bubble.left:before,
+#controlbar #cursor_bubble_preview.left:before {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid #c4c4c4;
+  font-size: 0;
+  line-height: 0;
+  bottom: -8px;
+  left: 18px;
+  -ms-transform: rotate(152deg);
+  /* IE 9 */
+  -webkit-transform: rotate(152deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(152deg);
+}
+#controlbar #date_left {
+  left: 0;
+}
+#controlbar #date_right {
+  right: 0;
+}
+#controlbar #date_right > div {
+  float: right;
+}
+#controlbar #timebar_container {
+  position: relative;
+  width: 100%;
+  height: 50px;
+}
+#controlbar #timebar_container #timebar {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  overflow: hidden;
+}
+#controlbar #timebar_container #timebar #cursor {
+  position: absolute;
+  height: 0px;
+  width: 0px;
+  top: 36px;
+  z-index: 20;
+  right: 10%;
+}
+#controlbar #timebar_container #timebar #cursor:after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  height: 20px;
+  width: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  z-index: 20;
+  cursor: pointer;
+  background: url("./controlbar//ball_play_history.png") center no-repeat;
+}
+#controlbar #timebar_container #timebar #cursor.live:after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  height: 20px;
+  width: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  z-index: 20;
+  cursor: pointer;
+  background: url("./controlbar//ball_play_live.png") center no-repeat;
+}
+#controlbar #timebar_container #timebar #cursor #cursor_clickable {
+  position: absolute;
+  content: "";
+  width: 20px;
+  height: 20px;
+  left: -10px;
+  top: -10px;
+  cursor: pointer;
+}
+#controlbar #timebar_container #timebar #timebar_content {
+  border-radius: 4px;
+  width: 90%;
+  height: 40px;
+  margin: 0 5%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+#controlbar #timebar_container #timebar #timebar_content:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #eaeaea;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container {
+  position: absolute;
+  width: 300%;
+  left: -100%;
+  height: 33px;
+  background-color: #eaeaea;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container.loading:after {
+  content: "";
+  background-image: url("./controlbar//loading_small.gif");
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  background-position: center 8px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #meta_container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #meta_container.group > div {
+  visibility: hidden;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #meta_container.group > div.active {
+  visibility: visible;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #scale_container {
+  position: absolute;
+  width: 33.333%;
+  height: 100%;
+  top: 0;
+  left: 33.333%;
+  opacity: 0.2;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #scale_container .shade {
+  position: absolute;
+  background-color: #eaeaea;
+  height: 100%;
+  width: 100%;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #scale_container .shade-grid {
+  border-left: 1px solid #c4c4c4;
+}
+#controlbar #timebar_container #timebar #timebar_content #timeline_container #scale_container .shade-dark {
+  background-color: #c4c4c4;
+}
+#controlbar #timebar_container #timebar #timebar_content #playbar-container {
+  width: 100%;
+  height: 8px;
+  position: absolute;
+  background-color: #c4c4c4;
+  bottom: 0;
+  left: 0;
+  top: 33px;
+  overflow: hidden;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+#controlbar #timebar_container #timebar #timebar_content #playbar-container #playbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #DEDEDE;
+}
+#controlbar #timebar_container #timebar #timebar_content #playbar-container #played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #b7cec7;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-top: 1px solid #eaeaea;
+  border-bottom: 1px solid #eaeaea;
+}
+#controlbar #timebar_container #timebar .left_button {
+  position: absolute;
+  width: 5%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  padding-right: 2px;
+}
+#controlbar #timebar_container #timebar .left_button > div {
+  background: url("./controlbar//BarLeft.png") center no-repeat;
+  background-size: contain;
+  background-color: #eaeaea;
+  float: right;
+  height: 40px;
+  width: 12px;
+  padding: 6px 10px;
+}
+#controlbar #timebar_container #timebar .right_button {
+  position: absolute;
+  width: 5%;
+  height: 100%;
+  right: 0;
+  top: 0;
+  padding-left: 2px;
+}
+#controlbar #timebar_container #timebar .right_button > div {
+  background: url("./controlbar//BarRight.png") center no-repeat;
+  background-size: contain;
+  background-color: #eaeaea;
+  float: left;
+  height: 40px;
+  width: 12px;
+  padding: 6px 10px;
+}
+#controlbar #timebar_container #timebar .timeline_i,
+#controlbar #timebar_container #timebar .meta_timeline_i {
+  position: absolute;
+  bottom: 1px;
+  background-color: #b7cec7;
+  height: 10px;
+}
+#controlbar #timebar_container #timebar .timeline_i.highlight,
+#controlbar #timebar_container #timebar .meta_timeline_i.highlight {
+  background-color: #73c69c;
+}
+#controlbar #timebar_container #timebar .meta_timeline_i {
+  background-color: #b7cec7;
+  margin-left: 1px;
+  z-index: 15;
+}

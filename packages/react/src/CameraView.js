@@ -1,44 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-
-import '../new_main.css';
-import '../../../../skywatch_platform/submodules/library/video-js/video-js.min.css';
-import '../../../../skywatch_platform/submodules/modules/css/v2/camera_view.css';
-import '../../../../skywatch_platform/submodules/library/jquery/css/ui-lightness/jquery-ui-1.8.23.custom.css';
-import '../../../../skywatch_platform/submodules/modules/js/shaka-player.compiled.js';
-import '../../../../skywatch_platform/submodules/modules/js/flv.js';
-import '../../../../skywatch_platform/submodules/modules/js/three.min.js';
-import '../../../../skywatch_platform/submodules/library/jquery/js/jquery-1.11.2.min.js';
-
-import '../lib/jquery-cookie/jquery.cookie-1.4.1.min';
-import '../../../../skywatch_platform/submodules/library/bootstrap-3.0.0/css/bootstrap.min.css';
-import '../lib/bootstrap.custom.min.js';
-
-import {camera_view} from './camera_view';
-import {view} from './view';
-import {device_view} from './device_view';
+import $ from 'jquery';
+import 'jquery-ui-dist/jquery-ui';
+import '../bootstrap/css/bootstrap.min.css';
+import '../bootstrap/js/bootstrap.custom.min.js';
+import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
-import './model';
-import {_} from 'core-js';
-import {useInterval} from './useInterval';
-import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
+import {useInterval, useCookie} from './hooks';
+import LoadingSpinner from '../css/controlbar/loading.gif';
 
 const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
 const hide_ff = false;
-
-const init = (deviceId, {name, device_type, model_id, type}) => {
-  view();
-  device_view();
-  camera_view(API_KEY, deviceId);
-  Skywatch.Live.cameras.add({
-    id: deviceId,
-    name,
-    device_type,
-    model: model_id,
-    type,
-  });
-  Skywatch.Live.camera_grid.setCamera(deviceId);
-};
 
 // done
 const scale_table = {
@@ -183,6 +155,12 @@ const CameraView = ({deviceId}) => {
   const [highlightStart, sethigHlightStart] = useState(0);
   const [highlightEnd, sethigHlightEnd] = useState(0);
 
+  const [cookie, updateCookie] = useCookie('api_key', API_KEY);
+
+  useEffect(() => {
+    init();
+  }, []);
+
   useEffect(() => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
   }, [scale, leftTimestamp, rightTimestamp]);
@@ -196,6 +174,7 @@ const CameraView = ({deviceId}) => {
   }, [loading]);
 
   const goLive = () => {
+    setLoading(true);
     resetActiveButton();
     $('#control-play')
       .parent()
@@ -323,15 +302,14 @@ const CameraView = ({deviceId}) => {
       temp_archives_end_time = parse_end_time[1];
     }
 
-    $.cookie('api_key', API_KEY);
     const xhr = $.get('api/v2/cameras/' + deviceId + '/archives', {
       scope: scope,
       start_time: temp_archives_start_time,
       end_time: temp_archives_end_time,
     })
       .done(function(data) {
-        data = data.replace(/<script.*script>/, '');
-        data = JSON.parse(data);
+        // data = data.replace(/<script.*script>/, '');
+        // data = JSON.parse(data);
 
         if (data.stop === 'true') {
           if (scope == 'CloudArchives') {
@@ -476,7 +454,6 @@ const CameraView = ({deviceId}) => {
   };
 
   const handleTimebarContentClicked = e => {
-    if (!Skywatch.archives) return; // for testing
     setLoading(true);
     var time_position = e.pageX - $('#timebar_content').offset().left;
     var left_time = leftTimestamp;
@@ -1253,7 +1230,7 @@ const CameraView = ({deviceId}) => {
       console.warn('json error', archive.meta);
       return 0;
     }
-    var meta_keys = _.keys(meta);
+    var meta_keys = Object.keys(meta);
     var time = 0;
 
     for (var i = 0; i < meta_keys.length - 1; i++) {
@@ -1397,7 +1374,8 @@ const CameraView = ({deviceId}) => {
     });
   };
 
-  const refactor = () => {
+  const init = () => {
+    updateCookie(API_KEY, 30);
     setCursorDraggable();
     renderScaleIndicator();
     setDelay(1000);
@@ -1411,15 +1389,6 @@ const CameraView = ({deviceId}) => {
       },
     );
   };
-  useEffect(() => {
-    Skywatch.archives
-      ? refactor()
-      : fetch(`api/v2/devices/${deviceId}?api_key=${API_KEY}`)
-          .then(res => res.json())
-          .then(data => {
-            init(deviceId, data);
-          });
-  }, []);
 
   useInterval(function() {
     updateCurrentTime();
@@ -1444,66 +1413,63 @@ const CameraView = ({deviceId}) => {
       <div id="group-view-camera">
         <div id="camera-grid-container">
           {loading && <div style={loadingStyle}></div>}
-          {Skywatch.archives &&
-            (isLive ? (
-              <FlvPlayer
-                deviceId={deviceId}
-                onPlayerInit={setPlayer}
-                onPlayerDispose={setPlayer}
-                style={{width: '768px', height: '432px'}}
-                setLoading={setLoading}
-                // controls={false}
-              />
-            ) : (
-              <ArchivesPlayer
-                key={archive.id + timestamp + smart_ff}
-                onPlayerInit={setPlayer}
-                onPlayerDispose={setPlayer}
-                deviceId={deviceId}
-                archiveId={archive.id}
-                smart_ff={smart_ff}
-                seek={
-                  smart_ff
-                    ? toArchiveTime(timestamp, true)
-                    : timestamp - archive.timestamp
-                }
-                style={{width: '768px', height: '432px'}}
-                // controls={false}
-                onEnded={onVideoEnded}
-                setLoading={setLoading}
-                onTimeUpdate={() => {
-                  const video_time = player.currentTime();
-                  if (smart_ff) {
-                    // smart ff need to update timestamp frequently
-                    if (Skywatch.tick_counter === 0) {
-                      // video timestamp will not immediately update to seeked time
-                      // so we need to filter out 0
-                      // TODO check && !this._.seeking
-                      if (video_time !== 0) {
-                        updateCurrentTime(getSmartFFTimestamp(video_time));
-                      }
+          {isLive ? (
+            <FlvPlayer
+              deviceId={deviceId}
+              onPlayerInit={setPlayer}
+              onPlayerDispose={setPlayer}
+              style={{width: '768px', height: '432px'}}
+              setLoading={setLoading}
+              // controls={false}
+            />
+          ) : (
+            <ArchivesPlayer
+              key={archive.id + timestamp + smart_ff}
+              onPlayerInit={setPlayer}
+              onPlayerDispose={setPlayer}
+              deviceId={deviceId}
+              archiveId={archive.id}
+              smart_ff={smart_ff}
+              seek={
+                smart_ff
+                  ? toArchiveTime(timestamp, true)
+                  : timestamp - archive.timestamp
+              }
+              style={{width: '768px', height: '432px'}}
+              // controls={false}
+              onEnded={onVideoEnded}
+              setLoading={setLoading}
+              onTimeUpdate={() => {
+                const video_time = player.currentTime();
+                if (smart_ff) {
+                  // smart ff need to update timestamp frequently
+                  if (Skywatch.tick_counter === 0) {
+                    // video timestamp will not immediately update to seeked time
+                    // so we need to filter out 0
+                    // TODO check && !this._.seeking
+                    if (video_time !== 0) {
+                      updateCurrentTime(getSmartFFTimestamp(video_time));
                     }
-                    // report every 1 seconds
-                    Skywatch.tick_counter = (Skywatch.tick_counter + 1) % 4;
-                  } else {
-                    if (Skywatch.tick_counter === 0) {
-                      const normalTimestamp =
-                        parseInt(archive.timestamp, 10) +
-                        Math.floor(video_time);
-                      if (Math.abs(normalTimestamp - currentTime) >= 10) {
-                        // console.log('sync video to cursor', new Date(current_time * 1000));
-                        // TODO: temp sync cursor to video
-                        updateCurrentTime(normalTimestamp);
-                        // view.seek(current_time);
-                      }
-                    }
-                    // report every 5 seconds
-                    Skywatch.tick_counter =
-                      (Skywatch.tick_counter + 1) % (4 * 5);
                   }
-                }}
-              />
-            ))}
+                  // report every 1 seconds
+                  Skywatch.tick_counter = (Skywatch.tick_counter + 1) % 4;
+                } else {
+                  if (Skywatch.tick_counter === 0) {
+                    const normalTimestamp =
+                      parseInt(archive.timestamp, 10) + Math.floor(video_time);
+                    if (Math.abs(normalTimestamp - currentTime) >= 10) {
+                      // console.log('sync video to cursor', new Date(current_time * 1000));
+                      // TODO: temp sync cursor to video
+                      updateCurrentTime(normalTimestamp);
+                      // view.seek(current_time);
+                    }
+                  }
+                  // report every 5 seconds
+                  Skywatch.tick_counter = (Skywatch.tick_counter + 1) % (4 * 5);
+                }
+              }}
+            />
+          )}
         </div>
         <div id="buffer_container"></div>
         <div id="controlbar_container" style={{height: 140}}>
