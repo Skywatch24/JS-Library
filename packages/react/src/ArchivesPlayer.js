@@ -3,7 +3,6 @@ import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
 import {Requests} from '@skywatch/api';
-import LoadingSpinner from '../../../../skywatch_platform/service_frontend/images/v2/loading.gif';
 
 const defaultPlayerOptions = {
   autoplay: true,
@@ -73,9 +72,8 @@ const ArchivesPlayer = ({
         id="archive-video"
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
-        onSeeked={() => setLoading(false)}
-        onPlaying={() => {
-          if (!seek) setLoading(false);
+        onSeeked={() => {
+          setLoading(false);
         }}
       />
     </div>

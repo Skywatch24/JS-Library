@@ -149,7 +149,7 @@ const CameraView = ({deviceId}) => {
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(true);
-  const [timestamp, setTimestamp] = useState(now);
+  const [seekTime, setSeekTime] = useState('');
   const [currentTime, setCurrentTime] = useState(now);
   const [archive, setArchive] = useState(null);
   const [scale, setScale] = useState('hour');
@@ -164,6 +164,7 @@ const CameraView = ({deviceId}) => {
   const [isMuted, setIsMuted] = useState(true);
   const [highlightStart, sethigHlightStart] = useState(0);
   const [highlightEnd, sethigHlightEnd] = useState(0);
+  const [archiveCounter, setArchiveCounter] = useState(0); // use counter as key for <ArchivesPlayer />
 
   const [cookie, updateCookie] = useCookie('api_key', API_KEY);
 
@@ -231,9 +232,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const seek = timestamp => {
-    setTimestamp(timestamp);
     updateCurrentTime(timestamp);
-
     const targetArchive = seekTargetArchive(timestamp);
 
     // handle click on gap
@@ -248,6 +247,8 @@ const CameraView = ({deviceId}) => {
 
     setBubbleTime(timestamp, $('#cursor_bubble'), true);
     setArchive(targetArchive);
+    setArchiveCounter(prev => prev + 1);
+    setSeekTime(toArchiveTime(targetArchive, timestamp, smart_ff));
     const highlight_start = parseInt(targetArchive.timestamp);
     const highlight_end =
       parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
@@ -1218,7 +1219,7 @@ const CameraView = ({deviceId}) => {
     setBubbleTime(current_time, $('#cursor_bubble'), true);
   };
 
-  const toArchiveTime = function(unix_time, is_smart_ff) {
+  const toArchiveTime = function(archive, unix_time, is_smart_ff) {
     const video_time = Math.floor(unix_time - archive.timestamp);
     if (!is_smart_ff) {
       // normal archive: global time - start time
@@ -1260,6 +1261,8 @@ const CameraView = ({deviceId}) => {
       console.info('player.ok');
       setLoading(true);
       setArchive(data.archive);
+      setArchiveCounter(prev => prev + 1);
+      setSeekTime(0);
       Skywatch.next_archive = null;
       onHighlightTimeChange(
         parseInt(data.archive.timestamp),
@@ -1294,9 +1297,6 @@ const CameraView = ({deviceId}) => {
       Skywatch.tick_counter = (Skywatch.tick_counter + 1) % (4 * 5);
     }
   };
-
-  const getSeekTime = () =>
-    smart_ff ? toArchiveTime(timestamp, true) : timestamp - archive.timestamp;
 
   const onPlayerHole = function() {
     const edge = getNextEdge();
@@ -1402,7 +1402,8 @@ const CameraView = ({deviceId}) => {
       resetActiveButton();
       e.target.parentElement.classList.add('active');
       setSmart_ff(1);
-      setTimestamp(currentTime);
+      setSeekTime(toArchiveTime(archive, currentTime, true));
+      setArchiveCounter(prev => prev + 1);
     }
   };
   const toggleMute = () => {
@@ -1432,13 +1433,13 @@ const CameraView = ({deviceId}) => {
             />
           ) : (
             <ArchivesPlayer
-              key={archive.id + timestamp + smart_ff}
+              key={archiveCounter}
               onPlayerInit={setPlayer}
               onPlayerDispose={setPlayer}
               deviceId={deviceId}
               archiveId={archive.id}
               smart_ff={smart_ff}
-              seek={getSeekTime()}
+              seek={seekTime}
               style={{width: '768px', height: '432px'}}
               controls={false}
               onEnded={onVideoEnded}
