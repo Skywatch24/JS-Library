@@ -184,6 +184,26 @@ const CameraView = ({deviceId}) => {
     loading || smart_ff ? setDelay(null) : setDelay(1000);
   }, [loading, smart_ff]);
 
+  useInterval(function() {
+    updateCurrentTime();
+    updateMeta();
+  }, delay);
+
+  const init = () => {
+    updateCookie(API_KEY, COOKIE_EXPIRES_DAY);
+    updateCursorDraggable();
+    renderScaleIndicator();
+    fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
+      () => {
+        document
+          .getElementById('timeline_container')
+          .classList.remove('loading');
+        $('#timeline_container').css('left', '-100%');
+        $('#timeline_container').css('width', '300%');
+      },
+    );
+  };
+
   const goLive = () => {
     setLoading(true);
     resetActiveButton();
@@ -1329,7 +1349,7 @@ const CameraView = ({deviceId}) => {
   const updateCursorDraggable = () => {
     $('#cursor').draggable({
       axis: 'x',
-      containment: '#playbar-container',
+      containment: '#playbar',
       stop: function(e, ui) {
         handleTimebarContentClicked(e);
         $('#cursor_bubble').removeClass('active');
@@ -1395,26 +1415,6 @@ const CameraView = ({deviceId}) => {
     }
     setIsMuted(!isMuted);
   };
-
-  const init = () => {
-    updateCookie(API_KEY, COOKIE_EXPIRES_DAY);
-    updateCursorDraggable();
-    renderScaleIndicator();
-    fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
-      () => {
-        document
-          .getElementById('timeline_container')
-          .classList.remove('loading');
-        $('#timeline_container').css('left', '-100%');
-        $('#timeline_container').css('width', '300%');
-      },
-    );
-  };
-
-  useInterval(function() {
-    updateCurrentTime();
-    updateMeta();
-  }, delay);
 
   return (
     <>
