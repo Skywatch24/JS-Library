@@ -20,7 +20,6 @@ const FlvPlayer = ({
         const flvPlayer = flvjs.createPlayer({
           type: 'flv',
           url: res.data,
-          isLive: true,
           config: {
             enableWorker: true,
             enableStashBuffer: false,

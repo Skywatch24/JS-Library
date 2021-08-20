@@ -10,9 +10,22 @@ import {useInterval, useCookie} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
 
 const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
+const COOKIE_EXPIRES_DAY = 30;
 const hide_ff = false;
 
-// done
+const loadingStyle = {
+  height: '432px',
+  width: '768px',
+  backgroundImage: `url(${LoadingSpinner})`,
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: '70px 70px',
+  transition: 'opacity .20s linear',
+  backgroundColor: 'rgba(0,0,0,0.3)',
+  position: 'absolute',
+  zIndex: 5,
+};
+
 const scale_table = {
   get: function(scale, timestamp) {
     if (scale !== 'month') {
@@ -37,7 +50,6 @@ const scale_table = {
   },
 };
 
-// done
 const getScaleStartTime = function(timestamp, scale) {
   const date = new Date(timestamp * 1000);
   date.setSeconds(0);
@@ -59,7 +71,6 @@ const getScaleStartTime = function(timestamp, scale) {
   return Math.floor(date.getTime() / 1000);
 };
 
-// done
 const getTimeData = function(timestamp) {
   timestamp = parseInt(timestamp, 10);
   if (timestamp.toString().length === 10) timestamp = timestamp * 1000;
@@ -114,7 +125,6 @@ const getTimeData = function(timestamp) {
   };
 };
 
-// done
 const resetActiveButton = () => {
   $('#control-pause')
     .parent()
@@ -163,6 +173,7 @@ const CameraView = ({deviceId}) => {
 
   useEffect(() => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
+    updateCursorDraggable();
   }, [scale, leftTimestamp, rightTimestamp]);
 
   useEffect(() => {
@@ -170,8 +181,8 @@ const CameraView = ({deviceId}) => {
   }, [currentTime]);
 
   useEffect(() => {
-    loading ? setDelay(null) : setDelay(1000);
-  }, [loading]);
+    loading || smart_ff ? setDelay(null) : setDelay(1000);
+  }, [loading, smart_ff]);
 
   const goLive = () => {
     setLoading(true);
@@ -192,19 +203,56 @@ const CameraView = ({deviceId}) => {
       updatedRightTimestamp,
     );
     onHighlightTimeChange(0, 0);
-    setCurrentTime(now);
+    updateCurrentTime(now);
     setArchive(null);
     setIsLive(true);
-    setIsMuted(true);
     setLeftTimestamp(updatedLeftTimestamp);
     setRightTimestamp(updatedRightTimestamp);
   };
 
-  // done
-  const onScaleClick = $el => {
+  const seek = timestamp => {
+    setTimestamp(timestamp);
+    updateCurrentTime(timestamp);
+
+    const targetArchive = seekTargetArchive(timestamp);
+
+    // handle click on gap
+    if (targetArchive.timestamp) {
+      const timestamp_found = parseInt(targetArchive.timestamp);
+      const length = parseInt(targetArchive.length);
+      if (timestamp > timestamp_found + length) {
+        goLive();
+        return;
+      }
+    }
+
+    setBubbleTime(timestamp, $('#cursor_bubble'), true);
+    setArchive(targetArchive);
+    const highlight_start = parseInt(targetArchive.timestamp);
+    const highlight_end =
+      parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+    onHighlightTimeChange(highlight_start, highlight_end);
+    setIsLive(timestamp >= now);
+  };
+
+  const seekTargetArchive = targetTimestamp => {
+    const targetArchive = Skywatch.archives
+      .map(archive => {
+        let diff = archive.timestamp - targetTimestamp;
+        if (diff < 0 && Math.abs(diff) >= archive.length) {
+          diff = Number.MAX_VALUE;
+        }
+        return {...archive, diff};
+      })
+      .sort((a, b) => a.diff - b.diff)[0];
+    return targetArchive;
+  };
+
+  const onScaleClick = e => {
     if ($('#timeline_container.loading').length !== 0) return; // is loading
     let key = 'hour';
-    const id = $el.attr('id');
+    const id = e.target.id;
+    const $el = $(`#${id}`);
     if (id === 'control-day') {
       key = 'day';
     } else if (id === 'control-week') {
@@ -220,7 +268,7 @@ const CameraView = ({deviceId}) => {
       .removeClass('active');
     $el.parents('.control_button').addClass('active');
   };
-  // done
+
   const changeScale = scale => {
     const start = getScaleStartTime(currentTime, scale);
     const end = start + scale_table.get(scale);
@@ -229,8 +277,7 @@ const CameraView = ({deviceId}) => {
     setRightTimestamp(end);
   };
 
-  // TODO: check the meaning of this function
-  const _fetchAllInterval = function(deviceId, scope, archives) {
+  const fetchAllInterval = function(deviceId, scope, archives) {
     const deferred = $.Deferred();
     const now = Math.floor(new Date().getTime() / 1000);
     // get cachetime
@@ -239,7 +286,7 @@ const CameraView = ({deviceId}) => {
       deferred.progress([]);
     });
     const current_timestamp = Math.round(new Date().getTime() / 1000);
-    _fetchNextInterval(
+    fetchNextInterval(
       deviceId,
       scope,
       archives,
@@ -264,7 +311,7 @@ const CameraView = ({deviceId}) => {
     });
   };
 
-  const _fetchNextInterval = function(
+  const fetchNextInterval = function(
     deviceId,
     scope,
     archives,
@@ -273,7 +320,6 @@ const CameraView = ({deviceId}) => {
     start_timestamp = false,
     next_url = false,
   ) {
-    const self = this;
     const one_month_sec = 86400 * 30;
 
     let temp_archives_start_time = 0;
@@ -308,14 +354,11 @@ const CameraView = ({deviceId}) => {
       end_time: temp_archives_end_time,
     })
       .done(function(data) {
-        // data = data.replace(/<script.*script>/, '');
-        // data = JSON.parse(data);
-
         if (data.stop === 'true') {
           if (scope == 'CloudArchives') {
             return deferred.resolve();
           } else {
-            Skywatch._fetched_local_archives_done = true;
+            Skywatch.fetched_local_archives_done = true;
             return deferred.resolve();
           }
         } else {
@@ -325,7 +368,7 @@ const CameraView = ({deviceId}) => {
           Skywatch._current_clould_archive_request_timer = setTimeout(
             function() {
               if (typeof data.next_url !== 'undefined') {
-                _fetchNextInterval(
+                fetchNextInterval(
                   deviceId,
                   scope,
                   archives,
@@ -335,7 +378,7 @@ const CameraView = ({deviceId}) => {
                   data.next_url,
                 );
               } else {
-                _fetchNextInterval(deviceId, scope, archives, deferred);
+                fetchNextInterval(deviceId, scope, archives, deferred);
               }
             },
             1000,
@@ -362,7 +405,6 @@ const CameraView = ({deviceId}) => {
     return xhr;
   };
 
-  // done
   const onChangeTimeAndScale = function(scale, new_left_time, new_right_time) {
     const now = Math.floor(new Date().getTime() / 1000);
     $('#to_next').attr('disabled', now < new_right_time);
@@ -373,7 +415,6 @@ const CameraView = ({deviceId}) => {
     renderScaleIndicator(scale, new_left_time, new_right_time);
   };
 
-  // done
   const renderScaleIndicator = function(
     newScale,
     new_left_time,
@@ -453,55 +494,26 @@ const CameraView = ({deviceId}) => {
       .css('opacity', 1);
   };
 
-  const handleTimebarContentClicked = e => {
-    setLoading(true);
-    var time_position = e.pageX - $('#timebar_content').offset().left;
-    var left_time = leftTimestamp;
-    var right_time = rightTimestamp;
-    var timebar_width = $('#timebar_content').width();
-    var timestamp = parseInt(
-      (time_position / timebar_width) * (right_time - left_time) + left_time,
+  const getTimestampByPosition = position => {
+    const time_position = position - $('#timebar_content').offset().left;
+    const timebar_width = $('#timebar_content').width();
+    return parseInt(
+      (time_position / timebar_width) * (rightTimestamp - leftTimestamp) +
+        leftTimestamp,
       10,
     );
-    var now = Math.ceil(new Date().getTime() / 1000);
+  };
+
+  const handleTimebarContentClicked = e => {
+    setLoading(true);
+    let timestamp = getTimestampByPosition(e.pageX);
+    const now = Math.ceil(new Date().getTime() / 1000);
     if (timestamp > now) {
       timestamp = now;
     }
-    setTimestamp(timestamp);
-    setCurrentTime(timestamp);
-
-    // see getCloudArchive in model.js
-    const targetArchive = Skywatch.archives
-      .map(archive => {
-        let diff = archive.timestamp - timestamp;
-        if (diff < 0 && Math.abs(diff) >= archive.length) {
-          diff = Number.MAX_VALUE;
-        }
-        return {...archive, diff};
-      })
-      .sort((a, b) => a.diff - b.diff)[0];
-
-    // handle click on gap
-    if (targetArchive.timestamp) {
-      var timestamp_found = parseInt(targetArchive.timestamp);
-      var length = parseInt(targetArchive.length);
-      if (timestamp > timestamp_found + length) {
-        goLive();
-        return;
-      }
-    }
-
-    setBubbleTime(timestamp, $('#cursor_bubble'), true);
-    setArchive(targetArchive);
-    const highlight_start = parseInt(targetArchive.timestamp);
-    const highlight_end =
-      parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-    onHighlightTimeChange(highlight_start, highlight_end);
-    setIsLive(timestamp >= now);
-    setIsMuted(true);
+    seek(timestamp);
   };
 
-  // done
   const onPreviousClick = function(e) {
     var start_time = getScaleStartTime(leftTimestamp - 100, scale);
     var right_time = start_time + scale_table.get(scale, start_time);
@@ -509,7 +521,7 @@ const CameraView = ({deviceId}) => {
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
   };
-  // done
+
   const onNextClick = function() {
     var start_time = getScaleStartTime(rightTimestamp + 100, scale);
     var right_time = start_time + scale_table.get(scale, start_time);
@@ -517,7 +529,7 @@ const CameraView = ({deviceId}) => {
     setLeftTimestamp(start_time);
     setRightTimestamp(right_time);
   };
-  // done
+
   const updateTimebar = (
     old_left_time,
     old_right_time,
@@ -772,22 +784,18 @@ const CameraView = ({deviceId}) => {
     });
   };
 
-  // done
   const setBubbleTime = (timestamp, $bubble, set_cursor) => {
     const now = Math.ceil(new Date().getTime() / 1000);
     if (timestamp > now) timestamp = now;
 
-    const new_left_time = leftTimestamp;
-    const new_right_time = rightTimestamp;
-
     const offset =
-      ((timestamp - new_left_time) / (new_right_time - new_left_time)) *
+      ((timestamp - leftTimestamp) / (rightTimestamp - leftTimestamp)) *
       $('#playbar-container').width();
     const $el = $('#timebar');
 
     if (set_cursor) $el.find('#played').css('width', offset);
     const total_offset =
-      ((now - new_left_time) / (new_right_time - new_left_time)) *
+      ((now - leftTimestamp) / (rightTimestamp - leftTimestamp)) *
       $('#playbar-container').width();
     if (set_cursor) $el.find('#playbar').css('width', total_offset);
 
@@ -801,7 +809,7 @@ const CameraView = ({deviceId}) => {
 
     $bubble.removeClass('right');
     $bubble.removeClass('left');
-    if (timestamp >= new_left_time && timestamp <= new_right_time) {
+    if (timestamp >= leftTimestamp && timestamp <= rightTimestamp) {
       $el.find('#cursor').show();
 
       const time_data = getTimeData(timestamp);
@@ -818,7 +826,7 @@ const CameraView = ({deviceId}) => {
       $('#cursor').hide();
       const time_data = getTimeData(timestamp);
 
-      if (timestamp < new_left_time) {
+      if (timestamp < leftTimestamp) {
         $bubble
           .find('span')
           .first()
@@ -834,7 +842,7 @@ const CameraView = ({deviceId}) => {
             20,
         );
         $bubble.addClass('left');
-      } else if (timestamp > new_right_time) {
+      } else if (timestamp > rightTimestamp) {
         $bubble
           .find('span')
           .first()
@@ -855,15 +863,8 @@ const CameraView = ({deviceId}) => {
     }
   };
 
-  // done
   const handleMouseMove = e => {
-    const time_position = e.pageX - $('#timebar_content').offset().left;
-    const left_time = leftTimestamp;
-    const right_time = rightTimestamp;
-    const timebar_width = $('#timebar_content').width();
-    const timestamp =
-      (time_position / timebar_width) * (right_time - left_time) + left_time;
-
+    const timestamp = getTimestampByPosition(e.pageX);
     const $bubble = $('#cursor_bubble_preview');
     const date_data = getTimeData(timestamp);
     $bubble
@@ -879,14 +880,14 @@ const CameraView = ({deviceId}) => {
     $bubble.show();
     $('#cursor_bubble').hide();
   };
-  // done
+
   const handleMouseOut = () => {
     const $bubble = $('#cursor_bubble_preview');
     $bubble.removeClass('active');
     $bubble.hide();
     $('#cursor_bubble').show();
   };
-  // done
+
   const getSmartFFTimestamp = function(video_time) {
     let meta;
     try {
@@ -914,7 +915,6 @@ const CameraView = ({deviceId}) => {
   };
   const getCacheTime = () => Skywatch._cache_time;
 
-  // done
   const getMetaList = function(time_i_width, left_time, right_time) {
     let i = false;
     let scale_arr = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
@@ -967,15 +967,12 @@ const CameraView = ({deviceId}) => {
     }
     return meta_list;
   };
-  const getTimelineBlockMetric = function(start, end, left_time, right_time) {
-    var left = ((start - left_time) / (right_time - left_time)) * 100;
-    var width = ((end - start) / (right_time - left_time)) * 100;
-    return {
-      left: left,
-      width: width,
-    };
-  };
-  // done
+
+  const getTimelineBlockMetric = (start, end, left_time, right_time) => ({
+    left: ((start - left_time) / (right_time - left_time)) * 100,
+    width: ((end - start) / (right_time - left_time)) * 100,
+  });
+
   const getMetaTimebar = function(scale, start_time) {
     // render 3 views for animation to use
     const timebar_width_i = $('#timebar_content').width();
@@ -1019,21 +1016,12 @@ const CameraView = ({deviceId}) => {
       timebar_width: timebar_width,
     };
   };
+
   const parseMeta = function(archive) {
-    var scale_arr = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
-    var scale,
-      i,
-      j,
-      second,
-      base_scale = false,
-      meta_data,
-      tmp_meta,
-      timestamp,
-      length,
-      meta,
-      index;
+    const scale_arr = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
+    let scale, second, meta_data, tmp_meta, timestamp, length, meta, index;
     // fake meta data for non-smart-ff file
-    var default_meta = {
+    const default_meta = {
       '0': [false, 1],
       '20': [false, 1],
       '40': [false, 1],
@@ -1069,7 +1057,7 @@ const CameraView = ({deviceId}) => {
 
     timestamp = parseInt(archive.timestamp);
     if (
-      typeof archive.length == 'undefined'
+      typeof archive.length === 'undefined'
       // &&
       // this._camera.get('model_id') == '61'
     ) {
@@ -1082,7 +1070,7 @@ const CameraView = ({deviceId}) => {
     meta_data = false;
     if (length <= 20) return;
 
-    if (!archive.smart_ff || archive.smart_ff == '0') {
+    if (!archive.smart_ff || archive.smart_ff === '0') {
       // use zero as meta
       meta = default_meta;
     } else {
@@ -1097,15 +1085,14 @@ const CameraView = ({deviceId}) => {
       /**
        *  Shift min to 1 to seperate no data case
        */
-      var i;
-      for (i in meta) {
+      for (let i in meta) {
         meta[i][1]++;
       }
     }
 
-    for (j = 0; j < scale_arr.length; j++) {
+    for (let j = 0; j < scale_arr.length; j++) {
       scale = scale_arr[j];
-      if (typeof Skywatch.all_dataset['' + scale] == 'undefined') {
+      if (typeof Skywatch.all_dataset['' + scale] === 'undefined') {
         Skywatch.all_dataset['' + scale] = {};
       }
       if (meta_data === false) {
@@ -1113,8 +1100,7 @@ const CameraView = ({deviceId}) => {
         /**
          *   Drop meta that exceed length
          */
-        var k = 0;
-        for (k = 0; k < length; k += 20) {
+        for (let k = 0; k < length; k += 20) {
           index = '' + Math.floor((k + timestamp) / scale) * scale;
           if (meta['' + k]) {
             meta_data[index] = meta['' + k][1];
@@ -1140,7 +1126,6 @@ const CameraView = ({deviceId}) => {
     }
   };
 
-  // done
   const onHighlightTimeChange = function(highlight_start, highlight_end) {
     $('#meta_container')
       .find('.camera-' + deviceId + ' .meta_timeline_i')
@@ -1159,7 +1144,6 @@ const CameraView = ({deviceId}) => {
     sethigHlightEnd(highlight_end);
   };
 
-  // done
   const updateCurrentTime = function(timestamp) {
     const current_time = isLive
       ? Math.floor(new Date().getTime() / 1000)
@@ -1197,7 +1181,6 @@ const CameraView = ({deviceId}) => {
     if (params.right_time) setRightTimestamp(rightTimestamp);
   };
 
-  // done
   const updateMeta = function() {
     const $meta_container = $('#meta_container');
     $meta_container.empty();
@@ -1210,30 +1193,29 @@ const CameraView = ({deviceId}) => {
     $meta_container.css('width', '100%');
   };
 
-  // done
   const onChangeCurrentTime = function(current_time) {
     if (Skywatch.is_dragging) return;
     setBubbleTime(current_time, $('#cursor_bubble'), true);
   };
 
   const toArchiveTime = function(unix_time, is_smart_ff) {
-    var video_time = Math.floor(unix_time - archive.timestamp);
+    const video_time = Math.floor(unix_time - archive.timestamp);
     if (!is_smart_ff) {
       // normal archive: global time - start time
       return video_time;
     }
 
-    var meta;
+    let meta;
     try {
       meta = JSON.parse(archive.meta);
     } catch (e) {
       console.warn('json error', archive.meta);
       return 0;
     }
-    var meta_keys = Object.keys(meta);
-    var time = 0;
+    const meta_keys = Object.keys(meta);
+    let time = 0;
 
-    for (var i = 0; i < meta_keys.length - 1; i++) {
+    for (let i = 0; i < meta_keys.length - 1; i++) {
       if (!(meta_keys[i] <= video_time && video_time <= meta_keys[i + 1])) {
         continue;
       }
@@ -1266,30 +1248,40 @@ const CameraView = ({deviceId}) => {
     }
   };
 
-  const onPlayerHole = function() {
-    var edge = getNextEdge();
-    console.info('edge', edge);
-    if (edge > 0) {
-      setTimestamp(edge);
-      updateCurrentTime(edge);
-      // TODO: refactor, duplicated with handleTimebarContentClicked
-      const targetArchive = Skywatch.archives
-        .map(archive => {
-          let diff = archive.timestamp - timestamp;
-          if (diff < 0 && Math.abs(diff) >= archive.length) {
-            diff = Number.MAX_VALUE;
-          }
-          return {...archive, diff};
-        })
-        .sort((a, b) => a.diff - b.diff)[0];
+  const onTimeUpdate = () => {
+    const video_time = player.currentTime();
+    if (smart_ff) {
+      // smart ff need to update timestamp frequently
+      if (Skywatch.tick_counter === 0) {
+        // video timestamp will not immediately update to seeked time
+        // so we need to filter out 0
+        if (video_time !== 0 && !loading) {
+          updateCurrentTime(getSmartFFTimestamp(video_time));
+        }
+      }
+      // report every 1 seconds
+      Skywatch.tick_counter = (Skywatch.tick_counter + 1) % 4;
+    } else {
+      if (Skywatch.tick_counter === 0) {
+        const normalTimestamp =
+          parseInt(archive.timestamp, 10) + Math.floor(video_time);
+        if (Math.abs(normalTimestamp - currentTime) >= 10) {
+          // TODO: sync cursor or sync video?
+          updateCurrentTime(normalTimestamp);
+        }
+      }
+      // report every 5 seconds
+      Skywatch.tick_counter = (Skywatch.tick_counter + 1) % (4 * 5);
+    }
+  };
 
-      setBubbleTime(timestamp, $('#cursor_bubble'), true);
-      setArchive(targetArchive);
-      const highlight_start = parseInt(targetArchive.timestamp);
-      const highlight_end =
-        parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-      onHighlightTimeChange(highlight_start, highlight_end);
-      setIsLive(timestamp >= now);
+  const getSeekTime = () =>
+    smart_ff ? toArchiveTime(timestamp, true) : timestamp - archive.timestamp;
+
+  const onPlayerHole = function() {
+    const edge = getNextEdge();
+    if (edge > 0) {
+      seek(edge);
     }
   };
 
@@ -1297,7 +1289,6 @@ const CameraView = ({deviceId}) => {
     return Skywatch.next_archive ? Skywatch.next_archive.timestamp * 1 : 0;
   };
 
-  // done
   const getNextCloudArchive = function(archive, smart_ff) {
     Skywatch.archives = Skywatch.archives.sort(
       (a, b) => a.timestamp - b.timestamp,
@@ -1307,7 +1298,7 @@ const CameraView = ({deviceId}) => {
     let status = 'ok';
     while (true) {
       ++i;
-      next_archive = Skywatch.archives.at(i);
+      next_archive = Skywatch.archives[i];
       // invalid
       if (!next_archive) {
         status = 'end';
@@ -1335,8 +1326,7 @@ const CameraView = ({deviceId}) => {
     };
   };
 
-  // done
-  const setCursorDraggable = () => {
+  const updateCursorDraggable = () => {
     $('#cursor').draggable({
       axis: 'x',
       containment: '#playbar-container',
@@ -1351,10 +1341,7 @@ const CameraView = ({deviceId}) => {
         const containment = $target.draggable('option', 'containment');
         const time_position = ui.offset.left - $(containment).offset().left;
         $('#played').css('width', time_position);
-        const timebar_width = $(containment).width();
-        const timestamp =
-          (time_position / timebar_width) * (rightTimestamp - leftTimestamp) +
-          leftTimestamp;
+        const timestamp = getTimestampByPosition(ui.offset.left);
 
         if (
           timestamp > Math.ceil(new Date().getTime() / 1000) &&
@@ -1374,12 +1361,46 @@ const CameraView = ({deviceId}) => {
     });
   };
 
-  const init = () => {
-    updateCookie(API_KEY, 30);
-    setCursorDraggable();
-    renderScaleIndicator();
+  const togglePlay = e => {
+    resetActiveButton();
+    e.target.parentElement.classList.add('active');
     setDelay(1000);
-    _fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
+    setSmart_ff(0);
+    player && player.play();
+  };
+  const togglePause = e => {
+    resetActiveButton();
+    e.target.parentElement.classList.add('active');
+    setDelay(null);
+    setSmart_ff(0);
+    player && player.pause();
+  };
+  const toggleFastForward = e => {
+    if (!smart_ff) {
+      setLoading(true);
+      setDelay(null);
+      resetActiveButton();
+      e.target.parentElement.classList.add('active');
+      setSmart_ff(1);
+      setTimestamp(currentTime);
+    }
+  };
+  const toggleMute = () => {
+    if (isLive && player) {
+      // flvjs
+      player.muted = !isMuted;
+    } else {
+      // videojs
+      player && player.muted(!isMuted);
+    }
+    setIsMuted(!isMuted);
+  };
+
+  const init = () => {
+    updateCookie(API_KEY, COOKIE_EXPIRES_DAY);
+    updateCursorDraggable();
+    renderScaleIndicator();
+    fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
         document
           .getElementById('timeline_container')
@@ -1393,21 +1414,8 @@ const CameraView = ({deviceId}) => {
   useInterval(function() {
     updateCurrentTime();
     updateMeta();
-    console.log('updateCurrentTime');
   }, delay);
 
-  const loadingStyle = {
-    height: '432px',
-    width: '768px',
-    backgroundImage: `url(${LoadingSpinner})`,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '70px 70px',
-    transition: 'opacity .20s linear',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    position: 'absolute',
-    zIndex: 5,
-  };
   return (
     <>
       <div id="group-view-camera">
@@ -1420,7 +1428,7 @@ const CameraView = ({deviceId}) => {
               onPlayerDispose={setPlayer}
               style={{width: '768px', height: '432px'}}
               setLoading={setLoading}
-              // controls={false}
+              controls={false}
             />
           ) : (
             <ArchivesPlayer
@@ -1430,44 +1438,12 @@ const CameraView = ({deviceId}) => {
               deviceId={deviceId}
               archiveId={archive.id}
               smart_ff={smart_ff}
-              seek={
-                smart_ff
-                  ? toArchiveTime(timestamp, true)
-                  : timestamp - archive.timestamp
-              }
+              seek={getSeekTime()}
               style={{width: '768px', height: '432px'}}
-              // controls={false}
+              controls={false}
               onEnded={onVideoEnded}
               setLoading={setLoading}
-              onTimeUpdate={() => {
-                const video_time = player.currentTime();
-                if (smart_ff) {
-                  // smart ff need to update timestamp frequently
-                  if (Skywatch.tick_counter === 0) {
-                    // video timestamp will not immediately update to seeked time
-                    // so we need to filter out 0
-                    // TODO check && !this._.seeking
-                    if (video_time !== 0) {
-                      updateCurrentTime(getSmartFFTimestamp(video_time));
-                    }
-                  }
-                  // report every 1 seconds
-                  Skywatch.tick_counter = (Skywatch.tick_counter + 1) % 4;
-                } else {
-                  if (Skywatch.tick_counter === 0) {
-                    const normalTimestamp =
-                      parseInt(archive.timestamp, 10) + Math.floor(video_time);
-                    if (Math.abs(normalTimestamp - currentTime) >= 10) {
-                      // console.log('sync video to cursor', new Date(current_time * 1000));
-                      // TODO: temp sync cursor to video
-                      updateCurrentTime(normalTimestamp);
-                      // view.seek(current_time);
-                    }
-                  }
-                  // report every 5 seconds
-                  Skywatch.tick_counter = (Skywatch.tick_counter + 1) % (4 * 5);
-                }
-              }}
+              onTimeUpdate={onTimeUpdate}
             />
           )}
         </div>
@@ -1533,41 +1509,14 @@ const CameraView = ({deviceId}) => {
               </div>
               <div className="button_group_container">
                 <div className="button_group playback-control-group">
-                  <div
-                    className="control_button"
-                    onClick={e => {
-                      resetActiveButton();
-                      e.target.parentElement.classList.add('active');
-                      setDelay(null);
-                      setSmart_ff(0);
-                      player && player.pause();
-                    }}>
+                  <div className="control_button" onClick={togglePause}>
                     <div id="control-pause"></div>
                   </div>
-                  <div
-                    className="control_button active"
-                    onClick={e => {
-                      resetActiveButton();
-                      e.target.parentElement.classList.add('active');
-                      setDelay(1000);
-                      setSmart_ff(0);
-                      player && player.play();
-                    }}>
+                  <div className="control_button active" onClick={togglePlay}>
                     <div id="control-play"></div>
                   </div>
                   {!hide_ff && (
-                    <div
-                      className="control_button"
-                      onClick={e => {
-                        if (!smart_ff) {
-                          setLoading(true);
-                          setDelay(null);
-                          resetActiveButton();
-                          e.target.parentElement.classList.add('active');
-                          setSmart_ff(1);
-                          setTimestamp(currentTime);
-                        }
-                      }}>
+                    <div className="control_button" onClick={toggleFastForward}>
                       <div id="control-fastforward"></div>
                     </div>
                   )}
@@ -1575,16 +1524,7 @@ const CameraView = ({deviceId}) => {
                 <div className="button_group">
                   <div
                     className={`switch_button ${isMuted ? 'active' : ''}`}
-                    onClick={() => {
-                      if (isLive && player) {
-                        // flvjs
-                        player.muted = !isMuted;
-                      } else {
-                        // videojs
-                        player && player.muted(!isMuted);
-                      }
-                      setIsMuted(!isMuted);
-                    }}>
+                    onClick={toggleMute}>
                     <div id="control-volume"></div>
                   </div>
 
@@ -1596,24 +1536,16 @@ const CameraView = ({deviceId}) => {
                   </div>
                 </div>
                 <div className="button_group pull-right">
-                  <div
-                    className="control_button active"
-                    onClick={() => onScaleClick($('#control-hour'))}>
+                  <div className="control_button active" onClick={onScaleClick}>
                     <div id="control-hour">{'時'}</div>
                   </div>
-                  <div
-                    className="control_button"
-                    onClick={() => onScaleClick($('#control-day'))}>
+                  <div className="control_button" onClick={onScaleClick}>
                     <div id="control-day">{'日'}</div>
                   </div>
-                  <div
-                    className="control_button"
-                    onClick={() => onScaleClick($('#control-week'))}>
+                  <div className="control_button" onClick={onScaleClick}>
                     <div id="control-week">{'週'}</div>
                   </div>
-                  <div
-                    className="control_button"
-                    onClick={() => onScaleClick($('#control-month'))}>
+                  <div className="control_button" onClick={onScaleClick}>
                     <div id="control-month">{'月'}</div>
                   </div>
                 </div>
