@@ -22,7 +22,7 @@ yarn add @skywatch/server
 
 ## How to use:
 
-Create a POST method on your server.
+Create GET and POST methods on your server.
 
 Take [Express](https://github.com/expressjs/express) as an example.
 
@@ -43,11 +43,20 @@ app.prepare().then(() => {
   server.use(bodyParser.json({ verify }));
   server.use(bodyParser.urlencoded({ extended: false, verify }));
 
-  // skywatch api library
-  server.post('/skywatch_api', async (req, res) => {
+  // skywatch api library for GET request
+  server.get('/*', async (req, res) => {
     try {
-      // method parameter => .Skywatch('the parameter of "feature" from frontend', 'request body from frontend')
-      const result = await skywatchServer.Skywatch(req.body.feature, req.body);
+      const result = await skywatchServer.Skywatch(req);
+      res.send(result.data);
+    } catch (err) {
+      res.status(err.response.status).send(err.response.data);
+    }
+  });
+
+  // skywatch api library for POST request
+  server.post('/*', async (req, res) => {
+    try {
+      const result = await skywatchServer.Skywatch(req);
       res.send(result.data);
     } catch (err) {
       res.status(err.response.status).send(err.response.data);
@@ -66,15 +75,22 @@ app.prepare().then(() => {
 ```javascript
 const skywatchServer = require('@skywatch/server');
 
-server.post('/skywatch_api', async (req, res) => {
+server.get('/*', async (req, res) => {
   try {
-    // method parameter => .Skywatch('the parameter of "feature" from frontend', 'request body from frontend')
-    const result = await skywatchServer.Skywatch(req.body.feature, req.body);
+    const result = await skywatchServer.Skywatch(req);
     res.send(result.data);
   } catch (err) {
     res.status(err.response.status).send(err.response.data);
   }
 });
 
+server.post('/*', async (req, res) => {
+  try {
+    const result = await skywatchServer.Skywatch(req);
+    res.send(result.data);
+  } catch (err) {
+    res.status(err.response.status).send(err.response.data);
+  }
+});
 ```
 
