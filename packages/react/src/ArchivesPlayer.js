@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect} from 'react';
 import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
@@ -23,7 +23,7 @@ const ArchivesPlayer = ({
   controls,
   onTimeUpdate,
   onEnded,
-  setLoading,
+  onReady,
 }) => {
   const containerRef = useRef(null);
 
@@ -72,9 +72,7 @@ const ArchivesPlayer = ({
         id="archive-video"
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
-        onSeeked={() => {
-          setLoading(false);
-        }}
+        onSeeked={() => onReady()}
       />
     </div>
   );
@@ -86,7 +84,7 @@ ArchivesPlayer.defaultProps = {
   controls: true,
   onTimeUpdate: () => {},
   onEnded: () => {},
-  setLoading: () => {},
+  onReady: () => {},
 };
 
 ArchivesPlayer.propTypes = {
@@ -101,7 +99,7 @@ ArchivesPlayer.propTypes = {
   controls: PropTypes.bool,
   onTimeUpdate: PropTypes.func,
   onEnded: PropTypes.func,
-  setLoading: PropTypes.func,
+  onReady: PropTypes.func,
 };
 
 export default ArchivesPlayer;

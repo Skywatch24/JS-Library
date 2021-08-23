@@ -1428,7 +1428,7 @@ const CameraView = ({deviceId}) => {
               onPlayerInit={setPlayer}
               onPlayerDispose={setPlayer}
               style={{width: '768px', height: '432px'}}
-              setLoading={setLoading}
+              onReady={() => setLoading(false)}
               controls={false}
             />
           ) : (
@@ -1443,7 +1443,7 @@ const CameraView = ({deviceId}) => {
               style={{width: '768px', height: '432px'}}
               controls={false}
               onEnded={onVideoEnded}
-              setLoading={setLoading}
+              onReady={() => setLoading(false)}
               onTimeUpdate={onTimeUpdate}
             />
           )}

@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import flvjs from 'flv.js';
 import {Requests} from '@skywatch/api';
@@ -9,7 +9,7 @@ const FlvPlayer = ({
   onPlayerDispose,
   style,
   controls,
-  setLoading,
+  onReady,
 }) => {
   const containerRef = useRef(null);
   useEffect(() => {
@@ -28,7 +28,7 @@ const FlvPlayer = ({
         });
         flvPlayer.attachMediaElement(videoEl);
         flvPlayer.load();
-        flvPlayer.play().then(() => setLoading(false));
+        flvPlayer.play().then(() => onReady());
         flvPlayer.on(flvjs.Events.ERROR, (errType, errDetail) => {
           console.log(errType, errDetail);
         });
@@ -53,7 +53,7 @@ const FlvPlayer = ({
 
 FlvPlayer.defaultProps = {
   controls: true,
-  setLoading: () => {},
+  onReady: () => {},
 };
 
 FlvPlayer.propTypes = {
@@ -62,7 +62,7 @@ FlvPlayer.propTypes = {
   onPlayerDispose: PropTypes.func.isRequired,
   style: PropTypes.object,
   controls: PropTypes.bool,
-  setLoading: PropTypes.func,
+  onReady: PropTypes.func,
 };
 
 export default FlvPlayer;
