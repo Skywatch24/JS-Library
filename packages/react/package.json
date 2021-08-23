@@ -18,7 +18,7 @@
     "url": "git@github.com:Skywatch24/JS-Library.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js --open chrome",
+    "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js",
     "build": "webpack --config ./config/webpack.prod.config.js",
     "test": "jest --config ./jest.config.js",
     "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"

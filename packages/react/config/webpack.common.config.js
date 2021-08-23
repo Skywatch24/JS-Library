@@ -4,7 +4,7 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({
       $: 'jquery',
-      jQuery: 'jquery', // fix jQeury is not defined for bootstrap.custom.min.js
+      jQuery: 'jquery', // fix jQeury ReferenceError for bootstrap.custom.min.js
     }),
   ],
   module: {
