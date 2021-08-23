@@ -4,7 +4,7 @@ import {ArchivesPlayer, FlvPlayer, initialize} from '../src';
 import CameraView from '../src/CameraView';
 
 initialize(
-  'https://bot.skywatch24.com:31502/skywatch_api',
+  'https://service.skywatch24.com/api/v2',
   '98c0fda1cd2c875a4379e9b8e7eea7fa',
 );
 
