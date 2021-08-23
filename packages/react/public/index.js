@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
-import {ArchivesPlayer, FlvPlayer, initialize} from '../src';
-import CameraView from '../src/CameraView';
+import {ArchivesPlayer, FlvPlayer, CameraView, initialize} from '../src';
 
 initialize(
   'https://bot.skywatch24.com:31502/skywatch_api',

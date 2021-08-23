@@ -92,6 +92,10 @@ This is a component for playing archive video.
   seek={}
   playerOptions={}
   style={}
+  controls={}
+  onTimeUpdate={}
+  onEnded={}
+  onReady={}
 />
 ```
 
@@ -105,13 +109,24 @@ This is a component for playing archive video.
 | `seek`            | `number`       | NO       | 0                                                                           | Jump to specific time when video begins to play.                                                                          |
 | `playerOptions`   | `object`       | NO       | `{ autoplay: true, muted: true, aspectRatio: '16:9', mobileView: false, }`; | Video option setting. For more info please check [Video.js doc](https://docs.videojs.com/tutorial-options.html).          |
 | `style`           | `inline-style` | NO       |                                                                             | Custom style for video player.                                                                                            |
+| `controls`        | `bool`         | NO       | `true`                                                       | Show video controls                                               |
+| `onTimeUpdate`    | `func`         | NO       |                                                              | Callback fired when the current playback position has changed     |   
+| `onEnded`         | `func`         | NO       |                                                              | Callback fired when the end of the media resource is reached      | 
+| `onReady`         | `func`         | NO       |                                                              | Callback fired when the video is ready to play                    | 
 
 ### FlvPlayer
 
 This is a component for playing live streaming.
 
 ```javascript
-<FlvPlayer deviceId={} onPlayerInit={} onPlayerDispose={} style={} />
+<FlvPlayer 
+  deviceId={} 
+  onPlayerInit={} 
+  onPlayerDispose={} 
+  style={} 
+  controls={}
+  onReady={}
+/>
 ```
 
 | Property          | Type           | Required | Default | Description                                                                                                                                             |
@@ -120,6 +135,20 @@ This is a component for playing live streaming.
 | `onPlayerInit`    | `function`     | YES      |         | Pass state into player to allow control of player. For more info please check [flv.js doc](https://github.com/bilibili/flv.js/edit/master/docs/api.md). |
 | `onPlayerDispose` | `function`     | YES      |         | Pass state into player to dispose when video is released.                                                                                               |
 | `style`           | `inline-style` | NO       |         | Custom style for video player.                                                                                                                          |
+| `controls`        | `bool`         | NO       | `true`  | Show video controls                                                                         |
+| `onReady`         | `func`         | NO       |         | Callback fired when the video is ready to play                                              | 
+
+### CameraView
+
+This is a component for playing live streaming and archive video.
+
+```javascript
+<CameraView deviceId={} />
+```
+
+| Property          | Type           | Required | Default | Description                                                                                                                                             |
+| ----------------- | -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                                                                                                |
 
 ## License
 
