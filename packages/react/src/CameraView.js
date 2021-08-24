@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
-import 'jquery-ui-dist/jquery-ui';
-import '../bootstrap/css/bootstrap.min.css';
-import '../bootstrap/js/bootstrap.custom.min.js';
+import 'jquery-ui-dist/jquery-ui'; // TODO: check jquery ui
 import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import {useInterval, useCookie} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
 
+// TODO: move out from tab
+// TODO: set cookie when init
 const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
 const COOKIE_EXPIRES_DAY = 30;
 const hide_ff = false;
@@ -195,6 +195,7 @@ const CameraView = ({deviceId}) => {
     updateCursorDraggable();
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
+      // TODO: check original function
       () => {
         document
           .getElementById('timeline_container')
@@ -319,6 +320,7 @@ const CameraView = ({deviceId}) => {
     return deferred;
   };
 
+  // TODO: check this function
   const fetchCacheTime = function(timestamp, deviceId) {
     return $.get(`api/v2/cameras/${deviceId}`, {
       timestamp: timestamp,
@@ -332,6 +334,7 @@ const CameraView = ({deviceId}) => {
     });
   };
 
+  // TODO: get next archive video in advance
   const fetchNextInterval = function(
     deviceId,
     scope,
@@ -369,6 +372,7 @@ const CameraView = ({deviceId}) => {
       temp_archives_end_time = parse_end_time[1];
     }
 
+    // TODO: move to api/Requests
     const xhr = $.get('api/v2/cameras/' + deviceId + '/archives', {
       scope: scope,
       start_time: temp_archives_start_time,
@@ -412,10 +416,6 @@ const CameraView = ({deviceId}) => {
         if (scope === 'CloudArchives') {
           Skywatch._current_clould_archive_request = null;
           Skywatch._current_clould_archive_request_timer = 0;
-          // remove pulling mark
-          // if (self.collection) {
-          //   self.collection.removePulling(self.get('id'));
-          // }
         }
       });
 
@@ -1215,7 +1215,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const onChangeCurrentTime = function(current_time) {
-    if (Skywatch.is_dragging) return;
+    if (Skywatch.is_dragging) return; // TODO: move to state
     setBubbleTime(current_time, $('#cursor_bubble'), true);
   };
 
@@ -1254,6 +1254,7 @@ const CameraView = ({deviceId}) => {
       Skywatch.next_archive = null;
       goLive();
     } else if (data.status === 'hole') {
+      // TODO: write comment for the meaning of hole
       console.info('player.hole');
       Skywatch.next_archive = data.archive;
       onPlayerHole();
@@ -1315,6 +1316,7 @@ const CameraView = ({deviceId}) => {
     );
     let i = Skywatch.archives.findIndex(a => a.id === archive.id);
     let next_archive;
+    // TODO: set status as variables
     let status = 'ok';
     while (true) {
       ++i;
@@ -1455,7 +1457,10 @@ const CameraView = ({deviceId}) => {
               <span id="bubble_date"></span>
               <span id="bubble_time"></span>
             </div>
-            <div id="cursor_bubble_preview">
+            <div
+              id="cursor_bubble_preview"
+              onMouseMove={handleMouseMove}
+              onMouseOut={handleMouseOut}>
               <span id="bubble_date"></span>
               <span id="bubble_time"></span>
             </div>

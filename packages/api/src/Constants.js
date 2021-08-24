@@ -6,6 +6,7 @@ const SITE_URL = 'api_site_url';
 const REGION = 'region';
 const SCOPE = 'scope';
 
+// TODO: remove
 // API Type
 const GET_ARCHIVES = 'get_archives';
 const GET_FLV_STREAM = 'get_flv_stream';
