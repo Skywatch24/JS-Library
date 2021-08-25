@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
+import {Requests} from '@skywatch/api';
 import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import {useInterval} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
-import {Requests} from '@skywatch/api';
+import {STATUS_OK, STATUS_END, STATUS_HOLE} from './Constants';
 
 // TODO: move out from tab
 const hide_ff = false;
@@ -1186,7 +1187,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const onChangeCurrentTime = function(current_time) {
-    if (dragging) return; // TODO: move to state
+    if (dragging) return;
     setBubbleTime(current_time, $('#cursor_bubble'), true);
   };
 
@@ -1219,17 +1220,17 @@ const CameraView = ({deviceId}) => {
 
   const onVideoEnded = function() {
     const data = getNextCloudArchive(archive, smart_ff);
-    if (data.status === 'end') {
+    if (data.status === STATUS_END) {
       console.info('no archive');
       setArchive(null);
       Skywatch.next_archive = null;
       goLive();
-    } else if (data.status === 'hole') {
-      // TODO: write comment for the meaning of hole
+    } else if (data.status === STATUS_HOLE) {
+      // when there is a gap between the 2 archives
       console.info('player.hole');
       Skywatch.next_archive = data.archive;
       onPlayerHole();
-    } else if (data.status === 'ok') {
+    } else if (data.status === STATUS_OK) {
       console.info('player.ok');
       setLoading(true);
       setArchive(data.archive);
@@ -1287,14 +1288,13 @@ const CameraView = ({deviceId}) => {
     );
     let i = Skywatch.archives.findIndex(a => a.id === archive.id);
     let next_archive;
-    // TODO: set status as variables
-    let status = 'ok';
+    let status = STATUS_OK;
     while (true) {
       ++i;
       next_archive = Skywatch.archives[i];
       // invalid
       if (!next_archive) {
-        status = 'end';
+        status = STATUS_END;
         break;
       }
       // valid && CR && smart_ff
@@ -1311,7 +1311,7 @@ const CameraView = ({deviceId}) => {
       next_archive &&
       next_archive.timestamp - (timestamp * 1 + length * 1) >= 3
     ) {
-      status = 'hole';
+      status = STATUS_HOLE;
     }
     return {
       status: status,
