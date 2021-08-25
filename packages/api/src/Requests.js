@@ -49,7 +49,43 @@ const getFlvStream = async deviceId => {
   return res;
 };
 
+const getArchivesByRange = async (deviceId, scope, start_time, end_time) => {
+  const res = await axios.get(
+    `${coreManager.get(SERVER_URL)}/cameras/${deviceId}/archives`,
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+      params: {
+        api_key: coreManager.get(API_KEY),
+        scope,
+        start_time,
+        end_time,
+      },
+    },
+  );
+  return res;
+};
+
+const getCacheTime = async (timestamp, deviceId) => {
+  const res = await axios.get(
+    `${coreManager.get(SERVER_URL)}/cameras/${deviceId}`,
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+      params: {
+        api_key: coreManager.get(API_KEY),
+        timestamp,
+      },
+    },
+  );
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
+  getArchivesByRange,
+  getCacheTime,
 };

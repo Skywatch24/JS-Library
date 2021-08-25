@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 import $ from 'jquery';
 import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
-import {useInterval, useCookie} from './hooks';
+import {useInterval} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
+import {Requests} from '@skywatch/api';
 
 // TODO: move out from tab
-// TODO: set cookie when init
-const API_KEY = '98c0fda1cd2c875a4379e9b8e7eea7fa';
-const COOKIE_EXPIRES_DAY = 30;
 const hide_ff = false;
 
 const loadingStyle = {
@@ -165,8 +163,7 @@ const CameraView = ({deviceId}) => {
   const [highlightEnd, sethigHlightEnd] = useState(0);
   const [archiveCounter, setArchiveCounter] = useState(0); // use counter as key for <ArchivesPlayer />
   const [dragging, setDragging] = useState(false);
-
-  const [cookie, updateCookie] = useCookie('api_key', API_KEY);
+  const [cacheTime, setCacheTime] = useState(0);
 
   useEffect(() => {
     init();
@@ -190,10 +187,8 @@ const CameraView = ({deviceId}) => {
   }, delay);
 
   const init = () => {
-    updateCookie(API_KEY, COOKIE_EXPIRES_DAY);
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
-      // TODO: check original function
       () => {
         document
           .getElementById('timeline_container')
@@ -300,9 +295,13 @@ const CameraView = ({deviceId}) => {
   const fetchAllInterval = function(deviceId, scope, archives) {
     const deferred = $.Deferred();
     const now = Math.floor(new Date().getTime() / 1000);
-    // get cachetime
-    fetchCacheTime(now, deviceId).done(function(timestamp) {
-      timestamp = timestamp.replace(/<script.*script>/, '');
+
+    Requests.getCacheTime(now, deviceId).then(res => {
+      if (res.timestamp) {
+        setCacheTime(parseInt(res.timestamp, 10));
+      } else {
+        setCacheTime(0);
+      }
       deferred.progress([]);
     });
     const current_timestamp = Math.round(new Date().getTime() / 1000);
@@ -318,22 +317,8 @@ const CameraView = ({deviceId}) => {
     return deferred;
   };
 
-  // TODO: check this function
-  const fetchCacheTime = function(timestamp, deviceId) {
-    return $.get(`api/v2/cameras/${deviceId}`, {
-      timestamp: timestamp,
-    }).done(function(timestamp) {
-      timestamp = timestamp.replace(/<script.*script>/, '');
-      if (timestamp) {
-        Skywatch._cache_time = parseInt(timestamp, 10);
-      } else {
-        Skywatch._cache_time = 0;
-      }
-    });
-  };
-
   // TODO: get next archive video in advance
-  const fetchNextInterval = function(
+  const fetchNextInterval = async function(
     deviceId,
     scope,
     archives,
@@ -370,58 +355,47 @@ const CameraView = ({deviceId}) => {
       temp_archives_end_time = parse_end_time[1];
     }
 
-    // TODO: move to api/Requests
-    const xhr = $.get('api/v2/cameras/' + deviceId + '/archives', {
-      scope: scope,
-      start_time: temp_archives_start_time,
-      end_time: temp_archives_end_time,
-    })
-      .done(function(data) {
-        if (data.stop === 'true') {
-          if (scope == 'CloudArchives') {
-            return deferred.resolve();
-          } else {
-            Skywatch.fetched_local_archives_done = true;
-            return deferred.resolve();
-          }
+    try {
+      const {data} = await Requests.getArchivesByRange(
+        deviceId,
+        scope,
+        temp_archives_start_time,
+        temp_archives_end_time,
+      );
+      if (data.stop === 'true') {
+        if (scope == 'CloudArchives') {
+          return deferred.resolve();
         } else {
-          deferred.notify(data.archives);
-          data.archives.forEach(archive => parseMeta(archive));
-          Skywatch.archives = [...Skywatch.archives, ...data.archives];
-          Skywatch._current_clould_archive_request_timer = setTimeout(
-            function() {
-              if (typeof data.next_url !== 'undefined') {
-                fetchNextInterval(
-                  deviceId,
-                  scope,
-                  archives,
-                  deferred,
-                  false,
-                  false,
-                  data.next_url,
-                );
-              } else {
-                fetchNextInterval(deviceId, scope, archives, deferred);
-              }
-            },
-            1000,
-          );
-          return deferred;
+          Skywatch.fetched_local_archives_done = true;
+          return deferred.resolve();
         }
-      })
-      .fail(function() {
-        console.warn('request failed');
-        if (scope === 'CloudArchives') {
-          Skywatch._current_clould_archive_request = null;
-          Skywatch._current_clould_archive_request_timer = 0;
-        }
-      });
-
-    if (scope === 'CloudArchives') {
-      Skywatch._current_clould_archive_request = xhr;
+      } else {
+        deferred.notify(data.archives);
+        data.archives.forEach(archive => parseMeta(archive));
+        Skywatch.archives = [...Skywatch.archives, ...data.archives];
+        Skywatch._current_clould_archive_request_timer = setTimeout(function() {
+          if (typeof data.next_url !== 'undefined') {
+            fetchNextInterval(
+              deviceId,
+              scope,
+              archives,
+              deferred,
+              false,
+              false,
+              data.next_url,
+            );
+          } else {
+            fetchNextInterval(deviceId, scope, archives, deferred);
+          }
+        }, 1000);
+        return deferred;
+      }
+    } catch {
+      if (scope === 'CloudArchives') {
+        Skywatch._current_clould_archive_request = null;
+        Skywatch._current_clould_archive_request_timer = 0;
+      }
     }
-
-    return xhr;
   };
 
   const onChangeTimeAndScale = function(scale, new_left_time, new_right_time) {
@@ -932,7 +906,6 @@ const CameraView = ({deviceId}) => {
     const timestamp = parseInt(archive.timestamp, 10) + Math.floor(time);
     return timestamp;
   };
-  const getCacheTime = () => Skywatch._cache_time;
 
   const getMetaList = function(time_i_width, left_time, right_time) {
     let i = false;
@@ -975,7 +948,7 @@ const CameraView = ({deviceId}) => {
         if (is_nvr_camera) {
           data.meta = 1;
         } else {
-          if (getCacheTime() !== 0 && data.start >= getCacheTime()) {
+          if (cacheTime !== 0 && data.start >= cacheTime) {
             data.meta = 1;
           }
         }
