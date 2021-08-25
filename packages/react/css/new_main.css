@@ -377,6 +377,10 @@
   top: 36px;
   z-index: 20;
   right: 10%;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 #controlbar #timebar_container #timebar #cursor:after {
   content: "";

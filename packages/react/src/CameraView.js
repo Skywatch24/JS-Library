@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
-import 'jquery-ui-dist/jquery-ui'; // TODO: check jquery ui
 import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import {useInterval, useCookie} from './hooks';
@@ -165,6 +164,7 @@ const CameraView = ({deviceId}) => {
   const [highlightStart, sethigHlightStart] = useState(0);
   const [highlightEnd, sethigHlightEnd] = useState(0);
   const [archiveCounter, setArchiveCounter] = useState(0); // use counter as key for <ArchivesPlayer />
+  const [dragging, setDragging] = useState(false);
 
   const [cookie, updateCookie] = useCookie('api_key', API_KEY);
 
@@ -174,7 +174,6 @@ const CameraView = ({deviceId}) => {
 
   useEffect(() => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
-    updateCursorDraggable();
   }, [scale, leftTimestamp, rightTimestamp]);
 
   useEffect(() => {
@@ -192,7 +191,6 @@ const CameraView = ({deviceId}) => {
 
   const init = () => {
     updateCookie(API_KEY, COOKIE_EXPIRES_DAY);
-    updateCursorDraggable();
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       // TODO: check original function
@@ -1215,7 +1213,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const onChangeCurrentTime = function(current_time) {
-    if (Skywatch.is_dragging) return; // TODO: move to state
+    if (dragging) return; // TODO: move to state
     setBubbleTime(current_time, $('#cursor_bubble'), true);
   };
 
@@ -1348,41 +1346,6 @@ const CameraView = ({deviceId}) => {
     };
   };
 
-  const updateCursorDraggable = () => {
-    $('#cursor').draggable({
-      axis: 'x',
-      containment: '#playbar',
-      stop: function(e, ui) {
-        handleTimebarContentClicked(e);
-        $('#cursor_bubble').removeClass('active');
-        Skywatch.is_dragging = false;
-      },
-      drag: function(e, ui) {
-        // set played bar width
-        const $target = $(e.target);
-        const containment = $target.draggable('option', 'containment');
-        const time_position = ui.offset.left - $(containment).offset().left;
-        $('#played').css('width', time_position);
-        const timestamp = getTimestampByPosition(ui.offset.left);
-
-        if (
-          timestamp > Math.ceil(new Date().getTime() / 1000) &&
-          Skywatch.last_timestamp !== false &&
-          timestamp > Skywatch.last_timestamp
-        ) {
-          return false;
-        }
-        Skywatch.last_timestamp = timestamp;
-        setBubbleTime(timestamp, $('#cursor_bubble'), true);
-      },
-      start: function() {
-        Skywatch.last_timestamp = false;
-        $('#cursor_bubble').addClass('active');
-        Skywatch.is_dragging = true;
-      },
-    });
-  };
-
   const togglePlay = e => {
     resetActiveButton();
     e.target.parentElement.classList.add('active');
@@ -1419,9 +1382,43 @@ const CameraView = ({deviceId}) => {
     setIsMuted(!isMuted);
   };
 
+  const onMouseDown = () => {
+    setDragging(true);
+  };
+
+  const onMouseMove = e => {
+    if (!dragging) return;
+    const containment = $('#playbar');
+    const time_position = e.pageX - containment.offset().left;
+    $('#played').css('width', time_position);
+    const timestamp = getTimestampByPosition(e.pageX);
+
+    if (
+      timestamp > Math.ceil(new Date().getTime() / 1000) &&
+      Skywatch.last_timestamp !== false &&
+      timestamp > Skywatch.last_timestamp
+    ) {
+      return false;
+    }
+    Skywatch.last_timestamp = timestamp;
+    setBubbleTime(timestamp, $('#cursor_bubble'), true);
+  };
+
+  const onMouseUp = e => {
+    if (dragging) {
+      handleTimebarContentClicked(e);
+      setDragging(false);
+    }
+  };
+
   return (
     <>
-      <div id="group-view-camera">
+      <div
+        id="group-view-camera"
+        // mouse event listeners for handling draggable cursor
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}>
         <div id="camera-grid-container">
           {loading && <div style={loadingStyle}></div>}
           {isLive ? (
@@ -1491,7 +1488,10 @@ const CameraView = ({deviceId}) => {
                     <div id="played"></div>
                   </div>
                 </div>
-                <div id="cursor" className={isLive ? 'live' : ''}>
+                <div
+                  id="cursor"
+                  onMouseDown={onMouseDown}
+                  className={isLive ? 'live' : ''}>
                   <div id="cursor_clickable"></div>
                 </div>
                 <div className="right_button">
