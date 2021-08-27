@@ -4,11 +4,10 @@ import $ from 'jquery';
 import {Requests} from '@skywatch/api';
 import '../css/new_main.css';
 import {ArchivesPlayer, FlvPlayer} from '../src';
-import {useInterval} from './hooks';
+import {useInterval, usePageVisibility} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
 import {STATUS_OK, STATUS_END, STATUS_HOLE} from './Constants';
 
-// TODO: move out from tab
 const hide_ff = false;
 
 const loadingStyle = {
@@ -166,6 +165,10 @@ const CameraView = ({deviceId}) => {
   const [dragging, setDragging] = useState(false);
   const [cacheTime, setCacheTime] = useState(0);
 
+  const isVisible = usePageVisibility(() =>
+    document.hidden ? onBlur() : onFocus(),
+  );
+
   useEffect(() => {
     init();
   }, []);
@@ -227,6 +230,7 @@ const CameraView = ({deviceId}) => {
   };
 
   const seek = timestamp => {
+    setLoading(true);
     updateCurrentTime(timestamp);
     const targetArchive = seekTargetArchive(timestamp);
 
@@ -1384,6 +1388,14 @@ const CameraView = ({deviceId}) => {
     }
   };
 
+  const onFocus = () => {
+    if (!smart_ff) setDelay(1000);
+    isLive ? goLive() : seek(currentTime);
+  };
+  const onBlur = () => {
+    setDelay(null);
+  };
+
   return (
     <>
       <div
@@ -1394,31 +1406,32 @@ const CameraView = ({deviceId}) => {
         onMouseLeave={onMouseUp}>
         <div id="camera-grid-container">
           {loading && <div style={loadingStyle}></div>}
-          {isLive ? (
-            <FlvPlayer
-              deviceId={deviceId}
-              onPlayerInit={setPlayer}
-              onPlayerDispose={setPlayer}
-              style={{width: '768px', height: '432px'}}
-              onReady={() => setLoading(false)}
-              controls={false}
-            />
-          ) : (
-            <ArchivesPlayer
-              key={archiveCounter}
-              onPlayerInit={setPlayer}
-              onPlayerDispose={setPlayer}
-              deviceId={deviceId}
-              archiveId={archive.id}
-              smart_ff={smart_ff}
-              seek={seekTime}
-              style={{width: '768px', height: '432px'}}
-              controls={false}
-              onEnded={onVideoEnded}
-              onReady={() => setLoading(false)}
-              onTimeUpdate={onTimeUpdate}
-            />
-          )}
+          {isVisible &&
+            (isLive ? (
+              <FlvPlayer
+                deviceId={deviceId}
+                onPlayerInit={setPlayer}
+                onPlayerDispose={setPlayer}
+                style={{width: '768px', height: '432px'}}
+                onReady={() => setLoading(false)}
+                controls={false}
+              />
+            ) : (
+              <ArchivesPlayer
+                key={archiveCounter}
+                onPlayerInit={setPlayer}
+                onPlayerDispose={setPlayer}
+                deviceId={deviceId}
+                archiveId={archive.id}
+                smart_ff={smart_ff}
+                seek={seekTime}
+                style={{width: '768px', height: '432px'}}
+                controls={false}
+                onEnded={onVideoEnded}
+                onReady={() => setLoading(false)}
+                onTimeUpdate={onTimeUpdate}
+              />
+            ))}
         </div>
         <div id="buffer_container"></div>
         <div id="controlbar_container" style={{height: 140}}>
