@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 import {Requests} from '@skywatch/api';
-import '../css/new_main.css';
+import '../css/new_main.less';
 import {ArchivesPlayer, FlvPlayer} from '../src';
 import {useInterval, usePageVisibility} from './hooks';
 import LoadingSpinner from '../css/controlbar/loading.gif';
