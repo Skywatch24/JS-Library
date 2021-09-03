@@ -143,12 +143,16 @@ This is a component for playing live streaming.
 This is a component for playing live streaming and archive video.
 
 ```javascript
-<CameraView deviceId={} />
+<CameraView 
+  deviceId={}
+  renderLoading={}
+/>
 ```
 
 | Property          | Type           | Required | Default | Description                                                                                                                                             |
 | ----------------- | -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                                                                                                |
+| `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                             |
+| `renderLoading`   | `function`     | NO       | `() => <div style={loadingStyle}></div>` | Function returns the loading element.                   |
 
 ## License
 

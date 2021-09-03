@@ -141,7 +141,7 @@ let Skywatch = {
   next_archive: null,
   last_timestamp: false,
 };
-const CameraView = ({deviceId}) => {
+const CameraView = ({deviceId, renderLoading}) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -1405,7 +1405,7 @@ const CameraView = ({deviceId}) => {
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}>
         <div id="camera-grid-container">
-          {loading && <div style={loadingStyle}></div>}
+          {loading && renderLoading()}
           {isVisible &&
             (isLive ? (
               <FlvPlayer
@@ -1555,7 +1555,13 @@ const CameraView = ({deviceId}) => {
     </>
   );
 };
+
+CameraView.defaultProps = {
+  renderLoading: () => <div style={loadingStyle}></div>,
+};
+
 CameraView.propTypes = {
   deviceId: PropTypes.string.isRequired,
+  renderLoading: PropTypes.func,
 };
 export default CameraView;
