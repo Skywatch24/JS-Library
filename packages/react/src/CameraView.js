@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 import {Requests} from '@skywatch/api';
-import '../css/new_main.less';
-import {ArchivesPlayer, FlvPlayer} from '../src';
+import ArchivesPlayer from './ArchivesPlayer';
+import FlvPlayer from './FlvPlayer';
 import {useInterval, usePageVisibility} from './hooks';
-import LoadingSpinner from '../css/controlbar/loading.gif';
+import LoadingSpinner from '../style/controlbar/loading.gif';
 import {STATUS_OK, STATUS_END, STATUS_HOLE} from './Constants';
 
 const hide_ff = false;

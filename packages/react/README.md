@@ -149,6 +149,32 @@ This is a component for playing live streaming and archive video.
 />
 ```
 
+You need to import the CSS file to your JavaScript file
+
+```javascript
+import '@skywatch/react/dist/style/camera-view.css';
+```
+
+If you want to overwrite the default style, you can use the browser dev tool to find out the id/class of the element, and create your own CSS file to overwrite it.
+
+```css
+/* overwrite.css */
+#controlbar_container {
+  background-color:burlywood
+}
+.meta_timeline_i {
+  background-color: coral !important;
+}
+```
+
+Then, import the `overwrite.css` file
+
+```javascript
+import '@skywatch/react/dist/style/camera-view.css';
+import 'overwrite.css'
+```
+
+
 | Property          | Type           | Required | Default | Description                                                                                                                                             |
 | ----------------- | -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                             |
