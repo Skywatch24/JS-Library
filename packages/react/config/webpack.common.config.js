@@ -1,12 +1,5 @@
-const webpack = require('webpack');
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
-  plugins: [
-    new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery', // fix jQeury ReferenceError for bootstrap.custom.min.js
-    }),
-  ],
   module: {
     rules: [
       {
@@ -21,6 +14,10 @@ module.exports = {
       {
         test: /\.(sass|scss)$/,
         use: ['css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.less$/i,
+        loader: ['style-loader', 'css-loader', 'less-loader'],
       },
       {
         test: /\.(jpg|png|gif|svg)$/,

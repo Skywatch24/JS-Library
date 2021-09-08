@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {ArchivesPlayer, FlvPlayer, CameraView, initialize} from '../src';
+import '../style/camera-view.less';
 
 initialize(
-  'https://bot.skywatch24.com:31502/skywatch_api',
-  '98c0fda1cd2c875a4379e9b8e7eea7fa',
+  'https://service.skywatch24.com/api/v2',
+  'af91fb71f874702f5a3b416bce92b6b2',
 );
 
 const APP = () => {

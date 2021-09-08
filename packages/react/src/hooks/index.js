@@ -1,2 +1,2 @@
 export * from './useInterval';
-export * from './useCookie';
+export * from './usePageVisibility';
