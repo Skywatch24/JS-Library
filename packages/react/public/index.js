@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {ArchivesPlayer, FlvPlayer, CameraView, initialize} from '../src';
-import '../style/camera-view.less';
+import '../lib/style/camera-view.less';
 
 initialize(
   'https://service.skywatch24.com/api/v2',

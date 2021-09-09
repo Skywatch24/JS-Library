@@ -5,7 +5,7 @@ import {Requests} from '@skywatch/api';
 import ArchivesPlayer from './ArchivesPlayer';
 import FlvPlayer from './FlvPlayer';
 import {useInterval, usePageVisibility} from './hooks';
-import LoadingSpinner from '../style/controlbar/loading.gif';
+import LoadingSpinner from '../lib/style/images/loading.gif';
 import {STATUS_OK, STATUS_END, STATUS_HOLE} from './Constants';
 
 const hide_ff = false;

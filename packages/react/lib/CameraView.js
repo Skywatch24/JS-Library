@@ -31,7 +31,7 @@ var _FlvPlayer = _interopRequireDefault(require("./FlvPlayer"));
 
 var _hooks = require("./hooks");
 
-var _loading = _interopRequireDefault(require("../style/controlbar/loading.gif"));
+var _loading = _interopRequireDefault(require("../lib/style/images/loading.gif"));
 
 var _Constants = require("./Constants");
 
