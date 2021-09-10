@@ -1,4 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 import {Requests} from '@skywatch/api';
@@ -141,7 +146,7 @@ let Skywatch = {
   next_archive: null,
   last_timestamp: false,
 };
-const CameraView = ({deviceId, renderLoading}) => {
+const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -178,60 +183,74 @@ const CameraView = ({deviceId, renderLoading}) => {
   }, [scale, leftTimestamp, rightTimestamp]);
 
   useEffect(() => {
-    onChangeCurrentTime(currentTime);
+    controls && onChangeCurrentTime(currentTime);
   }, [currentTime]);
 
   useEffect(() => {
-    loading || smart_ff ? setDelay(null) : setDelay(1000);
-  }, [loading, smart_ff]);
+    loading || smart_ff || !controls ? setDelay(null) : setDelay(1000);
+  }, [loading, smart_ff, controls]);
 
   useInterval(function() {
     updateCurrentTime();
     updateMeta();
   }, delay);
 
+  useImperativeHandle(ref, () => ({
+    play,
+    pause,
+    fastForward,
+    toggleMute,
+    goLive,
+    seek,
+    getAllArchives: () => Skywatch.archives,
+  }));
+
   const init = () => {
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
-        document
-          .getElementById('timeline_container')
-          .classList.remove('loading');
-        $('#timeline_container').css('left', '-100%');
-        $('#timeline_container').css('width', '300%');
+        if (controls) {
+          document
+            .getElementById('timeline_container')
+            .classList.remove('loading');
+          $('#timeline_container').css('left', '-100%');
+          $('#timeline_container').css('width', '300%');
+        }
       },
     );
   };
 
   const goLive = () => {
     setLoading(true);
-    resetActiveButton();
-    $('#control-play')
-      .parent()
-      .addClass('active');
     if (smart_ff) setSmart_ff(0);
-    setDelay(1000);
-    const now = Math.floor(new Date().getTime() / 1000);
-    const updatedLeftTimestamp = getScaleStartTime(now, scale);
-    const updatedRightTimestamp =
-      updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
-    updateTimebar(
-      leftTimestamp,
-      rightTimestamp,
-      updatedLeftTimestamp,
-      updatedRightTimestamp,
-    );
-    onHighlightTimeChange(0, 0);
-    updateCurrentTime(now);
     setArchive(null);
     setIsLive(true);
-    setLeftTimestamp(updatedLeftTimestamp);
-    setRightTimestamp(updatedRightTimestamp);
+
+    if (controls) {
+      resetActiveButton();
+      $('#control-play')
+        .parent()
+        .addClass('active');
+      setDelay(1000);
+      const now = Math.floor(new Date().getTime() / 1000);
+      const updatedLeftTimestamp = getScaleStartTime(now, scale);
+      const updatedRightTimestamp =
+        updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
+      updateTimebar(
+        leftTimestamp,
+        rightTimestamp,
+        updatedLeftTimestamp,
+        updatedRightTimestamp,
+      );
+      onHighlightTimeChange(0, 0);
+      updateCurrentTime(now);
+      setLeftTimestamp(updatedLeftTimestamp);
+      setRightTimestamp(updatedRightTimestamp);
+    }
   };
 
   const seek = timestamp => {
     setLoading(true);
-    updateCurrentTime(timestamp);
     const targetArchive = seekTargetArchive(timestamp);
 
     // handle click on gap
@@ -243,16 +262,19 @@ const CameraView = ({deviceId, renderLoading}) => {
         return;
       }
     }
-
-    setBubbleTime(timestamp, $('#cursor_bubble'), true);
     setArchive(targetArchive);
     setArchiveCounter(prev => prev + 1);
     setSeekTime(toArchiveTime(targetArchive, timestamp, smart_ff));
-    const highlight_start = parseInt(targetArchive.timestamp);
-    const highlight_end =
-      parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-    onHighlightTimeChange(highlight_start, highlight_end);
     setIsLive(timestamp >= now);
+
+    if (controls) {
+      updateCurrentTime(timestamp);
+      setBubbleTime(timestamp, $('#cursor_bubble'), true);
+      const highlight_start = parseInt(targetArchive.timestamp);
+      const highlight_end =
+        parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+      onHighlightTimeChange(highlight_start, highlight_end);
+    }
   };
 
   const seekTargetArchive = targetTimestamp => {
@@ -1249,6 +1271,7 @@ const CameraView = ({deviceId, renderLoading}) => {
   };
 
   const onTimeUpdate = () => {
+    if (!controls) return;
     const video_time = player.currentTime();
     if (smart_ff) {
       // smart ff need to update timestamp frequently
@@ -1323,26 +1346,32 @@ const CameraView = ({deviceId, renderLoading}) => {
     };
   };
 
-  const togglePlay = e => {
-    resetActiveButton();
-    e.target.parentElement.classList.add('active');
-    setDelay(1000);
+  const play = e => {
+    if (controls) {
+      resetActiveButton();
+      e.target.parentElement.classList.add('active');
+      setDelay(1000);
+    }
     setSmart_ff(0);
     player && player.play();
   };
-  const togglePause = e => {
-    resetActiveButton();
-    e.target.parentElement.classList.add('active');
-    setDelay(null);
+  const pause = e => {
+    if (controls) {
+      resetActiveButton();
+      e.target.parentElement.classList.add('active');
+      setDelay(null);
+    }
     setSmart_ff(0);
     player && player.pause();
   };
-  const toggleFastForward = e => {
+  const fastForward = e => {
     if (!smart_ff) {
+      if (controls) {
+        setDelay(null);
+        resetActiveButton();
+        e.target.parentElement.classList.add('active');
+      }
       setLoading(true);
-      setDelay(null);
-      resetActiveButton();
-      e.target.parentElement.classList.add('active');
       setSmart_ff(1);
       setSeekTime(toArchiveTime(archive, currentTime, true));
       setArchiveCounter(prev => prev + 1);
@@ -1433,135 +1462,144 @@ const CameraView = ({deviceId, renderLoading}) => {
               />
             ))}
         </div>
-        <div id="buffer_container"></div>
-        <div id="controlbar_container" style={{height: 140}}>
-          <div id="controlbar">
-            <div id="cursor_bubble">
-              <span id="bubble_date"></span>
-              <span id="bubble_time"></span>
-            </div>
-            <div
-              id="cursor_bubble_preview"
-              onMouseMove={handleMouseMove}
-              onMouseOut={handleMouseOut}>
-              <span id="bubble_date"></span>
-              <span id="bubble_time"></span>
-            </div>
-            <div id="timebar_container">
-              <div id="timebar">
-                <div className="left_button">
-                  <div
-                    className="btn btn-default"
-                    id="to_previous"
-                    onClick={onPreviousClick}></div>
+
+        {controls && (
+          <>
+            <div id="buffer_container"></div>
+            <div id="controlbar_container" style={{height: 140}}>
+              <div id="controlbar">
+                <div id="cursor_bubble">
+                  <span id="bubble_date"></span>
+                  <span id="bubble_time"></span>
                 </div>
                 <div
-                  id="timebar_content"
-                  onClick={handleTimebarContentClicked}
+                  id="cursor_bubble_preview"
                   onMouseMove={handleMouseMove}
                   onMouseOut={handleMouseOut}>
-                  <div id="timeline_container" className="loading">
-                    <div id="scale_container">
-                      <div id="shades">
-                        <div className="shade shade-light"></div>
+                  <span id="bubble_date"></span>
+                  <span id="bubble_time"></span>
+                </div>
+                <div id="timebar_container">
+                  <div id="timebar">
+                    <div className="left_button">
+                      <div
+                        className="btn btn-default"
+                        id="to_previous"
+                        onClick={onPreviousClick}></div>
+                    </div>
+                    <div
+                      id="timebar_content"
+                      onClick={handleTimebarContentClicked}
+                      onMouseMove={handleMouseMove}
+                      onMouseOut={handleMouseOut}>
+                      <div id="timeline_container" className="loading">
+                        <div id="scale_container">
+                          <div id="shades">
+                            <div className="shade shade-light"></div>
+                          </div>
+                          <div id="grids"></div>
+                        </div>
+                        <div id="meta_container"></div>
                       </div>
-                      <div id="grids"></div>
+                      <div id="playbar-container">
+                        <div id="playbar"></div>
+                        <div id="played"></div>
+                      </div>
                     </div>
-                    <div id="meta_container"></div>
-                  </div>
-                  <div id="playbar-container">
-                    <div id="playbar"></div>
-                    <div id="played"></div>
-                  </div>
-                </div>
-                <div
-                  id="cursor"
-                  onMouseDown={onMouseDown}
-                  className={isLive ? 'live' : ''}>
-                  <div id="cursor_clickable"></div>
-                </div>
-                <div className="right_button">
-                  <div
-                    className="btn btn-default"
-                    id="to_next"
-                    disabled
-                    onClick={onNextClick}></div>
-                </div>
-              </div>
-            </div>
-            <div id="label_container">
-              <div id="label_content"></div>
-            </div>
-            <div id="controlbar_content">
-              <div id="date_left">
-                <div>
-                  <span>{getTimeData(leftTimestamp).date_display}</span>
-                  <span>{getTimeData(leftTimestamp).time_display}</span>
-                </div>
-              </div>
-              <div className="button_group_container">
-                <div className="button_group playback-control-group">
-                  <div className="control_button" onClick={togglePause}>
-                    <div id="control-pause"></div>
-                  </div>
-                  <div className="control_button active" onClick={togglePlay}>
-                    <div id="control-play"></div>
-                  </div>
-                  {!hide_ff && (
-                    <div className="control_button" onClick={toggleFastForward}>
-                      <div id="control-fastforward"></div>
+                    <div
+                      id="cursor"
+                      onMouseDown={onMouseDown}
+                      className={isLive ? 'live' : ''}>
+                      <div id="cursor_clickable"></div>
                     </div>
-                  )}
-                </div>
-                <div className="button_group">
-                  <div
-                    className={`switch_button ${isMuted ? 'active' : ''}`}
-                    onClick={toggleMute}>
-                    <div id="control-volume"></div>
+                    <div className="right_button">
+                      <div
+                        className="btn btn-default"
+                        id="to_next"
+                        disabled
+                        onClick={onNextClick}></div>
+                    </div>
                   </div>
+                </div>
+                <div id="label_container">
+                  <div id="label_content"></div>
+                </div>
+                <div id="controlbar_content">
+                  <div id="date_left">
+                    <div>
+                      <span>{getTimeData(leftTimestamp).date_display}</span>
+                      <span>{getTimeData(leftTimestamp).time_display}</span>
+                    </div>
+                  </div>
+                  <div className="button_group_container">
+                    <div className="button_group playback-control-group">
+                      <div className="control_button" onClick={pause}>
+                        <div id="control-pause"></div>
+                      </div>
+                      <div className="control_button active" onClick={play}>
+                        <div id="control-play"></div>
+                      </div>
+                      {!hide_ff && (
+                        <div className="control_button" onClick={fastForward}>
+                          <div id="control-fastforward"></div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="button_group">
+                      <div
+                        className={`switch_button ${isMuted ? 'active' : ''}`}
+                        onClick={toggleMute}>
+                        <div id="control-volume"></div>
+                      </div>
 
-                  <div
-                    className={`switch_button button_long ${
-                      isLive ? 'active' : ''
-                    }`}>
-                    <div id="control-golive" onClick={goLive}></div>
+                      <div
+                        className={`switch_button button_long ${
+                          isLive ? 'active' : ''
+                        }`}>
+                        <div id="control-golive" onClick={goLive}></div>
+                      </div>
+                    </div>
+                    <div className="button_group pull-right">
+                      <div
+                        className="control_button active"
+                        onClick={onScaleClick}>
+                        <div id="control-hour">{'時'}</div>
+                      </div>
+                      <div className="control_button" onClick={onScaleClick}>
+                        <div id="control-day">{'日'}</div>
+                      </div>
+                      <div className="control_button" onClick={onScaleClick}>
+                        <div id="control-week">{'週'}</div>
+                      </div>
+                      <div className="control_button" onClick={onScaleClick}>
+                        <div id="control-month">{'月'}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="button_group pull-right">
-                  <div className="control_button active" onClick={onScaleClick}>
-                    <div id="control-hour">{'時'}</div>
+                  <div id="date_right">
+                    <div>
+                      <span>{getTimeData(rightTimestamp).date_display}</span>
+                      <span>{getTimeData(rightTimestamp).time_display}</span>
+                    </div>
                   </div>
-                  <div className="control_button" onClick={onScaleClick}>
-                    <div id="control-day">{'日'}</div>
-                  </div>
-                  <div className="control_button" onClick={onScaleClick}>
-                    <div id="control-week">{'週'}</div>
-                  </div>
-                  <div className="control_button" onClick={onScaleClick}>
-                    <div id="control-month">{'月'}</div>
-                  </div>
-                </div>
-              </div>
-              <div id="date_right">
-                <div>
-                  <span>{getTimeData(rightTimestamp).date_display}</span>
-                  <span>{getTimeData(rightTimestamp).time_display}</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </>
   );
-};
+});
 
 CameraView.defaultProps = {
   renderLoading: () => <div style={loadingStyle}></div>,
+  controls: true,
 };
 
 CameraView.propTypes = {
   deviceId: PropTypes.string.isRequired,
   renderLoading: PropTypes.func,
+  controls: PropTypes.bool,
 };
 export default CameraView;

@@ -164,11 +164,11 @@ let Skywatch = {
   next_archive: null,
   last_timestamp: false
 };
-
-const CameraView = _ref => {
+const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   let {
     deviceId,
-    renderLoading
+    renderLoading,
+    controls
   } = _ref;
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = (0, _react.useState)(null);
@@ -197,46 +197,59 @@ const CameraView = _ref => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
   }, [scale, leftTimestamp, rightTimestamp]);
   (0, _react.useEffect)(() => {
-    onChangeCurrentTime(currentTime);
+    controls && onChangeCurrentTime(currentTime);
   }, [currentTime]);
   (0, _react.useEffect)(() => {
-    loading || smart_ff ? setDelay(null) : setDelay(1000);
-  }, [loading, smart_ff]);
+    loading || smart_ff || !controls ? setDelay(null) : setDelay(1000);
+  }, [loading, smart_ff, controls]);
   (0, _hooks.useInterval)(function () {
     updateCurrentTime();
     updateMeta();
   }, delay);
+  (0, _react.useImperativeHandle)(ref, () => ({
+    play,
+    pause,
+    fastForward,
+    toggleMute,
+    goLive,
+    seek,
+    getAllArchives: () => Skywatch.archives
+  }));
 
   const init = () => {
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(() => {
-      document.getElementById('timeline_container').classList.remove('loading');
-      (0, _jquery.default)('#timeline_container').css('left', '-100%');
-      (0, _jquery.default)('#timeline_container').css('width', '300%');
+      if (controls) {
+        document.getElementById('timeline_container').classList.remove('loading');
+        (0, _jquery.default)('#timeline_container').css('left', '-100%');
+        (0, _jquery.default)('#timeline_container').css('width', '300%');
+      }
     });
   };
 
   const goLive = () => {
     setLoading(true);
-    resetActiveButton();
-    (0, _jquery.default)('#control-play').parent().addClass('active');
     if (smart_ff) setSmart_ff(0);
-    setDelay(1000);
-    const now = Math.floor(new Date().getTime() / 1000);
-    const updatedLeftTimestamp = getScaleStartTime(now, scale);
-    const updatedRightTimestamp = updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
-    updateTimebar(leftTimestamp, rightTimestamp, updatedLeftTimestamp, updatedRightTimestamp);
-    onHighlightTimeChange(0, 0);
-    updateCurrentTime(now);
     setArchive(null);
     setIsLive(true);
-    setLeftTimestamp(updatedLeftTimestamp);
-    setRightTimestamp(updatedRightTimestamp);
+
+    if (controls) {
+      resetActiveButton();
+      (0, _jquery.default)('#control-play').parent().addClass('active');
+      setDelay(1000);
+      const now = Math.floor(new Date().getTime() / 1000);
+      const updatedLeftTimestamp = getScaleStartTime(now, scale);
+      const updatedRightTimestamp = updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
+      updateTimebar(leftTimestamp, rightTimestamp, updatedLeftTimestamp, updatedRightTimestamp);
+      onHighlightTimeChange(0, 0);
+      updateCurrentTime(now);
+      setLeftTimestamp(updatedLeftTimestamp);
+      setRightTimestamp(updatedRightTimestamp);
+    }
   };
 
   const seek = timestamp => {
     setLoading(true);
-    updateCurrentTime(timestamp);
     const targetArchive = seekTargetArchive(timestamp); // handle click on gap
 
     if (targetArchive.timestamp) {
@@ -249,14 +262,18 @@ const CameraView = _ref => {
       }
     }
 
-    setBubbleTime(timestamp, (0, _jquery.default)('#cursor_bubble'), true);
     setArchive(targetArchive);
     setArchiveCounter(prev => prev + 1);
     setSeekTime(toArchiveTime(targetArchive, timestamp, smart_ff));
-    const highlight_start = parseInt(targetArchive.timestamp);
-    const highlight_end = parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
-    onHighlightTimeChange(highlight_start, highlight_end);
     setIsLive(timestamp >= now);
+
+    if (controls) {
+      updateCurrentTime(timestamp);
+      setBubbleTime(timestamp, (0, _jquery.default)('#cursor_bubble'), true);
+      const highlight_start = parseInt(targetArchive.timestamp);
+      const highlight_end = parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
+      onHighlightTimeChange(highlight_start, highlight_end);
+    }
   };
 
   const seekTargetArchive = targetTimestamp => {
@@ -1084,6 +1101,7 @@ const CameraView = _ref => {
   };
 
   const onTimeUpdate = () => {
+    if (!controls) return;
     const video_time = player.currentTime();
 
     if (smart_ff) {
@@ -1161,28 +1179,37 @@ const CameraView = _ref => {
     };
   };
 
-  const togglePlay = e => {
-    resetActiveButton();
-    e.target.parentElement.classList.add('active');
-    setDelay(1000);
+  const play = e => {
+    if (controls) {
+      resetActiveButton();
+      e.target.parentElement.classList.add('active');
+      setDelay(1000);
+    }
+
     setSmart_ff(0);
     player && player.play();
   };
 
-  const togglePause = e => {
-    resetActiveButton();
-    e.target.parentElement.classList.add('active');
-    setDelay(null);
+  const pause = e => {
+    if (controls) {
+      resetActiveButton();
+      e.target.parentElement.classList.add('active');
+      setDelay(null);
+    }
+
     setSmart_ff(0);
     player && player.pause();
   };
 
-  const toggleFastForward = e => {
+  const fastForward = e => {
     if (!smart_ff) {
+      if (controls) {
+        setDelay(null);
+        resetActiveButton();
+        e.target.parentElement.classList.add('active');
+      }
+
       setLoading(true);
-      setDelay(null);
-      resetActiveButton();
-      e.target.parentElement.classList.add('active');
       setSmart_ff(1);
       setSeekTime(toArchiveTime(archive, currentTime, true));
       setArchiveCounter(prev => prev + 1);
@@ -1270,7 +1297,7 @@ const CameraView = _ref => {
     onEnded: onVideoEnded,
     onReady: () => setLoading(false),
     onTimeUpdate: onTimeUpdate
-  }))), /*#__PURE__*/_react.default.createElement("div", {
+  }))), controls && /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     id: "buffer_container"
   }), /*#__PURE__*/_react.default.createElement("div", {
     id: "controlbar_container",
@@ -1354,17 +1381,17 @@ const CameraView = _ref => {
     className: "button_group playback-control-group"
   }, /*#__PURE__*/_react.default.createElement("div", {
     className: "control_button",
-    onClick: togglePause
+    onClick: pause
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "control-pause"
   })), /*#__PURE__*/_react.default.createElement("div", {
     className: "control_button active",
-    onClick: togglePlay
+    onClick: play
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "control-play"
   })), !hide_ff && /*#__PURE__*/_react.default.createElement("div", {
     className: "control_button",
-    onClick: toggleFastForward
+    onClick: fastForward
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "control-fastforward"
   }))), /*#__PURE__*/_react.default.createElement("div", {
@@ -1403,17 +1430,18 @@ const CameraView = _ref => {
     id: "control-month"
   }, '月')))), /*#__PURE__*/_react.default.createElement("div", {
     id: "date_right"
-  }, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, getTimeData(rightTimestamp).date_display), /*#__PURE__*/_react.default.createElement("span", null, getTimeData(rightTimestamp).time_display))))))));
-};
-
+  }, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, getTimeData(rightTimestamp).date_display), /*#__PURE__*/_react.default.createElement("span", null, getTimeData(rightTimestamp).time_display)))))))));
+});
 CameraView.defaultProps = {
   renderLoading: () => /*#__PURE__*/_react.default.createElement("div", {
     style: loadingStyle
-  })
+  }),
+  controls: true
 };
 CameraView.propTypes = {
   deviceId: _propTypes.default.string.isRequired,
-  renderLoading: _propTypes.default.func
+  renderLoading: _propTypes.default.func,
+  controls: _propTypes.default.bool
 };
 var _default = CameraView;
 exports.default = _default;
