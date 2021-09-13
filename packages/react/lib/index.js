@@ -21,7 +21,11 @@ Object.defineProperty(exports, "CameraView", {
     return _CameraView.default;
   }
 });
-exports.initialize = void 0;
+exports.CameraViewWebComponent = exports.initialize = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
 
 var _ArchivesPlayer = _interopRequireDefault(require("./ArchivesPlayer"));
 
@@ -45,3 +49,50 @@ const initialize = (serverUrl, apiKey) => {
 };
 
 exports.initialize = initialize;
+
+class CameraViewWebComponent extends HTMLElement {
+  constructor() {
+    super();
+    initialize('https://service.skywatch24.com/api/v2', 'af91fb71f874702f5a3b416bce92b6b2');
+    this.cameraViewRef = /*#__PURE__*/_react.default.createRef();
+  }
+
+  play() {
+    this.cameraViewRef.current.play();
+  }
+
+  pause() {
+    this.cameraViewRef.current.pause();
+  }
+
+  fastForward() {
+    this.cameraViewRef.current.fastForward();
+  }
+
+  toggleMute() {
+    this.cameraViewRef.current.toggleMute();
+  }
+
+  goLive() {
+    this.cameraViewRef.current.goLive();
+  }
+
+  seek(timestamp) {
+    this.cameraViewRef.current.seek(timestamp);
+  }
+
+  getAllArchives() {
+    return this.cameraViewRef.current.getAllArchives();
+  }
+
+  connectedCallback() {
+    _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_CameraView.default, {
+      deviceId: this.getAttribute('deviceId'),
+      controls: this.getAttribute('controls'),
+      ref: this.cameraViewRef
+    }), document.getElementById('camera-view-web-component'));
+  }
+
+}
+
+exports.CameraViewWebComponent = CameraViewWebComponent;

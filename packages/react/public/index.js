@@ -8,21 +8,21 @@ initialize(
   'af91fb71f874702f5a3b416bce92b6b2',
 );
 
-const DEFAULT_CONTROLS = true;
+const CONTROLS = true;
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
-  const camera = useRef();
+  const cameraViewRef = useRef();
   return (
     <>
       <div style={{width: '768px'}}>
         <CameraView
           deviceId={'47436'}
-          controls={DEFAULT_CONTROLS}
-          ref={camera}
+          controls={CONTROLS}
+          ref={cameraViewRef}
         />
       </div>
-      {!DEFAULT_CONTROLS && (
+      {!CONTROLS && (
         <div>
           <button onClick={() => camera.current.play()}>play</button>
           <button onClick={() => camera.current.pause()}>pause</button>

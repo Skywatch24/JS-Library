@@ -3,6 +3,9 @@ const {
   SERVER_URL,
   API_KEY
 } = Constants;
+import { CameraViewWebComponent } from '../../react/lib/index';
+console.log(CameraViewWebComponent);
+customElements.get('camera-view-web-component') || customElements.define('camera-view-web-component', CameraViewWebComponent);
 const Skywatch = {
   initialize: (serverUrl, apiKey) => {
     CoreManager.set(SERVER_URL, serverUrl);
