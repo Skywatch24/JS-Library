@@ -1,7 +1,7 @@
 import React, {useState, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import {ArchivesPlayer, FlvPlayer, CameraView, initialize} from '../src';
-import '../lib/style/camera-view.less';
+import '../style/camera-view.less';
 
 initialize(
   'https://service.skywatch24.com/api/v2',
@@ -24,19 +24,21 @@ const APP = () => {
       </div>
       {!CONTROLS && (
         <div>
-          <button onClick={() => camera.current.play()}>play</button>
-          <button onClick={() => camera.current.pause()}>pause</button>
-          <button onClick={() => camera.current.fastForward()}>
+          <button onClick={() => cameraViewRef.current.play()}>play</button>
+          <button onClick={() => cameraViewRef.current.pause()}>pause</button>
+          <button onClick={() => cameraViewRef.current.fastForward()}>
             fastforward
           </button>
-          <button onClick={() => camera.current.toggleMute()}>mute</button>
-          <button onClick={() => camera.current.goLive()}>live</button>
-          <button onClick={() => camera.current.seek(1630310400)}>
+          <button onClick={() => cameraViewRef.current.toggleMute()}>
+            mute
+          </button>
+          <button onClick={() => cameraViewRef.current.goLive()}>live</button>
+          <button onClick={() => cameraViewRef.current.seek(1630310400)}>
             8/30 16:00
           </button>
           <button
             onClick={() => {
-              const archives = camera.current.getAllArchives();
+              const archives = cameraViewRef.current.getAllArchives();
               console.log(archives);
             }}>
             Get All Archives
