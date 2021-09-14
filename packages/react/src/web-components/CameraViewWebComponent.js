@@ -34,7 +34,7 @@ class CameraViewWebComponent extends HTMLElement {
     ReactDOM.render(
       <CameraView
         deviceId={this.getAttribute('deviceId')}
-        controls={this.getAttribute('controls')}
+        controls={this.getAttribute('controls') === 'true'}
         ref={this.cameraViewRef}
       />,
       document.getElementById('camera-view-web-component'),
@@ -42,4 +42,4 @@ class CameraViewWebComponent extends HTMLElement {
   }
 }
 
-export {CameraViewWebComponent}
+export {CameraViewWebComponent};

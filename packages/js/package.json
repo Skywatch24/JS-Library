@@ -21,8 +21,7 @@
   "scripts": {
     "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js",
     "build": "webpack --config ./config/webpack.prod.config.js",
-    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files",
-    "rebuild": "cd ../react/ && yarn compile && cd ../js && yarn build && yarn start"
+    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"
   },
   "bugs": {
     "url": "https://github.com/Skywatch24/JS-Library/issues"

@@ -6,14 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <title>JS App</title>
-  <script src="skywatch.min.js"></script>
+  </head>
   <script>
-     Skywatch.initialize(
+    Skywatch.initialize(
       'https://service.skywatch24.com/api/v2',
       'af91fb71f874702f5a3b416bce92b6b2',
     );
   </script>
-  </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root" style="width: 768px; height: 432px">
@@ -43,7 +42,6 @@
     //   //player.currentTime(5);
     // });
     // Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
-    // TODO: try get customElement
     const play = () => document.getElementById('camera-view-web-component').play()
     const pause = () => document.getElementById('camera-view-web-component').pause()
     const toggleMute = () => document.getElementById('camera-view-web-component').toggleMute()
