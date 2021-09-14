@@ -13,12 +13,11 @@
       'af91fb71f874702f5a3b416bce92b6b2',
     );
   </script>
-  
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root" style="width: 768px; height: 432px">
-      <camera-view-web-component id="camera-view-web-component" deviceId="47436" controls></camera-view-web-component>
+      <camera-view-web-component id="camera-view-web-component" deviceId="47436" controls="true"></camera-view-web-component>
       <div>
         <button onclick="play()">play</button>
         <button onclick="pause()">pause</button>
@@ -44,6 +43,7 @@
     //   //player.currentTime(5);
     // });
     // Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
+    // TODO: try get customElement
     const play = () => document.getElementById('camera-view-web-component').play()
     const pause = () => document.getElementById('camera-view-web-component').pause()
     const toggleMute = () => document.getElementById('camera-view-web-component').toggleMute()
