@@ -50,9 +50,9 @@ class CameraViewWebComponent extends HTMLElement {
   connectedCallback() {
     _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_CameraView.default, {
       deviceId: this.getAttribute('deviceId'),
-      controls: this.getAttribute('controls') === 'true',
+      controls: this.hasAttribute('controls'),
       ref: this.cameraViewRef
-    }), document.getElementById('camera-view-web-component'));
+    }), this);
   }
 
 }

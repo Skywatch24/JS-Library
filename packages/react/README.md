@@ -155,6 +155,8 @@ You need to import the CSS file to your JavaScript file
 import '@skywatch/react/lib/style/camera-view.css';
 ```
 
+#### Custom Style
+
 If you want to overwrite the default style, you can use the browser dev tool to find out the id/class of the element, and create your own CSS file to overwrite it.
 
 ```css
@@ -174,11 +176,46 @@ import '@skywatch/react/lib/style/camera-view.css';
 import 'overwrite.css'
 ```
 
+#### Custom Controls
+
+Methods to control the video are exposed by `useImperativeHandle` hook. 
+To access these methods, you need to create your `ref` and pass it to `CameraView` component. Also, you have to disable the default controls.
+Then you can use the exposed methods by the `ref`. For example,
+
+```javascript
+const APP = () => {
+  const cameraViewRef = useRef();
+  return (
+    <>
+      <CameraView
+        deviceId={'0000'}
+        controls={false}
+        ref={cameraViewRef}
+      />
+      <button onClick={() => cameraViewRef.current.play()}>play</button>
+      <button onClick={() => cameraViewRef.current.pause()}>pause</button>  
+    </>
+  );
+};
+```
+
+| Method             | Parameters       | Returns  | Description                                |
+| ------------------ | ---------------- | -------- | ------------------------------------------ |
+| `play()`           | none             | none     | Play the video.                            |
+| `pause()`          | none             | none     | Pause the current video.                   |
+| `fastForward()`    | none             | none     | Start fast forward mode.                   |
+| `toggleMute()`     | none             | none     | Mute or unmute the video.                  |
+| `goLive()`         | none             | none     | Start playing live video.                  |
+| `seek(string)`     | `Neumber|String` | none     | Play video at the provided unix timestamp. |
+| `getAllArchives()` | none             | `array`  | Get data of all archives.                  | 
+
+#### Props
 
 | Property          | Type           | Required | Default | Description                                                                                                                                             |
 | ----------------- | -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                             |
 | `renderLoading`   | `function`     | NO       | `() => <div style={loadingStyle}></div>` | Function returns the loading element.                   |
+| `controls`        | `bool`         | NO       | `true`  | If `false`, the default controls will not be used.                                   |    
 
 ## License
 

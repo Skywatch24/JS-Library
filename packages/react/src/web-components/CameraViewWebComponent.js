@@ -34,10 +34,10 @@ class CameraViewWebComponent extends HTMLElement {
     ReactDOM.render(
       <CameraView
         deviceId={this.getAttribute('deviceId')}
-        controls={this.getAttribute('controls') === 'true'}
+        controls={this.hasAttribute('controls')}
         ref={this.cameraViewRef}
       />,
-      document.getElementById('camera-view-web-component'),
+      this,
     );
   }
 }
