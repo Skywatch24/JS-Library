@@ -9,7 +9,6 @@
   "main": "lib/index.js",
   "private": false,
   "files": [
-    "dist",
     "lib",
     "LICENSE",
     "README.md"
@@ -22,7 +21,7 @@
     "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js",
     "build": "webpack --config ./config/webpack.prod.config.js",
     "test": "jest --config ./jest.config.js",
-    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"
+    "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files && ../../node_modules/less/bin/lessc style/camera-view.less lib/style/camera-view.css && cp -r style/images lib/style/"
   },
   "bugs": {
     "url": "https://github.com/Skywatch24/JS-Library/issues"

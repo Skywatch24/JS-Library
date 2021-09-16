@@ -33,7 +33,7 @@ module.exports = merge(common, {
   plugins: [
     new HtmlWebpackPlugin({
       template: 'public/index.html',
-      inject: 'body',
+      inject: 'head',
       hash: false,
     }),
     new webpack.HotModuleReplacementPlugin(),

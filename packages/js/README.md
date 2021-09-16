@@ -126,6 +126,44 @@ This is a function for showing live streaming.
 | `deviceId`         | `string`   | YES      |         | Decide on which camera is going to play.                                                                                                    |
 | `Promise (player)` | `function` |          |         | A response to allow control of player. For more info please check [flv.js doc](https://github.com/bilibili/flv.js/edit/master/docs/api.md). |
 
+
+### CameraView
+
+A web component for playing live streaming and archive video.
+
+```html
+<body>
+  <camera-view-web-component id="camera-view-web-component" deviceId="DEVICE_ID" controls></camera-view-web-component>
+</body>
+```
+
+| Attribute   | Type     | Required | Description                                                            |
+| ----------- | -------- | -------- | ---------------------------------------------------------------------- |
+| `deviceId`  | `string` | YES      | Decide on which camera is going to play.                               |
+| `controls`  | `bool`   | NO       | Set whether or not the player has default controls. Note that you can simply include the attribute to turn it on, or exclude it to turn it off. |
+
+#### Custom Controls 
+Methods to control the video are exposed from the instance. 
+To access these methods, you have to exclude `controls` attribute. For example,
+
+```html
+<body>
+  <camera-view-web-component id="camera-view-web-component" deviceId="DEVICE_ID"></camera-view-web-component>
+  <button onclick="document.getElementById('camera-view-web-component').play()">play</button>
+  <button onclick="document.getElementById('camera-view-web-component').pause()">pause</button>
+</body>
+```
+
+| Method             | Parameters       | Returns  | Description                                |
+| ------------------ | ---------------- | -------- | ------------------------------------------ |
+| `play()`           | none             | none     | Play the video.                            |
+| `pause()`          | none             | none     | Pause the current video.                   |
+| `fastForward()`    | none             | none     | Start fast forward mode.                   |
+| `toggleMute()`     | none             | none     | Mute or unmute the video.                  |
+| `goLive()`         | none             | none     | Start playing live video.                  |
+| `seek(string)`     | `Neumber|String` | none     | Play video at the provided unix timestamp. |
+| `getAllArchives()` | none             | `array`  | Get data of all archives.                  |   
+| `isLive()`         | none             | `bool`   | Check if the video is in live mode.        |
 ## License
 
 - This project is inspired by [video.js](https://www.videojs.com).
