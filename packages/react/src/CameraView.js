@@ -166,6 +166,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   const [isMuted, setIsMuted] = useState(true);
   const [highlightStart, sethigHlightStart] = useState(0);
   const [highlightEnd, sethigHlightEnd] = useState(0);
+  const [flvCounter, setFlvCounter] = useState(0); // use counter as key for <FlvPlayer />
   const [archiveCounter, setArchiveCounter] = useState(0); // use counter as key for <ArchivesPlayer />
   const [dragging, setDragging] = useState(false);
   const [cacheTime, setCacheTime] = useState(0);
@@ -226,6 +227,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     if (smart_ff) setSmart_ff(0);
     setIsLive(true);
     setArchive(null);
+    setFlvCounter(prev => prev + 1);
 
     if (controls) {
       resetActiveButton();
@@ -1354,11 +1356,14 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
       e.target.parentElement.classList.add('active');
       setDelay(1000);
     }
-    if (smart_ff) {
-      setSmart_ff(0);
+    setSmart_ff(0);
+    if (isLive) {
+      goLive();
+    } else if (smart_ff) {
       seek(getSmartFFTimestamp(player.currentTime()), false);
+    } else {
+      player && player.play();
     }
-    player && player.play();
   };
   const pause = e => {
     if (controls) {
@@ -1442,6 +1447,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
           {isVisible &&
             (isLive ? (
               <FlvPlayer
+                key={flvCounter}
                 deviceId={deviceId}
                 onPlayerInit={setPlayer}
                 onPlayerDispose={setPlayer}
