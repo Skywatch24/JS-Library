@@ -1380,6 +1380,10 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
         resetActiveButton();
         e.target.parentElement.classList.add('active');
       }
+      if (isLive) {
+        goLive();
+        return;
+      }
       setLoading(true);
       setSmart_ff(1);
       setSeekTime(toArchiveTime(archive, currentTime, true));
