@@ -1,6 +1,5 @@
 import { CoreManager, Constants } from '@skywatch/api';
 import { CameraViewWebComponent } from '@skywatch/react';
-import '@skywatch/react/lib/style/camera-view.css';
 const {
   SERVER_URL,
   API_KEY
