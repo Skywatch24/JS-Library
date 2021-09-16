@@ -47,6 +47,10 @@ class CameraViewWebComponent extends HTMLElement {
     return this.cameraViewRef.current.getAllArchives();
   }
 
+  isLive() {
+    return this.cameraViewRef.current.isLive();
+  }
+
   connectedCallback() {
     _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_CameraView.default, {
       deviceId: this.getAttribute('deviceId'),

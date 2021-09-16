@@ -29,6 +29,9 @@ class CameraViewWebComponent extends HTMLElement {
   getAllArchives() {
     return this.cameraViewRef.current.getAllArchives();
   }
+  isLive() {
+    return this.cameraViewRef.current.isLive();
+  }
 
   connectedCallback() {
     ReactDOM.render(

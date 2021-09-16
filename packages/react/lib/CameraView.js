@@ -173,7 +173,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const [player, setPlayer] = (0, _react.useState)(null);
   const [loading, setLoading] = (0, _react.useState)(true);
-  const [isLive, setIsLive] = (0, _react.useState)(true);
+  const [_isLive, setIsLive] = (0, _react.useState)(true);
   const [seekTime, setSeekTime] = (0, _react.useState)('');
   const [currentTime, setCurrentTime] = (0, _react.useState)(now);
   const [archive, setArchive] = (0, _react.useState)(null);
@@ -213,7 +213,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     toggleMute,
     goLive,
     seek,
-    getAllArchives: () => Skywatch.archives
+    getAllArchives: () => Skywatch.archives,
+    isLive: () => _isLive
   }));
 
   const init = () => {
@@ -230,8 +231,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   const goLive = () => {
     setLoading(true);
     if (smart_ff) setSmart_ff(0);
-    setArchive(null);
     setIsLive(true);
+    setArchive(null);
 
     if (controls) {
       resetActiveButton();
@@ -1003,7 +1004,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   };
 
   const updateCurrentTime = function updateCurrentTime(timestamp) {
-    const current_time = isLive ? Math.floor(new Date().getTime() / 1000) : currentTime + 1;
+    const current_time = _isLive ? Math.floor(new Date().getTime() / 1000) : currentTime + 1;
     timestamp = timestamp || current_time;
     let params = {
       current_time: timestamp
@@ -1217,7 +1218,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   };
 
   const toggleMute = () => {
-    if (isLive && player) {
+    if (_isLive && player) {
       // flvjs
       player.muted = !isMuted;
     } else {
@@ -1256,7 +1257,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
 
   const onFocus = () => {
     if (!smart_ff) setDelay(1000);
-    isLive ? goLive() : seek(currentTime);
+    _isLive ? goLive() : seek(currentTime);
   };
 
   const onBlur = () => {
@@ -1271,7 +1272,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     onMouseLeave: onMouseUp
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "camera-grid-container"
-  }, loading && renderLoading(), isVisible && (isLive ? /*#__PURE__*/_react.default.createElement(_FlvPlayer.default, {
+  }, loading && renderLoading(), isVisible && (_isLive ? /*#__PURE__*/_react.default.createElement(_FlvPlayer.default, {
     deviceId: deviceId,
     onPlayerInit: setPlayer,
     onPlayerDispose: setPlayer,
@@ -1357,7 +1358,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   }))), /*#__PURE__*/_react.default.createElement("div", {
     id: "cursor",
     onMouseDown: onMouseDown,
-    className: isLive ? 'live' : ''
+    className: _isLive ? 'live' : ''
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "cursor_clickable"
   })), /*#__PURE__*/_react.default.createElement("div", {
@@ -1402,7 +1403,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "control-volume"
   })), /*#__PURE__*/_react.default.createElement("div", {
-    className: "switch_button button_long ".concat(isLive ? 'active' : '')
+    className: "switch_button button_long ".concat(_isLive ? 'active' : '')
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "control-golive",
     onClick: goLive

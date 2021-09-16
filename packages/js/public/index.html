@@ -20,10 +20,12 @@
       <div>
         <button onclick="document.getElementById('camera-view-web-component').play()">play</button>
         <button onclick="document.getElementById('camera-view-web-component').pause()">pause</button>
+        <button onclick="document.getElementById('camera-view-web-component').goLive()">goLive</button>
         <button onclick="toggleMute()">mute</button>
         <button onclick="fastForward()">fast forward</button>
         <button onclick="seek('1630310400')">8/30 16:00</button>
         <button onclick="getAllArchives()">get all archives</button>
+        <button onclick="console.log(document.getElementById('camera-view-web-component').isLive())">isLive</button>
       </div>
     </div>
     <!-- <video

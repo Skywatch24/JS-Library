@@ -8,7 +8,7 @@ initialize(
   'af91fb71f874702f5a3b416bce92b6b2',
 );
 
-const CONTROLS = true;
+const CONTROLS = false;
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
@@ -42,6 +42,9 @@ const APP = () => {
               console.log(archives);
             }}>
             Get All Archives
+          </button>
+          <button onClick={() => console.log(cameraViewRef.current.isLive())}>
+            isLive
           </button>
         </div>
       )}

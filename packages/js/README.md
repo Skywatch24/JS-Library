@@ -163,6 +163,7 @@ To access these methods, you have to exclude `controls` attribute. For example,
 | `goLive()`         | none             | none     | Start playing live video.                  |
 | `seek(string)`     | `Neumber|String` | none     | Play video at the provided unix timestamp. |
 | `getAllArchives()` | none             | `array`  | Get data of all archives.                  |   
+| `isLive()`         | none             | `bool`   | Check if the video is in live mode.        |
 ## License
 
 - This project is inspired by [video.js](https://www.videojs.com).

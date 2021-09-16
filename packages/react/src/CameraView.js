@@ -203,6 +203,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     goLive,
     seek,
     getAllArchives: () => Skywatch.archives,
+    isLive: () => isLive,
   }));
 
   const init = () => {
@@ -223,8 +224,8 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   const goLive = () => {
     setLoading(true);
     if (smart_ff) setSmart_ff(0);
-    setArchive(null);
     setIsLive(true);
+    setArchive(null);
 
     if (controls) {
       resetActiveButton();
