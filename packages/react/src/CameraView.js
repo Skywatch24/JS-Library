@@ -188,8 +188,8 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   }, [currentTime]);
 
   useEffect(() => {
-    loading || smart_ff || !controls ? setDelay(null) : setDelay(1000);
-  }, [loading, smart_ff, controls]);
+    loading || smart_ff ? setDelay(null) : setDelay(1000);
+  }, [loading, smart_ff]);
 
   useInterval(function() {
     updateCurrentTime();
@@ -228,6 +228,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     setIsLive(true);
     setArchive(null);
     setFlvCounter(prev => prev + 1);
+    updateCurrentTime(now);
 
     if (controls) {
       resetActiveButton();
@@ -246,7 +247,6 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
         updatedRightTimestamp,
       );
       onHighlightTimeChange(0, 0);
-      updateCurrentTime(now);
       setLeftTimestamp(updatedLeftTimestamp);
       setRightTimestamp(updatedRightTimestamp);
     }
@@ -270,9 +270,9 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     setArchiveCounter(prev => prev + 1);
 
     setIsLive(timestamp >= now);
+    updateCurrentTime(timestamp);
 
     if (controls) {
-      updateCurrentTime(timestamp);
       setBubbleTime(timestamp, $('#cursor_bubble'), true);
       const highlight_start = parseInt(targetArchive.timestamp);
       const highlight_end =
@@ -1172,6 +1172,10 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
       ? Math.floor(new Date().getTime() / 1000)
       : currentTime + 1;
     timestamp = timestamp || current_time;
+    if (!controls) {
+      setCurrentTime(timestamp);
+      return;
+    }
     let params = {
       current_time: timestamp,
     };
@@ -1275,7 +1279,6 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   };
 
   const onTimeUpdate = () => {
-    if (!controls) return;
     const video_time = player.currentTime();
     if (smart_ff) {
       // smart ff need to update timestamp frequently

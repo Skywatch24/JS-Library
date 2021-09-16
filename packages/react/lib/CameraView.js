@@ -185,6 +185,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   const [isMuted, setIsMuted] = (0, _react.useState)(true);
   const [highlightStart, sethigHlightStart] = (0, _react.useState)(0);
   const [highlightEnd, sethigHlightEnd] = (0, _react.useState)(0);
+  const [flvCounter, setFlvCounter] = (0, _react.useState)(0); // use counter as key for <FlvPlayer />
+
   const [archiveCounter, setArchiveCounter] = (0, _react.useState)(0); // use counter as key for <ArchivesPlayer />
 
   const [dragging, setDragging] = (0, _react.useState)(false);
@@ -200,8 +202,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     controls && onChangeCurrentTime(currentTime);
   }, [currentTime]);
   (0, _react.useEffect)(() => {
-    loading || smart_ff || !controls ? setDelay(null) : setDelay(1000);
-  }, [loading, smart_ff, controls]);
+    loading || smart_ff ? setDelay(null) : setDelay(1000);
+  }, [loading, smart_ff]);
   (0, _hooks.useInterval)(function () {
     updateCurrentTime();
     updateMeta();
@@ -233,6 +235,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     if (smart_ff) setSmart_ff(0);
     setIsLive(true);
     setArchive(null);
+    setFlvCounter(prev => prev + 1);
+    updateCurrentTime(now);
 
     if (controls) {
       resetActiveButton();
@@ -243,7 +247,6 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
       const updatedRightTimestamp = updatedLeftTimestamp + scale_table.get(scale, updatedLeftTimestamp);
       updateTimebar(leftTimestamp, rightTimestamp, updatedLeftTimestamp, updatedRightTimestamp);
       onHighlightTimeChange(0, 0);
-      updateCurrentTime(now);
       setLeftTimestamp(updatedLeftTimestamp);
       setRightTimestamp(updatedRightTimestamp);
     }
@@ -268,9 +271,9 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     setSeekTime(toArchiveTime(targetArchive, timestamp, is_smart_ff));
     setArchiveCounter(prev => prev + 1);
     setIsLive(timestamp >= now);
+    updateCurrentTime(timestamp);
 
     if (controls) {
-      updateCurrentTime(timestamp);
       setBubbleTime(timestamp, (0, _jquery.default)('#cursor_bubble'), true);
       const highlight_start = parseInt(targetArchive.timestamp);
       const highlight_end = parseInt(targetArchive.timestamp) + parseInt(targetArchive.length);
@@ -1007,6 +1010,12 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   const updateCurrentTime = function updateCurrentTime(timestamp) {
     const current_time = _isLive ? Math.floor(new Date().getTime() / 1000) : currentTime + 1;
     timestamp = timestamp || current_time;
+
+    if (!controls) {
+      setCurrentTime(timestamp);
+      return;
+    }
+
     let params = {
       current_time: timestamp
     };
@@ -1103,7 +1112,6 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   };
 
   const onTimeUpdate = () => {
-    if (!controls) return;
     const video_time = player.currentTime();
 
     if (smart_ff) {
@@ -1188,12 +1196,15 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
       setDelay(1000);
     }
 
-    if (smart_ff) {
-      setSmart_ff(0);
-      seek(getSmartFFTimestamp(player.currentTime()), false);
-    }
+    setSmart_ff(0);
 
-    player && player.play();
+    if (_isLive) {
+      goLive();
+    } else if (smart_ff) {
+      seek(getSmartFFTimestamp(player.currentTime()), false);
+    } else {
+      player && player.play();
+    }
   };
 
   const pause = e => {
@@ -1212,6 +1223,11 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
         setDelay(null);
         resetActiveButton();
         e.target.parentElement.classList.add('active');
+      }
+
+      if (_isLive) {
+        goLive();
+        return;
       }
 
       setLoading(true);
@@ -1277,6 +1293,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   }, /*#__PURE__*/_react.default.createElement("div", {
     id: "camera-grid-container"
   }, loading && renderLoading(), isVisible && (_isLive ? /*#__PURE__*/_react.default.createElement(_FlvPlayer.default, {
+    key: flvCounter,
     deviceId: deviceId,
     onPlayerInit: setPlayer,
     onPlayerDispose: setPlayer,

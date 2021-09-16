@@ -8,7 +8,7 @@ initialize(
   'af91fb71f874702f5a3b416bce92b6b2',
 );
 
-const CONTROLS = true;
+const CONTROLS = false;
 
 const APP = () => {
   const [player, setPlayer] = useState(null);
