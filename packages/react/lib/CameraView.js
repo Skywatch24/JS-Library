@@ -249,7 +249,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     }
   };
 
-  const seek = timestamp => {
+  const seek = function seek(timestamp) {
+    let is_smart_ff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : smart_ff;
     setLoading(true);
     const targetArchive = seekTargetArchive(timestamp); // handle click on gap
 
@@ -264,8 +265,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     }
 
     setArchive(targetArchive);
+    setSeekTime(toArchiveTime(targetArchive, timestamp, is_smart_ff));
     setArchiveCounter(prev => prev + 1);
-    setSeekTime(toArchiveTime(targetArchive, timestamp, smart_ff));
     setIsLive(timestamp >= now);
 
     if (controls) {
@@ -1187,7 +1188,11 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
       setDelay(1000);
     }
 
-    setSmart_ff(0);
+    if (smart_ff) {
+      setSmart_ff(0);
+      seek(getSmartFFTimestamp(player.currentTime()), false);
+    }
+
     player && player.play();
   };
 
@@ -1198,7 +1203,6 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
       setDelay(null);
     }
 
-    setSmart_ff(0);
     player && player.pause();
   };
 

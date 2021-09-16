@@ -250,7 +250,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     }
   };
 
-  const seek = timestamp => {
+  const seek = (timestamp, is_smart_ff = smart_ff) => {
     setLoading(true);
     const targetArchive = seekTargetArchive(timestamp);
 
@@ -264,8 +264,9 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
       }
     }
     setArchive(targetArchive);
+    setSeekTime(toArchiveTime(targetArchive, timestamp, is_smart_ff));
     setArchiveCounter(prev => prev + 1);
-    setSeekTime(toArchiveTime(targetArchive, timestamp, smart_ff));
+
     setIsLive(timestamp >= now);
 
     if (controls) {
@@ -1353,7 +1354,10 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
       e.target.parentElement.classList.add('active');
       setDelay(1000);
     }
-    setSmart_ff(0);
+    if (smart_ff) {
+      setSmart_ff(0);
+      seek(getSmartFFTimestamp(player.currentTime()), false);
+    }
     player && player.play();
   };
   const pause = e => {
@@ -1362,7 +1366,6 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
       e.target.parentElement.classList.add('active');
       setDelay(null);
     }
-    setSmart_ff(0);
     player && player.pause();
   };
   const fastForward = e => {
