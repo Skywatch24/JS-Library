@@ -131,7 +131,10 @@ This is a function for showing live streaming.
 
 A web component for playing live streaming and archive video.
 
+To use the default style, you can import the CSS file from CDN.
+
 ```html
+<link href="https://cdn.jsdelivr.net/npm/@skywatch/react/lib/style/camera-view.css" rel="stylesheet">
 <body>
   <camera-view-web-component id="camera-view-web-component" deviceId="DEVICE_ID" controls></camera-view-web-component>
 </body>

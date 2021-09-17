@@ -162,7 +162,7 @@ If you want to overwrite the default style, you can use the browser dev tool to 
 ```css
 /* overwrite.css */
 #controlbar_container {
-  background-color:burlywood
+  background-color: burlywood
 }
 .meta_timeline_i {
   background-color: coral !important;
@@ -188,7 +188,7 @@ const APP = () => {
   return (
     <>
       <CameraView
-        deviceId={'0000'}
+        deviceId={DEVICE_ID}
         controls={false}
         ref={cameraViewRef}
       />
@@ -198,6 +198,7 @@ const APP = () => {
   );
 };
 ```
+#### Methods
 
 | Method             | Parameters       | Returns  | Description                                |
 | ------------------ | ---------------- | -------- | ------------------------------------------ |
