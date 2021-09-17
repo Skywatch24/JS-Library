@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/Skywatch24/JS-Library/compare/@skywatch/react@1.2.0...@skywatch/react@1.2.1) (2021-09-17)
+
+
+### Bug Fixes
+
+* **react:** move style directory to src/style ([2f2b6d8](https://github.com/Skywatch24/JS-Library/commit/2f2b6d8b7642c2f6f1f06f544e94e21f3acfbbf5))
+
+
+
+
+
 # [1.2.0](https://github.com/Skywatch24/JS-Library/compare/@skywatch/react@1.1.3...@skywatch/react@1.2.0) (2021-09-17)
 
 
