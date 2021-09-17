@@ -1,25 +1,24 @@
-const skywatchAPI = require('@skywatch/api');
-const requests = require('./Requests');
+const qs = require('qs');
+const axios = require('axios');
+const config = require('./Config');
 
-const {GET_ARCHIVES, GET_FLV_STREAM} = skywatchAPI.Constants;
-const {getArchives, getFlvStream} = requests;
-
-const Server = async (feature, params) => {
-  switch (feature) {
-    case GET_ARCHIVES: {
-      const {device_id, archive_id, smartff, lang, api_key} = params;
-      const res = await getArchives(
-        device_id,
-        archive_id,
-        smartff,
-        lang,
-        api_key,
-      );
+const Server = async req => {
+  const API_URL = config.apiURL + req.originalUrl;
+  switch (req.method) {
+    case 'GET': {
+      const res = await axios.get(API_URL, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
       return res;
     }
-    case GET_FLV_STREAM: {
-      const {device_id, lang, api_key} = params;
-      const res = await getFlvStream(device_id, lang, api_key);
+    case 'POST': {
+      const res = await axios.post(API_URL, qs.stringify(req.body), {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
       return res;
     }
     default: {

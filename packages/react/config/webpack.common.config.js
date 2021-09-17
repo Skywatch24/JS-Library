@@ -16,6 +16,10 @@ module.exports = {
         use: ['css-loader', 'sass-loader'],
       },
       {
+        test: /\.less$/i,
+        loader: ['style-loader', 'css-loader', 'less-loader'],
+      },
+      {
         test: /\.(jpg|png|gif|svg)$/,
         use: {
           loader: 'url-loader',

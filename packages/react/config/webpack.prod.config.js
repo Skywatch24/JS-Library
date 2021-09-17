@@ -5,6 +5,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
@@ -21,6 +22,23 @@ module.exports = merge(common, {
     path: path.resolve(__dirname, '../dist'),
     publicPath: '/',
   },
+  module: {
+    rules: [
+      {
+        test: /\.less$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '../',
+            },
+          },
+          'css-loader',
+          'less-loader',
+        ],
+      },
+    ],
+  },
   plugins: [
     // new BundleAnalyzerPlugin(),
     // 設定Build出來後的html範本
@@ -35,6 +53,9 @@ module.exports = merge(common, {
     }),
     // 清空原來的dist folder
     new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'style/camera-view.css',
+    }),
   ],
 
   optimization: {

@@ -1,6 +1,6 @@
 {
   "name": "@skywatch/js",
-  "version": "1.1.5",
+  "version": "1.2.2",
   "description": "Skywatch JavaScript Library",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
@@ -19,7 +19,7 @@
     "url": "git@github.com:Skywatch24/JS-Library.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js --open chrome",
+    "start": "webpack-dev-server --inline --config ./config/webpack.dev.config.js",
     "build": "webpack --config ./config/webpack.prod.config.js",
     "compile": "rm -rf lib && cross-env NODE_ENV=production babel src --out-dir lib --copy-files"
   },
@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "@skywatch/api": "^1.1.2",
+    "@skywatch/api": "^1.2.0",
+    "@skywatch/react": "^1.2.2",
     "flv.js": "^1.5.0",
     "video.js": "^7.11.4"
   }

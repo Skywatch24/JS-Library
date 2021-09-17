@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/Skywatch24/JS-Library/compare/@skywatch/server@1.1.9...@skywatch/server@1.2.0) (2021-09-17)
+
+
+### Features
+
+* modify the structure of api and server packages so that user can use skywatch API directly ([76168ef](https://github.com/Skywatch24/JS-Library/commit/76168ef068b3a96d628a0b47cf2396c04709722a))
+
+
+
+
+
 # 1.1.0 (2021-05-25)
 
 

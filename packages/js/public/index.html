@@ -6,29 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <title>JS App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@skywatch/react/lib/style/camera-view.css">
   </head>
+  <script>
+    Skywatch.initialize(
+      'https://service.skywatch24.com/api/v2',
+      'af91fb71f874702f5a3b416bce92b6b2',
+    );
+  </script>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root" style="width: 768px; height: 432px"></div>
-    <video
+    <div id="root" style="width: 768px; height: 432px">
+      <camera-view-web-component id="camera-view-web-component" deviceId="47436" controls></camera-view-web-component>
+      <div>
+        <button onclick="document.getElementById('camera-view-web-component').play()">play</button>
+        <button onclick="document.getElementById('camera-view-web-component').pause()">pause</button>
+        <button onclick="document.getElementById('camera-view-web-component').goLive()">goLive</button>
+        <button onclick="toggleMute()">mute</button>
+        <button onclick="fastForward()">fast forward</button>
+        <button onclick="seek('1630310400')">8/30 16:00</button>
+        <button onclick="getAllArchives()">get all archives</button>
+        <button onclick="console.log(document.getElementById('camera-view-web-component').isLive())">isLive</button>
+      </div>
+    </div>
+    <!-- <video
       id="videoElement"
       controls
       muted
       style="width: 768px; height: 432px"
-    ></video>
+    ></video> -->
   </body>
   <script>
-    Skywatch.initialize(
-      'https://26198394ed6a.ngrok.io/skywatch_api',
-      '1e307a5af268eaeb453e1ade85a36cb6',
-    );
-    Skywatch.ArchivesPlayer(
-      document.getElementById('root'),
-      54360,
-      92299524,
-    ).then(player => {
-      //player.currentTime(5);
-    });
-    Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
+    // Skywatch.ArchivesPlayer(
+    //   document.getElementById('root'),
+    //   54360,
+    //   92299524,
+    // ).then(player => {
+    //   //player.currentTime(5);
+    // });
+    // Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
+    const toggleMute = () => document.getElementById('camera-view-web-component').toggleMute()
+    const fastForward = () => document.getElementById('camera-view-web-component').fastForward()
+    const seek = timestamp => document.getElementById('camera-view-web-component').seek(timestamp)
+    const getAllArchives = () => {
+      console.log(document.getElementById('camera-view-web-component').getAllArchives())
+    }
   </script>
 </html>

@@ -6,10 +6,6 @@ const SITE_URL = 'api_site_url';
 const REGION = 'region';
 const SCOPE = 'scope';
 
-// API Type
-const GET_ARCHIVES = 'get_archives';
-const GET_FLV_STREAM = 'get_flv_stream';
-
 module.exports = {
   API_KEY,
   LANG_SELECTOR,
@@ -17,6 +13,4 @@ module.exports = {
   SITE_URL,
   REGION,
   SCOPE,
-  GET_ARCHIVES,
-  GET_FLV_STREAM,
 };

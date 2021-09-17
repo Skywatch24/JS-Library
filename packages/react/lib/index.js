@@ -15,11 +15,27 @@ Object.defineProperty(exports, "FlvPlayer", {
     return _FlvPlayer.default;
   }
 });
+Object.defineProperty(exports, "CameraView", {
+  enumerable: true,
+  get: function get() {
+    return _CameraView.default;
+  }
+});
+Object.defineProperty(exports, "CameraViewWebComponent", {
+  enumerable: true,
+  get: function get() {
+    return _webComponents.CameraViewWebComponent;
+  }
+});
 exports.initialize = void 0;
 
 var _ArchivesPlayer = _interopRequireDefault(require("./ArchivesPlayer"));
 
 var _FlvPlayer = _interopRequireDefault(require("./FlvPlayer"));
+
+var _CameraView = _interopRequireDefault(require("./CameraView"));
+
+var _webComponents = require("./web-components");
 
 var _api = require("@skywatch/api");
 
