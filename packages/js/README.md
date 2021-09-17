@@ -164,7 +164,7 @@ To access these methods, you have to exclude `controls` attribute. For example,
 | `fastForward()`    | none             | none     | Start fast forward mode.                   |
 | `toggleMute()`     | none             | none     | Mute or unmute the video.                  |
 | `goLive()`         | none             | none     | Start playing live video.                  |
-| `seek(string)`     | `Neumber|String` | none     | Play video at the provided unix timestamp. |
+| `seek(string)`     | `Number\|String` | none     | Play video at the provided unix timestamp. |
 | `getAllArchives()` | none             | `array`  | Get data of all archives.                  |   
 | `isLive()`         | none             | `bool`   | Check if the video is in live mode.        |
 ## License
