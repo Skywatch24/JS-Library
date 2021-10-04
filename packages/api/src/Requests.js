@@ -1,4 +1,5 @@
 const axios = require('axios');
+const qs = require('qs');
 const coreManager = require('./CoreManager');
 const constants = require('./Constants');
 
@@ -83,9 +84,42 @@ const getCacheTime = async (timestamp, deviceId) => {
   return res;
 };
 
+const getSensorStatus = async deviceId => {
+  const url = `${coreManager.get(
+    SERVER_URL,
+  )}/devices/${deviceId}/status?api_key=${coreManager.get(API_KEY)}`;
+  const res = await axios.get(url, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+
+  return res;
+};
+
+const updateSensorStatus = async (deviceId, status) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/status`;
+  const params = {
+    'params[switch_control]': status,
+    api_key: coreManager.get(API_KEY),
+    device_id: deviceId,
+  };
+  const res = await axios.post(url, qs.stringify(params), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
   getArchivesByRange,
   getCacheTime,
+  getSensorStatus,
+  updateSensorStatus,
 };
