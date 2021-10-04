@@ -1,6 +1,9 @@
 {
   "name": "root",
   "private": true,
+  "workspaces":[
+    "packages/*"
+  ],
   "devDependencies": {
     "lerna": "^4.0.0",
     "cross-env": "^7.0.3",
