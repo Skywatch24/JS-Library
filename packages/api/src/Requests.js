@@ -115,6 +115,22 @@ const updateSensorStatus = async (deviceId, status) => {
   return res;
 };
 
+const getPasscodeList = async deviceId => {
+  const url = `${coreManager.get(
+    SERVER_URL,
+  )}/devices/${deviceId}/passcode?type=all_wo_removed&api_key=${coreManager.get(
+    API_KEY,
+  )}`;
+  const res = await axios.get(url, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -122,4 +138,5 @@ module.exports = {
   getCacheTime,
   getSensorStatus,
   updateSensorStatus,
+  getPasscodeList,
 };

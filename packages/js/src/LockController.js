@@ -18,7 +18,17 @@ const getInfo = async deviceId => {
   return '';
 };
 
+const getPasscodeList = async deviceId => {
+  const res = await Requests.getPasscodeList(deviceId);
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
   updateStatus,
   getInfo,
+  getPasscodeList,
 };
