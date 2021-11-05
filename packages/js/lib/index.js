@@ -13,5 +13,6 @@ const Skywatch = {
 };
 Skywatch.ArchivesPlayer = require('./ArchivesPlayer').default;
 Skywatch.FlvPlayer = require('./FlvPlayer').default;
+Skywatch.LockController = require('./LockController').default;
 window.Skywatch = Skywatch;
 export default Skywatch;
