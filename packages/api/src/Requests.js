@@ -131,6 +131,39 @@ const getPasscodeList = async deviceId => {
   return res;
 };
 
+const createSchudlePasscde = async (
+  deviceId,
+  name,
+  email = '',
+  passcode,
+  scheduleTime,
+) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
+
+  const userCode = {};
+  userCode.alias = name;
+  userCode.code = passcode;
+  userCode.schedule = scheduleTime;
+
+  let params = {
+    user_code: JSON.stringify(userCode),
+    multi_code: 1,
+    api_key: coreManager.get(API_KEY),
+    method_type: 'POST',
+  };
+
+  if (email !== '') params.email_address = email;
+
+  const res = await axios.post(url, qs.stringify(params), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -139,4 +172,5 @@ module.exports = {
   getSensorStatus,
   updateSensorStatus,
   getPasscodeList,
+  createSchudlePasscde,
 };

@@ -26,5 +26,6 @@
   "bugs": {
     "url": "https://github.com/Skywatch24/JS-Library/issues"
   },
-  "homepage": "https://github.com/Skywatch24/JS-Library#readme"
+  "homepage": "https://github.com/Skywatch24/JS-Library#readme",
+  "dependencies": {}
 }

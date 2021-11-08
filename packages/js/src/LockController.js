@@ -27,8 +27,30 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
+const createSchudlePasscde = async (
+  deviceId,
+  name,
+  email = '',
+  passcode,
+  scheduleTime,
+) => {
+  const res = await Requests.createSchudlePasscde(
+    deviceId,
+    name,
+    email,
+    passcode,
+    scheduleTime,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
   updateStatus,
   getInfo,
   getPasscodeList,
+  createSchudlePasscde,
 };
