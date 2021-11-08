@@ -93,7 +93,7 @@ const APP = () => {
   const renderDeviceList = () => {
     return (
       <>
-        <h2>Device List</h2>
+        <h3>Device List</h3>
         <div className="code">Skywatch.Device.getInfo();</div>
         <button onClick={() => getDeviceList()}>Get Device List</button>
         <h4>Result</h4>
