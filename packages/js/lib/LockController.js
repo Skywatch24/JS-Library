@@ -30,8 +30,8 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
-const createSchudlePasscde = async (deviceId, name, email = '', passcode, scheduleTime) => {
-  const res = await Requests.createSchudlePasscde(deviceId, name, email, passcode, scheduleTime);
+const createSchudlePasscde = async (deviceId, name, email = '', passcode, startTime, endTime) => {
+  const res = await Requests.createSchudlePasscde(deviceId, name, email, passcode, startTime, endTime);
 
   if (res.data) {
     return res.data;

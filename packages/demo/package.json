@@ -27,5 +27,7 @@
     "url": "https://github.com/Skywatch24/JS-Library/issues"
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
-  "dependencies": {}
+  "dependencies": {
+    "react-json-pretty": "^2.2.0"
+  }
 }

@@ -136,9 +136,11 @@ const createSchudlePasscde = async (
   name,
   email = '',
   passcode,
-  scheduleTime,
+  startTime,
+  endTime,
 ) => {
   const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
+  const scheduleTime = `${startTime}-${endTime}`;
 
   const userCode = {};
   userCode.alias = name;

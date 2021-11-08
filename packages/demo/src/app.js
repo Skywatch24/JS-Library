@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
+import JSONPretty from 'react-json-pretty';
 import Skywatch from '@skywatch/js';
+import oauthImg from './images/oauth.png';
 import './styles/app.css';
 
 const {LockController} = Skywatch;
@@ -40,12 +42,7 @@ const APP = () => {
           initialize JS library
         </div>
         <h3>Flow Chart</h3>
-        <img
-          src="./images/oauth.png"
-          alt="Background"
-          width="609"
-          height="374"
-        />
+        <img src={oauthImg} alt="Background" width="609" height="374" />
         <br />
         <button onClick={() => window.open(oauth_url)}>Try Oauth</button>
       </>
@@ -95,7 +92,7 @@ const APP = () => {
         <div className="code">Skywatch.LockController.getInfo(deviceId);</div>
         <button onClick={() => getInfo(test_lock_id)}>Get Lock Info</button>
         <h4>Result</h4>
-        <div className="code">{JSON.stringify(statusInfo)}</div>
+        <JSONPretty className="code" data={statusInfo}></JSONPretty>
       </>
     );
   };
@@ -117,7 +114,7 @@ const APP = () => {
           Get Passcode List
         </button>
         <h4>Result</h4>
-        <div className="code">{JSON.stringify(passcodeList)}</div>
+        <JSONPretty className="code" data={passcodeList}></JSONPretty>
       </>
     );
   };
@@ -154,14 +151,16 @@ const APP = () => {
     name,
     passcode,
     email,
-    scheduleTime,
+    startTime,
+    endTime,
   ) => {
     LockController.createSchudlePasscde(
       deviceId,
       name,
       email,
       passcode,
-      scheduleTime,
+      startTime,
+      endTime,
     ).then(data => {
       setPasscode('');
       setPasscodeName('');
@@ -229,13 +228,13 @@ const APP = () => {
         <br />
         <button
           onClick={() => {
-            const schedule = `${startTime}-${endTime}`;
             createSchudlePasscde(
               test_lock_id,
               passcodeName,
               passcode,
               email,
-              schedule,
+              startTime,
+              endTime,
             );
           }}>
           Create Passcode

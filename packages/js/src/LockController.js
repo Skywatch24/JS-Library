@@ -32,14 +32,16 @@ const createSchudlePasscde = async (
   name,
   email = '',
   passcode,
-  scheduleTime,
+  startTime,
+  endTime,
 ) => {
   const res = await Requests.createSchudlePasscde(
     deviceId,
     name,
     email,
     passcode,
-    scheduleTime,
+    startTime,
+    endTime,
   );
   if (res.data) {
     return res.data;
