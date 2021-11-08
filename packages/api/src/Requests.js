@@ -166,6 +166,20 @@ const createSchudlePasscde = async (
   return res;
 };
 
+const getDeviceList = async () => {
+  const url = `${coreManager.get(SERVER_URL)}/devices?api_key=${coreManager.get(
+    API_KEY,
+  )}`;
+  const res = await axios.get(url, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -175,4 +189,5 @@ module.exports = {
   updateSensorStatus,
   getPasscodeList,
   createSchudlePasscde,
+  getDeviceList,
 };

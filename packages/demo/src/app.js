@@ -4,18 +4,20 @@ import Skywatch from '@skywatch/js';
 import oauthImg from './images/oauth.png';
 import './styles/app.css';
 
-const {LockController} = Skywatch;
+const {Lock, Device} = Skywatch;
 
-const test_lock_id = '54164';
 const server_url = '/api/v2';
 const redirect_uri = window.location.origin;
 const oauth_url = `https://service.skywatch24.com/oauth2?redirect_uri=${redirect_uri}`;
 
 const APP = () => {
   const [apiToken, setApiToken] = useState('');
+  const [deviceId, setDeviceId] = useState('');
   const [statusInfo, setStatusInfo] = useState({});
+  const [deviceList, setDeviceList] = useState([]);
   const [passcodeList, setPasscodeList] = useState([]);
   const [isUpdatedStatus, setIsUpdateStatus] = useState('');
+  const [isInitStatus, setIsInitStatus] = useState('');
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   const [passcodeName, setPasscodeName] = useState('');
@@ -51,6 +53,7 @@ const APP = () => {
 
   const initToken = (url, token) => {
     Skywatch.initialize(url, token);
+    setIsInitStatus('success!');
   };
 
   const renderInitToken = () => {
@@ -75,12 +78,48 @@ const APP = () => {
         <button onClick={() => initToken(server_url, apiToken)}>
           Initialize
         </button>
+        <h4>Result</h4>
+        <div className="code">{isInitStatus}</div>
       </>
     );
   };
 
-  const getInfo = deviceId => {
-    LockController.getInfo(deviceId).then(data => {
+  const getDeviceList = () => {
+    Device.getInfo().then(data => {
+      setDeviceList(data);
+    });
+  };
+
+  const renderDeviceList = () => {
+    return (
+      <>
+        <h2>Device List</h2>
+        <div className="code">Skywatch.Device.getInfo();</div>
+        <button onClick={() => getDeviceList()}>Get Device List</button>
+        <h4>Result</h4>
+        <JSONPretty className="code" data={deviceList}></JSONPretty>
+      </>
+    );
+  };
+
+  const renderDeviceInput = () => {
+    return (
+      <>
+        <h3>Door Lock:</h3>
+        <label htmlFor="device_id">Enter your device id:</label>
+        <br />
+        <input
+          name="device_id"
+          type="text"
+          value={deviceId}
+          onChange={e => setDeviceId(e.target.value)}
+        />
+      </>
+    );
+  };
+
+  const getLockInfo = deviceId => {
+    Lock.getInfo(deviceId).then(data => {
       setStatusInfo(data);
     });
   };
@@ -89,8 +128,8 @@ const APP = () => {
     return (
       <>
         <h4>Lock Info</h4>
-        <div className="code">Skywatch.LockController.getInfo(deviceId);</div>
-        <button onClick={() => getInfo(test_lock_id)}>Get Lock Info</button>
+        <div className="code">Skywatch.Lock.getInfo(deviceId);</div>
+        <button onClick={() => getLockInfo(deviceId)}>Get Lock Info</button>
         <h4>Result</h4>
         <JSONPretty className="code" data={statusInfo}></JSONPretty>
       </>
@@ -98,7 +137,7 @@ const APP = () => {
   };
 
   const getPasscodeList = deviceId => {
-    LockController.getPasscodeList(deviceId).then(data => {
+    Lock.getPasscodeList(deviceId).then(data => {
       setPasscodeList(data);
     });
   };
@@ -107,10 +146,8 @@ const APP = () => {
     return (
       <>
         <h4>Passcode List</h4>
-        <div className="code">
-          Skywatch.LockController.getPasscodeList(deviceId);
-        </div>
-        <button onClick={() => getPasscodeList(test_lock_id)}>
+        <div className="code">Skywatch.Lock.getPasscodeList(deviceId);</div>
+        <button onClick={() => getPasscodeList(deviceId)}>
           Get Passcode List
         </button>
         <h4>Result</h4>
@@ -120,7 +157,7 @@ const APP = () => {
   };
 
   const updateStatus = (deviceId, status) => {
-    LockController.updateStatus(deviceId, status)
+    Lock.updateStatus(deviceId, status)
       .then(data => {
         console.log(data);
         setIsUpdateStatus('success!');
@@ -136,10 +173,10 @@ const APP = () => {
       <>
         <h4>Update Lock Status</h4>
         <div className="code">
-          Skywatch.LockController.updateStatus(deviceId, status);
+          Skywatch.Lock.updateStatus(deviceId, status);
         </div>
-        <button onClick={() => updateStatus(test_lock_id, '1')}>Lock</button>
-        <button onClick={() => updateStatus(test_lock_id, '0')}>Unlock</button>
+        <button onClick={() => updateStatus(deviceId, '1')}>Lock</button>
+        <button onClick={() => updateStatus(deviceId, '0')}>Unlock</button>
         <h4>Result</h4>
         <div className="code">{isUpdatedStatus}</div>
       </>
@@ -154,7 +191,7 @@ const APP = () => {
     startTime,
     endTime,
   ) => {
-    LockController.createSchudlePasscde(
+    Lock.createSchudlePasscde(
       deviceId,
       name,
       email,
@@ -174,13 +211,14 @@ const APP = () => {
       <>
         <h4>Add Schedule Passcode</h4>
         <div className="code">
-          Skywatch.LockController.createSchudlePasscde(deviceId, name, email,
-          passcode, scheduleTime);
+          Skywatch.Lock.createSchudlePasscde(deviceId, name, email, passcode,
+          scheduleTime);
         </div>
         <label htmlFor="passcode-name">Passcode name:</label>
         <br />
         <input
           name="passcode-name"
+          value={passcodeName}
           type="text"
           onChange={e => setPasscodeName(e.target.value)}
         />
@@ -191,6 +229,7 @@ const APP = () => {
         <input
           name="passcode"
           type="text"
+          value={passcode}
           onChange={e => setPasscode(e.target.value)}
         />
         <br />
@@ -200,6 +239,7 @@ const APP = () => {
         <input
           name="email"
           type="text"
+          value={email}
           onChange={e => setEmail(e.target.value)}
         />
         <br />
@@ -229,7 +269,7 @@ const APP = () => {
         <button
           onClick={() => {
             createSchudlePasscde(
-              test_lock_id,
+              deviceId,
               passcodeName,
               passcode,
               email,
@@ -247,7 +287,8 @@ const APP = () => {
     <>
       {renderOauth()}
       {renderInitToken()}
-      <h3>Door Lock:</h3>
+      {renderDeviceList()}
+      {renderDeviceInput()}
       {renderLockInfo()}
       {renderPasscodeList()}
       {renderAddScheduleCode()}
