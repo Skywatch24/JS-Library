@@ -17,7 +17,7 @@ module.exports = merge(common, {
     //framework: ['react', 'react-dom'],
   },
   output: {
-    filename: 'js/[name].bundle.js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, '../dist'),
     publicPath: '/',
   },

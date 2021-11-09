@@ -6,8 +6,9 @@ import './styles/app.css';
 
 const {Lock, Device} = Skywatch;
 
-const server_url = '/api/v2';
-const redirect_uri = window.location.origin;
+const server_url = 'https://service.skywatch24.com/api/v2';
+//const redirect_uri = window.location.origin;
+const redirect_uri = 'https://skywatch24.github.io/JS-Library/';
 const oauth_url = `https://service.skywatch24.com/oauth2?redirect_uri=${redirect_uri}`;
 
 const APP = () => {
