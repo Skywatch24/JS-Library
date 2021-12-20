@@ -28,6 +28,10 @@ module.exports = merge(common, {
         target: 'https://service.skywatch24.com',
         changeOrigin: true,
       },
+      '/api/general': {
+        target: 'https://service.skywatch24.com',
+        changeOrigin: true,
+      },
     },
   },
   plugins: [

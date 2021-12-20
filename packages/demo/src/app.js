@@ -6,13 +6,28 @@ import './styles/app.css';
 
 const {Lock, Device} = Skywatch;
 
-const server_url = 'https://service.skywatch24.com/api/v2';
+const server_url =
+  process.env.NODE_ENV === 'development'
+    ? '/api/v2'
+    : 'https://service.skywatch24.com/api/v2';
 //const redirect_uri = window.location.origin;
-const redirect_uri = 'https://skywatch24.github.io/JS-Library/';
-const oauth_url = `https://service.skywatch24.com/oauth2?redirect_uri=${redirect_uri}`;
+const redirect_uri =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000/'
+    : 'https://skywatch24.github.io/JS-Library/';
+const general_url =
+  process.env.NODE_ENV === 'development'
+    ? '/api/general'
+    : 'https://service.skywatch24.com/api/general';
+
+const APP_ID = '123456';
+const APP_SECRET = 'DB419E28FC3BD38C7F577291A576E8E2';
+
+const oauth_url = `https://service.skywatch24.com/oauth2?app_id=${APP_ID}&redirect_uri=${redirect_uri}`;
 
 const APP = () => {
   const [apiToken, setApiToken] = useState('');
+  const [oauthCode, setOauthCode] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [statusInfo, setStatusInfo] = useState({});
   const [deviceList, setDeviceList] = useState([]);
@@ -27,27 +42,70 @@ const APP = () => {
 
   useEffect(() => {
     let search = window.location.search;
-    if (search.split('=')[2]) {
-      setApiToken(search.split('=')[2]);
+
+    if (search.split('code=')[1]) {
+      setOauthCode(search.split('code=')[1]);
     }
   }, []);
+
+  const getAccessToken = (appId, appSecret, code) => {
+    const params = {
+      app_id: appId,
+      app_secret: appSecret,
+      code: code,
+      method_type: 'POST',
+    };
+
+    const query = Object.keys(params)
+      .map(k => `${k}=${params[k]}`)
+      .join('&');
+
+    fetch(`${general_url}/oauth_access_token.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: query,
+    })
+      .then(response => response.text())
+      .then(res => {
+        setApiToken(res);
+      });
+  };
 
   const renderOauth = () => {
     return (
       <>
-        <h2>Use Oauth 2.0 to get user token</h2>
+        <h2>Use Oauth 2.0 to get access token</h2>
+        <h3>Authorization URL</h3>
         <div className="code">
-          Step 1: service.skywatch24.com/oauth2?redirect_uri='redirect_uri'
-          <br />
-          Then user grants authorization
-          <br />
-          Step 2: Redirect to redirect_uri?code='code' ={'>'} use code to
-          initialize JS library
+          service.skywatch24.com/oauth2?app_id='app_ip'&redirect_uri='redirect_uri'
         </div>
+        <p />
+        When user grants authorization,the page will redirect to the
+        `redirect_url` and contain `code` in the url.
+        <p />
+        <button onClick={() => window.open(oauth_url)}>Login</button>
+        <h4>Authorization Code</h4>
+        <div className="code">{oauthCode}</div>
+        <h3>Exchange Access Token with Authorization code</h3>
+        <div className="code">
+          curl -X "POST"
+          "https://service.skywatch24.com/api/general/oauth_access_token.php" \
+          <br /> -H 'Content-Type:application/x-www-form-urlencoded;' \
+          <br /> --data-urlencode "app_id=xxxx" \
+          <br /> --data-urlencode "app_secret=xxxx" \
+          <br /> --data-urlencode "code=xxxx" \
+          <br /> --data-urlencode "method_type=POST"
+        </div>
+        <button onClick={() => getAccessToken(APP_ID, APP_SECRET, oauthCode)}>
+          Get Access Token
+        </button>
+        <h4>Access Token</h4>
+        <div className="code">{apiToken}</div>
         <h3>Flow Chart</h3>
         <img src={oauthImg} alt="Background" width="609" height="374" />
         <br />
-        <button onClick={() => window.open(oauth_url)}>Try Oauth</button>
       </>
     );
   };
@@ -64,7 +122,7 @@ const APP = () => {
         <div className="code">
           import Skywatch from '@skywatch/js';
           <br />
-          Skywatch.initialize('https://service.skywatch24.com/api', 'token');
+          Skywatch.initialize('https://service.skywatch24.com/api/v2', 'token');
         </div>
         <label htmlFor="token">Enter a token:</label>
         <br />
