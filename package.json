@@ -1,6 +1,9 @@
 {
   "name": "root",
   "private": true,
+  "workspaces":[
+    "packages/*"
+  ],
   "devDependencies": {
     "lerna": "^4.0.0",
     "cross-env": "^7.0.3",
@@ -49,5 +52,6 @@
   "dependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1"
-  }
+  },
+  "homepage": "https://github.com/Skywatch24/JS-Library"
 }

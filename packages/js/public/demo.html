@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!--<link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>JS App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@skywatch/react/lib/style/camera-view.css">
+  </head>
+  <script>
+    Skywatch.initialize(
+      '/api/v2',
+      'a832122e21732bcc11ef336593b9f2af',
+    );
+  </script>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <h2>Initialize</h2>
+    <div class="code">
+        import Skywatch from '@skywatch/js';<br />
+        Skywatch.initialize('https://service.skywatch24.com/api', 'token');
+    </div>
+    <h3>Door Lock:</h3>
+
+    <!-- Lock Info -->
+    <h4>Lock Info</h4>
+    <div class="code">
+        Skywatch.LockController.getInfo(deviceId);
+    </div>
+    <button onclick="getInfo()">get lock info</button>
+    <h4>Result</h4>
+    <div class="code" id="lock-info"></div>
+
+    <!-- Passcode List -->
+    <h4>Passcode List</h4>
+    <div class="code">
+        Skywatch.LockController.getPasscodeList(deviceId);
+    </div>
+    <button onclick="getPasscodeList()">get passcode list</button>
+    <h4>Result</h4>
+    <div class="code" id="passcode-list"></div>
+
+    <!-- Update Lock Status -->
+    <h4>Update Lock Status</h4>
+    <div class="code">
+        Skywatch.LockController.updateStatus(deviceId, status);
+    </div>
+    <button onclick="updateLockStatus('1')">lock</button>
+    <button onclick="updateLockStatus('0')">unlock</button>
+    <h4>Result</h4>
+    <div class="code" id="update-lock-status"></div>
+
+    <h3>Camera:</h3>
+    <!-- Live & Cloud -->
+    <div class="code">
+        &lt;link href="https://cdn.jsdelivr.net/npm/@skywatch/react/lib/style/camera-view.css" rel="stylesheet"&gt;<br />
+        &lt;body&gt;<br />
+            &lt;camera-view-web-component id="camera-view-web-component" deviceId="DEVICE_ID" controls&gt;&lt;/camera-view-web-component&gt;<br />
+        &lt;/body&gt;<br />
+        <br />
+        Custom Control: <br />
+        &lt;button onclick="document.getElementById('camera-view-web-component').play()"&gt;play&lt;/button&gt;<br />
+        &lt;button onclick="document.getElementById('camera-view-web-component').pause()"&gt;pause&lt;/button&gt;<br />
+        &lt;button onclick="document.getElementById('camera-view-web-component').goLive()"&gt;goLive&lt;/button&gt;<br />
+        ...
+    </div>
+    <div id="root" class="camera" style="width: 768px; height: 432px">
+        <camera-view-web-component id="camera-view-web-component" deviceId="47436" controls></camera-view-web-component>
+        <div style="margin-left: 20px;">
+          <button onclick="document.getElementById('camera-view-web-component').play()">play</button>
+          <button onclick="document.getElementById('camera-view-web-component').pause()">pause</button>
+          <button onclick="document.getElementById('camera-view-web-component').goLive()">goLive</button>
+          <button onclick="toggleMute()">mute</button>
+          <button onclick="fastForward()">fast forward</button>
+          <button onclick="seek('1633330800')">2021-10-04 15:00</button>
+          <button onclick="getAllArchives()">get all archives</button>
+          <button onclick="console.log(document.getElementById('camera-view-web-component').isLive())">isLive</button>
+        </div>
+    </div>
+
+    <!-- <video
+      id="videoElement"
+      controls
+      muted
+      style="width: 768px; height: 432px"
+    ></video> -->
+  </body>
+  <script>
+    // Skywatch.ArchivesPlayer(
+    //   document.getElementById('root'),
+    //   54360,
+    //   92299524,
+    // ).then(player => {
+    //   //player.currentTime(5);
+    // });
+    // Skywatch.FlvPlayer(document.getElementById('videoElement'), 47436);
+
+    const toggleMute = () => document.getElementById('camera-view-web-component').toggleMute()
+    const fastForward = () => document.getElementById('camera-view-web-component').fastForward()
+    const seek = timestamp => document.getElementById('camera-view-web-component').seek(timestamp)
+    const getAllArchives = () => {
+      console.log(document.getElementById('camera-view-web-component').getAllArchives())
+    }
+    function getInfo() {
+        Skywatch.LockController.getInfo('54579').then((data) => {
+            document.getElementById("lock-info").innerHTML = JSON.stringify(data);
+        })
+    }
+    function getPasscodeList() {
+        Skywatch.LockController.getPasscodeList('54579').then((data) => {
+            document.getElementById("passcode-list").innerHTML = JSON.stringify(data);
+        })
+    }
+    function updateLockStatus(status) {
+        Skywatch.LockController.updateStatus('54579', status).then((data) => {
+            document.getElementById("update-lock-status").innerHTML = 'success!';
+        })
+        .catch((err) => {
+            document.getElementById("update-lock-status").innerHTML = 'failed!';
+        });
+    }
+  </script>
+  <style>
+      .code {
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        border-left: 3px solid #00A5E6;
+        color: #666;
+        page-break-inside: avoid;
+        font-family: monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 1.6em;
+        max-width: 100%;
+        overflow: auto;
+        padding: 1em 1.5em;
+        display: block;
+        word-wrap: break-word;
+    }
+    .camera {
+        display: flex;
+        flex-direction: row;
+    }
+  </style>
+</html>
