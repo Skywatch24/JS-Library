@@ -59,7 +59,11 @@ Ex. Implement Skywatch library on node server, and then generate the POST API - 
 
 ## API Document
 
-[Camera Usage](/packages/js/doc/camera.md)
+[Use Oauth 2.0 to get access token](/packages/js/doc/oauth2.md)
+
+[Camera API Usage](/packages/js/doc/camera.md)
+
+[Lock API Usage](/packages/js/doc/lock.md)
 
 ## License
 
