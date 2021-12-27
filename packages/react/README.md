@@ -23,12 +23,17 @@ yarn add @skywatch/react
 
 ### Step 2
 
+#### Option 1:
+
+[Use Oauth 2.0 to get access token](/packages/js/doc/oauth2.md)
+
+#### Option 2:
+
 Before you start developing, you have to implement Skywatch library on your server. Please follow the guide below to create a POST method url on your server, and then keep the POST method url you generated.
 
 Ex. Implement Skywatch library on node server, and then generate the POST API - https://localhost:3000/skywatch_service_url
 
-
-#### Guide: 
+##### Guide:
 
 [Skywatch Server Installation Guide](/packages/server#readme)
 
@@ -109,21 +114,21 @@ This is a component for playing archive video.
 | `seek`            | `number`       | NO       | 0                                                                           | Jump to specific time when video begins to play.                                                                          |
 | `playerOptions`   | `object`       | NO       | `{ autoplay: true, muted: true, aspectRatio: '16:9', mobileView: false, }`; | Video option setting. For more info please check [Video.js doc](https://docs.videojs.com/tutorial-options.html).          |
 | `style`           | `inline-style` | NO       |                                                                             | Custom style for video player.                                                                                            |
-| `controls`        | `bool`         | NO       | `true`                                                       | Show video controls                                               |
-| `onTimeUpdate`    | `func`         | NO       |                                                              | Callback fired when the current playback position has changed     |   
-| `onEnded`         | `func`         | NO       |                                                              | Callback fired when the end of the media resource is reached      | 
-| `onReady`         | `func`         | NO       |                                                              | Callback fired when the video is ready to play                    | 
+| `controls`        | `bool`         | NO       | `true`                                                                      | Show video controls                                                                                                       |
+| `onTimeUpdate`    | `func`         | NO       |                                                                             | Callback fired when the current playback position has changed                                                             |
+| `onEnded`         | `func`         | NO       |                                                                             | Callback fired when the end of the media resource is reached                                                              |
+| `onReady`         | `func`         | NO       |                                                                             | Callback fired when the video is ready to play                                                                            |
 
 ### FlvPlayer
 
 This is a component for playing live streaming.
 
 ```javascript
-<FlvPlayer 
-  deviceId={} 
-  onPlayerInit={} 
-  onPlayerDispose={} 
-  style={} 
+<FlvPlayer
+  deviceId={}
+  onPlayerInit={}
+  onPlayerDispose={}
+  style={}
   controls={}
   onReady={}
 />
@@ -135,18 +140,15 @@ This is a component for playing live streaming.
 | `onPlayerInit`    | `function`     | YES      |         | Pass state into player to allow control of player. For more info please check [flv.js doc](https://github.com/bilibili/flv.js/edit/master/docs/api.md). |
 | `onPlayerDispose` | `function`     | YES      |         | Pass state into player to dispose when video is released.                                                                                               |
 | `style`           | `inline-style` | NO       |         | Custom style for video player.                                                                                                                          |
-| `controls`        | `bool`         | NO       | `true`  | Show video controls                                                                         |
-| `onReady`         | `func`         | NO       |         | Callback fired when the video is ready to play                                              | 
+| `controls`        | `bool`         | NO       | `true`  | Show video controls                                                                                                                                     |
+| `onReady`         | `func`         | NO       |         | Callback fired when the video is ready to play                                                                                                          |
 
 ### CameraView
 
 This is a component for playing live streaming and archive video.
 
 ```javascript
-<CameraView 
-  deviceId={}
-  renderLoading={}
-/>
+<CameraView deviceId={} renderLoading={} />
 ```
 
 You need to import the CSS file to your JavaScript file
@@ -162,7 +164,7 @@ If you want to overwrite the default style, you can use the browser dev tool to 
 ```css
 /* overwrite.css */
 #controlbar_container {
-  background-color: burlywood
+  background-color: burlywood;
 }
 .meta_timeline_i {
   background-color: coral !important;
@@ -173,12 +175,12 @@ Then, import the `overwrite.css` file
 
 ```javascript
 import '@skywatch/react/lib/style/camera-view.css';
-import 'overwrite.css'
+import 'overwrite.css';
 ```
 
 #### Custom Controls
 
-Methods to control the video are exposed by `useImperativeHandle` hook. 
+Methods to control the video are exposed by `useImperativeHandle` hook.
 To access these methods, you need to create your `ref` and pass it to `CameraView` component. Also, you have to disable the default controls.
 Then you can use the exposed methods by the `ref`. For example,
 
@@ -187,37 +189,34 @@ const APP = () => {
   const cameraViewRef = useRef();
   return (
     <>
-      <CameraView
-        deviceId={DEVICE_ID}
-        controls={false}
-        ref={cameraViewRef}
-      />
+      <CameraView deviceId={DEVICE_ID} controls={false} ref={cameraViewRef} />
       <button onClick={() => cameraViewRef.current.play()}>play</button>
-      <button onClick={() => cameraViewRef.current.pause()}>pause</button>  
+      <button onClick={() => cameraViewRef.current.pause()}>pause</button>
     </>
   );
 };
 ```
+
 #### Methods
 
-| Method             | Parameters       | Returns  | Description                                |
-| ------------------ | ---------------- | -------- | ------------------------------------------ |
-| `play()`           | none             | none     | Play the video.                            |
-| `pause()`          | none             | none     | Pause the current video.                   |
-| `fastForward()`    | none             | none     | Start fast forward mode.                   |
-| `toggleMute()`     | none             | none     | Mute or unmute the video.                  |
-| `goLive()`         | none             | none     | Start playing live video.                  |
-| `seek(string)`     | `Number\|String` | none     | Play video at the provided unix timestamp. |
-| `getAllArchives()` | none             | `array`  | Get data of all archives.                  | 
-| `isLive()`         | none             | `bool`   | Check if the video is in live mode.        |
+| Method             | Parameters       | Returns | Description                                |
+| ------------------ | ---------------- | ------- | ------------------------------------------ |
+| `play()`           | none             | none    | Play the video.                            |
+| `pause()`          | none             | none    | Pause the current video.                   |
+| `fastForward()`    | none             | none    | Start fast forward mode.                   |
+| `toggleMute()`     | none             | none    | Mute or unmute the video.                  |
+| `goLive()`         | none             | none    | Start playing live video.                  |
+| `seek(string)`     | `Number\|String` | none    | Play video at the provided unix timestamp. |
+| `getAllArchives()` | none             | `array` | Get data of all archives.                  |
+| `isLive()`         | none             | `bool`  | Check if the video is in live mode.        |
 
 #### Props
 
-| Property          | Type           | Required | Default | Description                                                                                                                                             |
-| ----------------- | -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `deviceId`        | `string`       | YES      |         | Decide on which camera is going to play.                                             |
-| `renderLoading`   | `function`     | NO       | `() => <div style={loadingStyle}></div>` | Function returns the loading element.                   |
-| `controls`        | `bool`         | NO       | `true`  | If `false`, the default controls will not be used.                                   |    
+| Property        | Type       | Required | Default                                  | Description                                        |
+| --------------- | ---------- | -------- | ---------------------------------------- | -------------------------------------------------- |
+| `deviceId`      | `string`   | YES      |                                          | Decide on which camera is going to play.           |
+| `renderLoading` | `function` | NO       | `() => <div style={loadingStyle}></div>` | Function returns the loading element.              |
+| `controls`      | `bool`     | NO       | `true`                                   | If `false`, the default controls will not be used. |
 
 ## License
 
