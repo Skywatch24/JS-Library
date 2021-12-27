@@ -237,6 +237,25 @@ Skywatch.Lock.getPasscodeList(deviceId);
 ```json
 [
   {
+    "code": "46260013",
+    "alias": "#46260013",
+    "id": "8c69af",
+    "status": "success",
+    "timestamp": 1638160855,
+    "email_address": ""
+  },
+  {
+    "alias": "Testttt",
+    "code": "59023310",
+    "recurring": "1638374400-1641139199:0-36000:56",
+    "origin_recurring": "1638374400-1641139199:28800-64800:56",
+    "endless": "false",
+    "id": "d55956",
+    "status": "not_yet",
+    "timestamp": 1638411380,
+    "email_address": ""
+  },
+  {
     "alias": "ScheduleTest",
     "code": "21933305",
     "schedule": "1640577960-1640581560",
@@ -266,9 +285,9 @@ Skywatch.Lock.createSchudlePasscde(
 | `name`         | `string` | YES      | passcode name                                                         |
 | `email`        | `string` | Optional | Send passcode notification to eamil                                   |
 | `passcode`     | `string` | YES      | passcode (4 - 8 digits)                                               |
-| `scheduleTime` | `string` | YES      | Timestamp format: `startTime - endTime` (Ex. `1640577960-1640581560`) |
+| `scheduleTime` | `string` | YES      | Timestamp format: `startTime - endTime` (ex. `1640577960-1640581560`) |
 
-### Open / Lock Locks
+### Open / Close Lock
 
 ```javascript
 Skywatch.Lock.updateStatus(deviceId, status);
