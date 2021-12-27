@@ -23,11 +23,17 @@ yarn add @skywatch/js
 
 ### Step 2
 
+#### Option 1:
+
+[Use Oauth 2.0 to get access token](/packages/js/doc/oauth2.md)
+
+#### Option 2:
+
 Before you start developing, you have to implement Skywatch library on your server. Please follow the guide below to create a POST method url on your server, and then keep the POST method url you generated.
 
 Ex. Implement Skywatch library on node server, and then generate the POST API - https://localhost:3000/skywatch_service_url
 
-#### Guide:
+##### Guide:
 
 [Skywatch Server Installation Guide](/packages/server#readme)
 
@@ -43,7 +49,7 @@ Ex. Implement Skywatch library on node server, and then generate the POST API - 
       aspectRatio: '16:9',
       mobileView: false,
     };
-    Skywatch.initialize('/your_server_url_with_skywatch_library', 'token');
+    Skywatch.initialize('/your_server_url_with_skywatch_library', 'access_token');
     Skywatch.ArchivesPlayer(
       document.getElementById('root'),
       'device_id',
@@ -58,8 +64,6 @@ Ex. Implement Skywatch library on node server, and then generate the POST API - 
 ```
 
 ## API Document
-
-[Use Oauth 2.0 to get access token](/packages/js/doc/oauth2.md)
 
 [Camera API Usage](/packages/js/doc/camera.md)
 
