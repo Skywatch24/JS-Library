@@ -59,7 +59,7 @@ Ex. Implement Skywatch library on node server, and then generate the POST API - 
 
 ## API Document
 
-[Camera Usage](/doc/camera.md)
+[Camera Usage](/packages/js/doc/camera.md)
 
 ## License
 
