@@ -30,8 +30,28 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
-const createSchudlePasscde = async (deviceId, name, email = '', passcode, startTime, endTime) => {
-  const res = await Requests.createSchudlePasscde(deviceId, name, email, passcode, startTime, endTime);
+const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
+  const res = await Requests.createAlwaysPasscode(deviceId, name, email, passcode);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createSchudlePasscode = async (deviceId, name, email = '', passcode, startTime, endTime) => {
+  const res = await Requests.createSchudlePasscode(deviceId, name, email, passcode, startTime, endTime);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const deletePasscode = async (deviceId, passcodeId, passcode) => {
+  const res = await Requests.deletePasscode(deviceId, passcodeId, passcode);
 
   if (res.data) {
     return res.data;
@@ -44,5 +64,7 @@ export default {
   updateStatus,
   getInfo,
   getPasscodeList,
-  createSchudlePasscde
+  createAlwaysPasscode,
+  createSchudlePasscode,
+  deletePasscode
 };

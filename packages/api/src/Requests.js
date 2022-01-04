@@ -17,7 +17,7 @@ const getAuthStrings = () => {
 const getAuthParams = params => {
   const token = coreManager.get(API_KEY);
   if (token.indexOf('OAUTH2-') !== -1) {
-    params['accsee_token'] = coreManager.get(API_KEY);
+    params['access_token'] = coreManager.get(API_KEY);
   } else {
     params['api_key'] = coreManager.get(API_KEY);
   }
@@ -120,7 +120,27 @@ const getPasscodeList = async deviceId => {
   return res;
 };
 
-const createSchudlePasscde = async (
+const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
+
+  const userCode = {};
+  userCode.alias = name;
+  userCode.code = passcode;
+
+  let params = {
+    user_code: JSON.stringify(userCode),
+    multi_code: 1,
+    method_type: 'POST',
+  };
+
+  if (email !== '') params.email_address = email;
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
+const createSchudlePasscode = async (
   deviceId,
   name,
   email = '',
@@ -149,6 +169,23 @@ const createSchudlePasscde = async (
   return res;
 };
 
+const deletePasscode = async (deviceId, passcodeId, passcode) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
+  const userCode = {};
+  userCode.code = passcode;
+  userCode.id = passcodeId;
+
+  const params = {
+    user_code: JSON.stringify(userCode),
+    multi_code: 1,
+    method_type: 'DELETE',
+  };
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 const getDeviceList = async () => {
   const url = `${coreManager.get(SERVER_URL)}/devices?${getAuthStrings()}`;
   const res = await axios.get(url, {});
@@ -164,6 +201,8 @@ module.exports = {
   getSensorStatus,
   updateSensorStatus,
   getPasscodeList,
-  createSchudlePasscde,
+  createAlwaysPasscode,
+  createSchudlePasscode,
+  deletePasscode,
   getDeviceList,
 };

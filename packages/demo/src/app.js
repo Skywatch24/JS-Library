@@ -37,6 +37,7 @@ const APP = () => {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   const [passcodeName, setPasscodeName] = useState('');
+  const [passcodeId, setPasscodeId] = useState('');
   const [passcode, setPasscode] = useState('');
   const [email, setEmail] = useState('');
 
@@ -242,7 +243,63 @@ const APP = () => {
     );
   };
 
-  const createSchudlePasscde = (
+  const createAlwaysPasscode = (deviceId, name, passcode, email) => {
+    Lock.createAlwaysPasscode(deviceId, name, email, passcode).then(data => {
+      setPasscode('');
+      setPasscodeName('');
+      setEmail('');
+      setPasscodeList(data.data);
+    });
+  };
+
+  const renderAddAlwaysCode = () => {
+    return (
+      <>
+        <h4>Add Always Passcode</h4>
+        <div className="code">
+          Skywatch.Lock.createAlwaysPasscde(deviceId, name, email, passcode);
+        </div>
+        <label htmlFor="passcode-name">Passcode name:</label>
+        <br />
+        <input
+          name="passcode-name"
+          value={passcodeName}
+          type="text"
+          onChange={e => setPasscodeName(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="passcode">Passcode (4 - 8 digits):</label>
+        <br />
+        <input
+          name="passcode"
+          type="text"
+          value={passcode}
+          onChange={e => setPasscode(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="email">Email:</label>
+        <br />
+        <input
+          name="email"
+          type="text"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <br />
+        <br />
+        <button
+          onClick={() => {
+            createAlwaysPasscode(deviceId, passcodeName, passcode, email);
+          }}>
+          Create Passcode
+        </button>
+      </>
+    );
+  };
+
+  const createSchudlePasscode = (
     deviceId,
     name,
     passcode,
@@ -250,7 +307,7 @@ const APP = () => {
     startTime,
     endTime,
   ) => {
-    Lock.createSchudlePasscde(
+    Lock.createSchudlePasscode(
       deviceId,
       name,
       email,
@@ -270,8 +327,8 @@ const APP = () => {
       <>
         <h4>Add Schedule Passcode</h4>
         <div className="code">
-          Skywatch.Lock.createSchudlePasscde(deviceId, name, email, passcode,
-          scheduleTime);
+          Skywatch.Lock.createSchudlePasscode(deviceId, name, email, passcode,
+          startTime, endTime);
         </div>
         <label htmlFor="passcode-name">Passcode name:</label>
         <br />
@@ -327,7 +384,7 @@ const APP = () => {
         <br />
         <button
           onClick={() => {
-            createSchudlePasscde(
+            createSchudlePasscode(
               deviceId,
               passcodeName,
               passcode,
@@ -342,6 +399,51 @@ const APP = () => {
     );
   };
 
+  const deletePasscode = (deviceId, passcodeId, passcode) => {
+    Lock.deletePasscode(deviceId, passcodeId, passcode).then(data => {
+      setPasscode('');
+      setPasscodeId('');
+      setPasscodeList(data.data);
+    });
+  };
+
+  const renderDeletePasscode = () => {
+    return (
+      <>
+        <h4>Delete Passcode</h4>
+        <div className="code">
+          Skywatch.Lock.deletePasscode = (deviceId, passcodeId, passcode);
+        </div>
+        <label htmlFor="passcode-id">Passcode id:</label>
+        <br />
+        <input
+          name="passcode-id"
+          value={passcodeId}
+          type="text"
+          onChange={e => setPasscodeId(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="passcode">Passcode:</label>
+        <br />
+        <input
+          name="passcode"
+          type="text"
+          value={passcode}
+          onChange={e => setPasscode(e.target.value)}
+        />
+        <br />
+        <br />
+        <button
+          onClick={() => {
+            deletePasscode(deviceId, passcodeId, passcode);
+          }}>
+          Delete Passcode
+        </button>
+      </>
+    );
+  };
+
   return (
     <>
       {renderOauth()}
@@ -350,7 +452,9 @@ const APP = () => {
       {renderDeviceInput()}
       {renderLockInfo()}
       {renderPasscodeList()}
+      {renderAddAlwaysCode()}
       {renderAddScheduleCode()}
+      {renderDeletePasscode()}
       {renderUpdateStatus()}
     </>
   );

@@ -267,25 +267,52 @@ Skywatch.Lock.getPasscodeList(deviceId);
 ]
 ```
 
+### Always Passcode
+
+```javascript
+Skywatch.Lock.createAlwaysPasscode(deviceId, name, email, passcode);
+```
+
+| Property   | Type     | Required | Description                         |
+| ---------- | -------- | -------- | ----------------------------------- |
+| `deviceId` | `string` | YES      | Sensor id                           |
+| `name`     | `string` | YES      | passcode name                       |
+| `email`    | `string` | Optional | Send passcode notification to eamil |
+| `passcode` | `string` | YES      | Passcode (4 - 8 digits)             |
+
 ### Schedule Passcode
 
 ```javascript
-Skywatch.Lock.createSchudlePasscde(
+Skywatch.Lock.createSchudlePasscode(
   deviceId,
   name,
   email,
   passcode,
-  scheduleTime,
+  startTime,
+  endTime,
 );
 ```
 
-| Property       | Type     | Required | Description                                                           |
-| -------------- | -------- | -------- | --------------------------------------------------------------------- |
-| `deviceId`     | `string` | YES      | Sensor id                                                             |
-| `name`         | `string` | YES      | passcode name                                                         |
-| `email`        | `string` | Optional | Send passcode notification to eamil                                   |
-| `passcode`     | `string` | YES      | passcode (4 - 8 digits)                                               |
-| `scheduleTime` | `string` | YES      | Timestamp format: `startTime - endTime` (ex. `1640577960-1640581560`) |
+| Property    | Type     | Required | Description                                             |
+| ----------- | -------- | -------- | ------------------------------------------------------- |
+| `deviceId`  | `string` | YES      | Sensor id                                               |
+| `name`      | `string` | YES      | passcode name                                           |
+| `email`     | `string` | Optional | Send passcode notification to eamil                     |
+| `passcode`  | `string` | YES      | Passcode (4 - 8 digits)                                 |
+| `startTime` | `string` | YES      | Passcode start time (Timestamp format ex. `1640577960`) |
+| `entTime`   | `string` | YES      | Passcode end time (Timestamp format ex. `1640581560`)   |
+
+### Delete Passcode
+
+```javascript
+Skywatch.Lock.deletePasscode(deviceId, passcodeId, passcode);
+```
+
+| Property     | Type     | Required | Description             |
+| ------------ | -------- | -------- | ----------------------- |
+| `deviceId`   | `string` | YES      | Sensor id               |
+| `passcodeId` | `string` | YES      | Passcode id             |
+| `passcode`   | `string` | YES      | Passcode (4 - 8 digits) |
 
 ### Open / Close Lock
 
