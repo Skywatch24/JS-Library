@@ -242,7 +242,63 @@ const APP = () => {
     );
   };
 
-  const createSchudlePasscde = (
+  const createAlwaysPasscode = (deviceId, name, passcode, email) => {
+    Lock.createAlwaysPasscode(deviceId, name, email, passcode).then(data => {
+      setPasscode('');
+      setPasscodeName('');
+      setEmail('');
+      setPasscodeList(data.data);
+    });
+  };
+
+  const renderAddAlwaysCode = () => {
+    return (
+      <>
+        <h4>Add Always Passcode</h4>
+        <div className="code">
+          Skywatch.Lock.createAlwaysPasscde(deviceId, name, email, passcode);
+        </div>
+        <label htmlFor="passcode-name">Passcode name:</label>
+        <br />
+        <input
+          name="passcode-name"
+          value={passcodeName}
+          type="text"
+          onChange={e => setPasscodeName(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="passcode">Passcode (4 - 8 digits):</label>
+        <br />
+        <input
+          name="passcode"
+          type="text"
+          value={passcode}
+          onChange={e => setPasscode(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="email">Email:</label>
+        <br />
+        <input
+          name="email"
+          type="text"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <br />
+        <br />
+        <button
+          onClick={() => {
+            createAlwaysPasscode(deviceId, passcodeName, passcode, email);
+          }}>
+          Create Passcode
+        </button>
+      </>
+    );
+  };
+
+  const createSchudlePasscode = (
     deviceId,
     name,
     passcode,
@@ -250,7 +306,7 @@ const APP = () => {
     startTime,
     endTime,
   ) => {
-    Lock.createSchudlePasscde(
+    Lock.createSchudlePasscode(
       deviceId,
       name,
       email,
@@ -270,8 +326,8 @@ const APP = () => {
       <>
         <h4>Add Schedule Passcode</h4>
         <div className="code">
-          Skywatch.Lock.createSchudlePasscde(deviceId, name, email, passcode,
-          scheduleTime);
+          Skywatch.Lock.createSchudlePasscode(deviceId, name, email, passcode,
+          startTime, endTime);
         </div>
         <label htmlFor="passcode-name">Passcode name:</label>
         <br />
@@ -327,7 +383,7 @@ const APP = () => {
         <br />
         <button
           onClick={() => {
-            createSchudlePasscde(
+            createSchudlePasscode(
               deviceId,
               passcodeName,
               passcode,
@@ -350,6 +406,7 @@ const APP = () => {
       {renderDeviceInput()}
       {renderLockInfo()}
       {renderPasscodeList()}
+      {renderAddAlwaysCode()}
       {renderAddScheduleCode()}
       {renderUpdateStatus()}
     </>

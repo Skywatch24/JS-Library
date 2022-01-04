@@ -27,7 +27,21 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
-const createSchudlePasscde = async (
+const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
+  const res = await Requests.createAlwaysPasscode(
+    deviceId,
+    name,
+    email,
+    passcode,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createSchudlePasscode = async (
   deviceId,
   name,
   email = '',
@@ -35,7 +49,7 @@ const createSchudlePasscde = async (
   startTime,
   endTime,
 ) => {
-  const res = await Requests.createSchudlePasscde(
+  const res = await Requests.createSchudlePasscode(
     deviceId,
     name,
     email,
@@ -54,5 +68,6 @@ export default {
   updateStatus,
   getInfo,
   getPasscodeList,
-  createSchudlePasscde,
+  createAlwaysPasscode,
+  createSchudlePasscode,
 };
