@@ -1,6 +1,6 @@
 {
   "name": "@skywatch/server",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Skywatch Server Library",
   "license": "Apache-2.0",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "@skywatch/api": "^1.3.0",
+    "@skywatch/api": "^1.3.1",
     "axios": "^0.21.1",
     "qs": "^6.10.1"
   }
