@@ -50,10 +50,21 @@ const createSchudlePasscode = async (deviceId, name, email = '', passcode, start
   return '';
 };
 
+const deletePasscode = async (deviceId, passcodeId, passcode) => {
+  const res = await Requests.deletePasscode(deviceId, passcodeId, passcode);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
   updateStatus,
   getInfo,
   getPasscodeList,
   createAlwaysPasscode,
-  createSchudlePasscode
+  createSchudlePasscode,
+  deletePasscode
 };

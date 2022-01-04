@@ -37,6 +37,7 @@ const APP = () => {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   const [passcodeName, setPasscodeName] = useState('');
+  const [passcodeId, setPasscodeId] = useState('');
   const [passcode, setPasscode] = useState('');
   const [email, setEmail] = useState('');
 
@@ -398,6 +399,51 @@ const APP = () => {
     );
   };
 
+  const deletePasscode = (deviceId, passcodeId, passcode) => {
+    Lock.deletePasscode(deviceId, passcodeId, passcode).then(data => {
+      setPasscode('');
+      setPasscodeId('');
+      setPasscodeList(data.data);
+    });
+  };
+
+  const renderDeletePasscode = () => {
+    return (
+      <>
+        <h4>Delete Passcode</h4>
+        <div className="code">
+          Skywatch.Lock.deletePasscode = (deviceId, passcodeId, passcode);
+        </div>
+        <label htmlFor="passcode-id">Passcode id:</label>
+        <br />
+        <input
+          name="passcode-id"
+          value={passcodeId}
+          type="text"
+          onChange={e => setPasscodeId(e.target.value)}
+        />
+        <br />
+        <br />
+        <label htmlFor="passcode">Passcode:</label>
+        <br />
+        <input
+          name="passcode"
+          type="text"
+          value={passcode}
+          onChange={e => setPasscode(e.target.value)}
+        />
+        <br />
+        <br />
+        <button
+          onClick={() => {
+            deletePasscode(deviceId, passcodeId, passcode);
+          }}>
+          Delete Passcode
+        </button>
+      </>
+    );
+  };
+
   return (
     <>
       {renderOauth()}
@@ -408,6 +454,7 @@ const APP = () => {
       {renderPasscodeList()}
       {renderAddAlwaysCode()}
       {renderAddScheduleCode()}
+      {renderDeletePasscode()}
       {renderUpdateStatus()}
     </>
   );

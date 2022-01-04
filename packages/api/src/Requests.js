@@ -169,6 +169,23 @@ const createSchudlePasscode = async (
   return res;
 };
 
+const deletePasscode = async (deviceId, passcodeId, passcode) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
+  const userCode = {};
+  userCode.code = passcode;
+  userCode.id = passcodeId;
+
+  const params = {
+    user_code: JSON.stringify(userCode),
+    multi_code: 1,
+    method_type: 'DELETE',
+  };
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 const getDeviceList = async () => {
   const url = `${coreManager.get(SERVER_URL)}/devices?${getAuthStrings()}`;
   const res = await axios.get(url, {});
@@ -186,5 +203,6 @@ module.exports = {
   getPasscodeList,
   createAlwaysPasscode,
   createSchudlePasscode,
+  deletePasscode,
   getDeviceList,
 };
