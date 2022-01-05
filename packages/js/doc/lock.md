@@ -2,6 +2,14 @@
 
 **Reminder: Only support Doorlock sensor for now!**
 
+### Error Handle
+
+[Doorlock Error Response](https://gist.github.com/alon21034/555203ac0fbcf748dde5fcc8a5122f22#file-error_response-md)
+
+### Process
+
+<img src="../images/sdk.png">
+
 ### initialize
 
 This is a function which has to initiate at the beginning.
