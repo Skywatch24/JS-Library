@@ -288,6 +288,19 @@ Skywatch.Lock.createAlwaysPasscode(deviceId, name, email, passcode);
 | `email`    | `string` | Optional | Send passcode notification to eamil |
 | `passcode` | `string` | YES      | Passcode (4 - 8 digits)             |
 
+### Onetime Passcode
+
+```javascript
+Skywatch.Lock.createOnetimePasscode(deviceId, name, email, passcode);
+```
+
+| Property   | Type     | Required | Description                         |
+| ---------- | -------- | -------- | ----------------------------------- |
+| `deviceId` | `string` | YES      | Sensor id                           |
+| `name`     | `string` | YES      | passcode name                       |
+| `email`    | `string` | Optional | Send passcode notification to eamil |
+| `passcode` | `string` | YES      | Passcode (4 - 8 digits)             |
+
 ### Schedule Passcode
 
 ```javascript
@@ -309,6 +322,36 @@ Skywatch.Lock.createSchudlePasscode(
 | `passcode`  | `string` | YES      | Passcode (4 - 8 digits)                                 |
 | `startTime` | `string` | YES      | Passcode start time (Timestamp format ex. `1640577960`) |
 | `entTime`   | `string` | YES      | Passcode end time (Timestamp format ex. `1640581560`)   |
+
+### Recurring Passcode
+
+```javascript
+Skywatch.Lock.createRecurringPasscode(
+  deviceId,
+  name,
+  email,
+  passcode,
+  startDate,
+  endDate,
+  startTime,
+  endTime,
+  week,
+  timezone,
+);
+```
+
+| Property    | Type     | Required | Description                                              |
+| ----------- | -------- | -------- | -------------------------------------------------------- |
+| `deviceId`  | `string` | YES      | Sensor id                                                |
+| `name`      | `string` | YES      | passcode name                                            |
+| `email`     | `string` | Optional | Send passcode notification to eamil                      |
+| `passcode`  | `string` | YES      | Passcode (4 - 8 digits)                                  |
+| `startDate` | `string` | YES      | Recurring start date (Timestamp format ex. `1642694400`) |
+| `endDate`   | `string` | YES      | Recurring end date (Timestamp format ex. `1643558400`)   |
+| `startTime` | `string` | YES      | seconds of start time ex. 8:00 -> `28800`                |
+| `endTime`   | `string` | YES      | seconds of end time ex. 15:00 -> `54000`                 |
+| `week`      | `string` | YES      | selected week list ex. Sun,Mon,Wed -> `013`              |
+| `timezone`  | `string` | YES      | cuttent time ex. `8`                                     |
 
 ### Delete Passcode
 
