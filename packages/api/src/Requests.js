@@ -136,6 +136,10 @@ const createPasscode = async (
   type,
   startTime = '',
   endTime = '',
+  startDate = '',
+  endDate = '',
+  week = '',
+  timezone = '',
 ) => {
   const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
 
@@ -145,6 +149,12 @@ const createPasscode = async (
 
   if (type === SCHEDULE_CODE) {
     userCode.schedule = `${startTime}-${endTime}`;
+  } else if (type === ONETIME_CODE) {
+    userCode.onetime = true;
+  } else if (type === RECURRING_CODE) {
+    userCode.recurring =
+      startDate + '-' + endDate + ':' + startTime + '-' + endTime + ':' + week;
+    userCode.timezone = timezone;
   }
 
   let params = {

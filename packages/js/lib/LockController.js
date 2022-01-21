@@ -46,8 +46,28 @@ const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
   return '';
 };
 
+const createOnetimePasscode = async (deviceId, name, email = '', passcode) => {
+  const res = await Requests.createPasscode(deviceId, name, email, passcode, ONETIME_CODE);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 const createSchudlePasscode = async (deviceId, name, email = '', passcode, startTime, endTime) => {
   const res = await Requests.createPasscode(deviceId, name, email, passcode, SCHEDULE_CODE, startTime, endTime);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createRecurringPasscode = async (deviceId, name, email = '', passcode, startDate, endDate, startTime, endTime, week, timezone) => {
+  const res = await Requests.createPasscode(deviceId, name, email, passcode, RECURRING_CODE, startTime, endTime, startDate, endDate, week, timezone);
 
   if (res.data) {
     return res.data;
@@ -72,5 +92,7 @@ export default {
   getPasscodeList,
   createAlwaysPasscode,
   createSchudlePasscode,
+  createOnetimePasscode,
+  createRecurringPasscode,
   deletePasscode
 };
