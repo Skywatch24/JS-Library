@@ -1,4 +1,10 @@
-import { Requests } from '@skywatch/api';
+import { Requests, Constants } from '@skywatch/api';
+const {
+  ALWAYS_CODE,
+  ONETIME_CODE,
+  SCHEDULE_CODE,
+  RECURRING_CODE
+} = Constants;
 
 const updateStatus = async (deviceId, status) => {
   const res = await Requests.updateSensorStatus(deviceId, status);
@@ -31,7 +37,7 @@ const getPasscodeList = async deviceId => {
 };
 
 const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
-  const res = await Requests.createAlwaysPasscode(deviceId, name, email, passcode);
+  const res = await Requests.createPasscode(deviceId, name, email, passcode, ALWAYS_CODE);
 
   if (res.data) {
     return res.data;
@@ -41,7 +47,7 @@ const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
 };
 
 const createSchudlePasscode = async (deviceId, name, email = '', passcode, startTime, endTime) => {
-  const res = await Requests.createSchudlePasscode(deviceId, name, email, passcode, startTime, endTime);
+  const res = await Requests.createPasscode(deviceId, name, email, passcode, SCHEDULE_CODE, startTime, endTime);
 
   if (res.data) {
     return res.data;

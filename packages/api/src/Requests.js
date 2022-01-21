@@ -3,7 +3,15 @@ const qs = require('qs');
 const coreManager = require('./CoreManager');
 const constants = require('./Constants');
 
-const {API_KEY, SERVER_URL, LANG_SELECTOR} = constants;
+const {
+  API_KEY,
+  SERVER_URL,
+  LANG_SELECTOR,
+  ALWAYS_CODE,
+  ONETIME_CODE,
+  SCHEDULE_CODE,
+  RECURRING_CODE,
+} = constants;
 
 const getAuthStrings = () => {
   const token = coreManager.get(API_KEY);
@@ -120,41 +128,24 @@ const getPasscodeList = async deviceId => {
   return res;
 };
 
-const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
-  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
-
-  const userCode = {};
-  userCode.alias = name;
-  userCode.code = passcode;
-
-  let params = {
-    user_code: JSON.stringify(userCode),
-    multi_code: 1,
-    method_type: 'POST',
-  };
-
-  if (email !== '') params.email_address = email;
-
-  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
-
-  return res;
-};
-
-const createSchudlePasscode = async (
+const createPasscode = async (
   deviceId,
   name,
   email = '',
   passcode,
-  startTime,
-  endTime,
+  type,
+  startTime = '',
+  endTime = '',
 ) => {
   const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
-  const scheduleTime = `${startTime}-${endTime}`;
 
   const userCode = {};
   userCode.alias = name;
   userCode.code = passcode;
-  userCode.schedule = scheduleTime;
+
+  if (type === SCHEDULE_CODE) {
+    userCode.schedule = `${startTime}-${endTime}`;
+  }
 
   let params = {
     user_code: JSON.stringify(userCode),
@@ -201,8 +192,7 @@ module.exports = {
   getSensorStatus,
   updateSensorStatus,
   getPasscodeList,
-  createAlwaysPasscode,
-  createSchudlePasscode,
+  createPasscode,
   deletePasscode,
   getDeviceList,
 };
