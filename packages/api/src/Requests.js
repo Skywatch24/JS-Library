@@ -119,6 +119,16 @@ const updateSensorStatus = async (deviceId, status) => {
   return res;
 };
 
+const updateDeviceName = async (deviceId, name) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/settings`;
+  const params = {
+    'params[name]': name,
+  };
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 const getPasscodeList = async deviceId => {
   const url = `${coreManager.get(
     SERVER_URL,
@@ -217,6 +227,7 @@ module.exports = {
   getCacheTime,
   getSensorStatus,
   updateSensorStatus,
+  updateDeviceName,
   getPasscodeList,
   createPasscode,
   deletePasscode,

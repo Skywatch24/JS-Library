@@ -10,6 +10,17 @@ const getInfo = async () => {
   return '';
 };
 
+const updateDeviceName = async (deviceId, name) => {
+  const res = await Requests.updateDeviceName(deviceId, name);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
-  getInfo
+  getInfo,
+  updateDeviceName
 };

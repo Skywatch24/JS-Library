@@ -131,6 +131,17 @@ Skywatch.Device.getInfo();
 | `online`   | Online: 1, Offline: 0                                                                          |
 | `model_id` | Gateway 2: 74, Gateway 2.5: 91, DoorLock: 63, PowerLock(斷電解鎖): 83, PowerLock(上電解鎖): 84 |
 
+### Set Device Name
+
+```javascript
+Skywatch.Device.updateDeviceName(deviceId, name);
+```
+
+| Property   | Type     | Required | Description        |
+| ---------- | -------- | -------- | ------------------ |
+| `deviceId` | `string` | YES      | Sensor id          |
+| `name`     | `string` | YES      | the name of Sensor |
+
 ### Lock Info
 
 ```javascript
