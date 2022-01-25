@@ -1,15 +1,5 @@
 # Lock API Document
 
-### Access API
-
-[Passcode Access](/packages/js/doc/passcode.md)
-
-[QRcode Access](/packages/js/doc/qrcode.md)
-
-### Error Handle
-
-[Doorlock Error Response](https://gist.github.com/alon21034/555203ac0fbcf748dde5fcc8a5122f22#file-error_response-md)
-
 ### Process
 
 <img src="../images/sdk.png">
@@ -22,6 +12,16 @@ This is a function which has to initiate at the beginning.
 import Skywatch from '@skywatch/js';
 Skywatch.initialize('/your_server_url_with_skywatch_library', 'token');
 ```
+
+### Access API
+
+[Passcode Access](/packages/js/doc/passcode.md)
+
+[QRcode Access](/packages/js/doc/qrcode.md)
+
+### Error Handle
+
+[Doorlock Error Response](https://gist.github.com/alon21034/555203ac0fbcf748dde5fcc8a5122f22#file-error_response-md)
 
 ### Device List
 

@@ -36,7 +36,7 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
-const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
+const createAlwaysPasscode = async (deviceId, name, passcode, email = '') => {
   const res = await Requests.createPasscode(deviceId, name, email, passcode, ALWAYS_CODE);
 
   if (res.data) {
@@ -46,7 +46,7 @@ const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
   return '';
 };
 
-const createOnetimePasscode = async (deviceId, name, email = '', passcode) => {
+const createOnetimePasscode = async (deviceId, name, passcode, email = '') => {
   const res = await Requests.createPasscode(deviceId, name, email, passcode, ONETIME_CODE);
 
   if (res.data) {
@@ -56,7 +56,7 @@ const createOnetimePasscode = async (deviceId, name, email = '', passcode) => {
   return '';
 };
 
-const createSchudlePasscode = async (deviceId, name, email = '', passcode, startTime, endTime) => {
+const createSchudlePasscode = async (deviceId, name, passcode, startTime, endTime, email = '') => {
   const res = await Requests.createPasscode(deviceId, name, email, passcode, SCHEDULE_CODE, startTime, endTime);
 
   if (res.data) {
@@ -66,7 +66,7 @@ const createSchudlePasscode = async (deviceId, name, email = '', passcode, start
   return '';
 };
 
-const createRecurringPasscode = async (deviceId, name, email = '', passcode, startDate, endDate, startTime, endTime, week, timezone) => {
+const createRecurringPasscode = async (deviceId, name, passcode, startDate, endDate, startTime, endTime, week, timezone, email = '') => {
   const res = await Requests.createPasscode(deviceId, name, email, passcode, RECURRING_CODE, startTime, endTime, startDate, endDate, week, timezone);
 
   if (res.data) {

@@ -29,7 +29,7 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
-const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
+const createAlwaysPasscode = async (deviceId, name, passcode, email = '') => {
   const res = await Requests.createPasscode(
     deviceId,
     name,
@@ -44,7 +44,7 @@ const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
   return '';
 };
 
-const createOnetimePasscode = async (deviceId, name, email = '', passcode) => {
+const createOnetimePasscode = async (deviceId, name, passcode, email = '') => {
   const res = await Requests.createPasscode(
     deviceId,
     name,
@@ -62,10 +62,10 @@ const createOnetimePasscode = async (deviceId, name, email = '', passcode) => {
 const createSchudlePasscode = async (
   deviceId,
   name,
-  email = '',
   passcode,
   startTime,
   endTime,
+  email = '',
 ) => {
   const res = await Requests.createPasscode(
     deviceId,
@@ -86,7 +86,6 @@ const createSchudlePasscode = async (
 const createRecurringPasscode = async (
   deviceId,
   name,
-  email = '',
   passcode,
   startDate,
   endDate,
@@ -94,6 +93,7 @@ const createRecurringPasscode = async (
   endTime,
   week,
   timezone,
+  email = '',
 ) => {
   const res = await Requests.createPasscode(
     deviceId,
