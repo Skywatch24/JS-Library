@@ -125,6 +125,16 @@ const deletePasscode = async (deviceId, passcodeId, passcode) => {
   return '';
 };
 
+const getLockHistory = async (deviceId, startTime, endTime) => {
+  const res = await Requests.getDeviceHistory(deviceId, startTime, endTime);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
   updateStatus,
   getInfo,
@@ -134,4 +144,5 @@ export default {
   createOnetimePasscode,
   createRecurringPasscode,
   deletePasscode,
+  getLockHistory,
 };

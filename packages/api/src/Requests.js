@@ -194,6 +194,15 @@ const getDeviceList = async () => {
   return res;
 };
 
+const getDeviceHistory = async (deviceId, startTime, endTime) => {
+  const url = `${coreManager.get(
+    SERVER_URL,
+  )}/devices/${deviceId}/history?start_time=${startTime}&end_time=${endTime}&${getAuthStrings()}`;
+  const res = await axios.get(url, {});
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -205,4 +214,5 @@ module.exports = {
   createPasscode,
   deletePasscode,
   getDeviceList,
+  getDeviceHistory,
 };

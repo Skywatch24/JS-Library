@@ -230,6 +230,18 @@ value=0 -> locked
 value=1 -> unlocked
 ```
 
+### Get Lock History
+
+```javascript
+Skywatch.Lock.getLockHistory(deviceId, startTime, endTime);
+```
+
+| Property      | Type     | Required | Description |
+| ------------- | -------- | -------- | ----------- |
+| `doorlock_id` | `string` | YES      | Sensor id   |
+| `startTime`   | `string` | YES      | timestamp   |
+| `endTime`     | `string` | YES      | timestamp   |
+
 ### Passcode List
 
 ```javascript
