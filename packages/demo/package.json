@@ -5,12 +5,7 @@
   "keywords": [],
   "author": "mengpeilee <asdfg3865@gmail.com>",
   "license": "Apache-2.0",
-  "main": "lib/index.js",
   "private": false,
-  "directories": {
-    "lib": "dist",
-    "test": "__tests__"
-  },
   "files": [
     "dist"
   ],
