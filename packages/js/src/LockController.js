@@ -135,6 +135,102 @@ const getLockHistory = async (deviceId, startTime, endTime) => {
   return '';
 };
 
+const createAlwaysQRcode = async (deviceIds, name, passcode, email = '') => {
+  const res = await Requests.addQRcodeAccess(
+    passcode,
+    name,
+    email,
+    deviceIds,
+    ALWAYS_CODE,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createOnetimeQRcode = async (deviceIds, name, passcode, email = '') => {
+  const res = await Requests.addQRcodeAccess(
+    passcode,
+    name,
+    email,
+    deviceIds,
+    ONETIME_CODE,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createSchudleQRcode = async (
+  deviceIds,
+  name,
+  passcode,
+  startTime,
+  endTime,
+  email = '',
+) => {
+  const res = await Requests.addQRcodeAccess(
+    passcode,
+    name,
+    email,
+    deviceIds,
+    SCHEDULE_CODE,
+    startTime,
+    endTime,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const createRecurringQRcode = async (
+  deviceIds,
+  name,
+  passcode,
+  startDate,
+  endDate,
+  startTime,
+  endTime,
+  week,
+  timezone,
+  email = '',
+) => {
+  const res = await Requests.addQRcodeAccess(
+    passcode,
+    name,
+    email,
+    deviceIds,
+    RECURRING_CODE,
+    startTime,
+    endTime,
+    startDate,
+    endDate,
+    week,
+    timezone,
+  );
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
+const deleteQRcode = async sharingUid => {
+  const res = await Requests.deleteQRcodeAccess(sharingUid);
+
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 export default {
   updateStatus,
   getInfo,
@@ -145,4 +241,9 @@ export default {
   createRecurringPasscode,
   deletePasscode,
   getLockHistory,
+  createAlwaysQRcode,
+  createOnetimeQRcode,
+  createSchudleQRcode,
+  createRecurringQRcode,
+  deleteQRcode,
 };

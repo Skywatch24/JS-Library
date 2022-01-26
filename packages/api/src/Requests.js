@@ -220,6 +220,65 @@ const getUserInfo = async () => {
   return res;
 };
 
+const getQRcodeList = async () => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing?${getAuthStrings()}`;
+  const res = await axios.get(url, {});
+
+  return res;
+};
+
+const addQRcodeAccess = async (
+  passcode,
+  name,
+  email = '',
+  deviceIds,
+  type,
+  startTime = '',
+  endTime = '',
+  startDate = '',
+  endDate = '',
+  week = '',
+  timezone = '',
+) => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing`;
+
+  let params = {
+    sharing_passcode: passcode,
+    sharing_name: name,
+    device_ids: JSON.stringify(deviceIds),
+    method_type: 'POST',
+  };
+
+  if (type === SCHEDULE_CODE) {
+    params.start_time = startTime;
+    params.end_time = endTime;
+  } else if (type === RECURRING_CODE) {
+    params.recurring =
+      startDate + '-' + endDate + ':' + startTime + '-' + endTime + ':' + week;
+    params.timezone = timezone;
+  } else if (type === ONETIME_CODE) {
+    params.onetime = true;
+  }
+
+  if (email !== '') params.email_address = email;
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
+const deleteQRcodeAccess = async sharingUid => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing/${sharingUid}`;
+
+  const params = {
+    method_type: 'DELETE',
+  };
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -234,4 +293,7 @@ module.exports = {
   getDeviceList,
   getDeviceHistory,
   getUserInfo,
+  getQRcodeList,
+  addQRcodeAccess,
+  deleteQRcodeAccess,
 };
