@@ -4,7 +4,7 @@ import Skywatch from '@skywatch/js';
 import oauthImg from './images/oauth.png';
 import './styles/app.css';
 
-const {Lock, Device} = Skywatch;
+const {Lock, Device, User} = Skywatch;
 
 const server_url =
   process.env.NODE_ENV === 'development'
@@ -112,8 +112,11 @@ const APP = () => {
   };
 
   const initToken = (url, token) => {
+    //Skywatch.initialize(url, 'OAUTH2-B942B9CBEB214C1228B65A79D4D14219');
     Skywatch.initialize(url, token);
     setIsInitStatus('success!');
+
+    //Lock.getQRcodeList().then(data => console.log(data));
   };
 
   const renderInitToken = () => {
@@ -244,7 +247,7 @@ const APP = () => {
   };
 
   const createAlwaysPasscode = (deviceId, name, passcode, email) => {
-    Lock.createAlwaysPasscode(deviceId, name, email, passcode).then(data => {
+    Lock.createAlwaysPasscode(deviceId, name, passcode, email).then(data => {
       setPasscode('');
       setPasscodeName('');
       setEmail('');
@@ -310,10 +313,10 @@ const APP = () => {
     Lock.createSchudlePasscode(
       deviceId,
       name,
-      email,
       passcode,
       startTime,
       endTime,
+      email,
     ).then(data => {
       setPasscode('');
       setPasscodeName('');
