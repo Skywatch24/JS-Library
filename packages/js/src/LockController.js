@@ -29,6 +29,15 @@ const getPasscodeList = async deviceId => {
   return '';
 };
 
+const getQRcodeList = async () => {
+  const res = await Requests.getQRcodeList();
+  if (res.data) {
+    return res.data;
+  }
+
+  return '';
+};
+
 const createAlwaysPasscode = async (deviceId, name, passcode, email = '') => {
   const res = await Requests.createPasscode(
     deviceId,
@@ -241,6 +250,7 @@ export default {
   createRecurringPasscode,
   deletePasscode,
   getLockHistory,
+  getQRcodeList,
   createAlwaysQRcode,
   createOnetimeQRcode,
   createSchudleQRcode,
