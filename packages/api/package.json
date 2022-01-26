@@ -1,6 +1,6 @@
 {
   "name": "@skywatch/api",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "main": "src/index.js",
   "license": "Apache-2.0",
   "description": "Skywatch API Library",

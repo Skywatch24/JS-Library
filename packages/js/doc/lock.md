@@ -1,11 +1,5 @@
 # Lock API Document
 
-**Reminder: Only support Doorlock sensor for now!**
-
-### Error Handle
-
-[Doorlock Error Response](https://gist.github.com/alon21034/555203ac0fbcf748dde5fcc8a5122f22#file-error_response-md)
-
 ### Process
 
 <img src="../images/sdk.png">
@@ -18,6 +12,16 @@ This is a function which has to initiate at the beginning.
 import Skywatch from '@skywatch/js';
 Skywatch.initialize('/your_server_url_with_skywatch_library', 'token');
 ```
+
+### Access API
+
+[Passcode Access](/packages/js/doc/passcode.md)
+
+[QRcode Access](/packages/js/doc/qrcode.md)
+
+### Error Handle
+
+[Doorlock Error Response](https://gist.github.com/alon21034/555203ac0fbcf748dde5fcc8a5122f22#file-error_response-md)
 
 ### Device List
 
@@ -119,17 +123,30 @@ Skywatch.Device.getInfo();
     "model": "doorlock",
     "armactive": "1",
     "audio_id": "0",
-    "owner_name": ""
+    "owner_name": "",
+    "doorlock_qrcode_enable": "1"
   }
 ]
 ```
 
-| Parameter  | Description                                                                                    |
-| ---------- | ---------------------------------------------------------------------------------------------- |
-| `id`       | Device Id                                                                                      |
-| `name`     | Device name                                                                                    |
-| `online`   | Online: 1, Offline: 0                                                                          |
-| `model_id` | Gateway 2: 74, Gateway 2.5: 91, DoorLock: 63, PowerLock(斷電解鎖): 83, PowerLock(上電解鎖): 84 |
+| Parameter                | Description                                                                                    |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `id`                     | Device Id                                                                                      |
+| `name`                   | Device name                                                                                    |
+| `online`                 | Online: 1, Offline: 0                                                                          |
+| `doorlock_qrcode_enable` | If support Qrcode Access or not                                                                |
+| `model_id`               | Gateway 2: 74, Gateway 2.5: 91, DoorLock: 63, PowerLock(斷電解鎖): 83, PowerLock(上電解鎖): 84 |
+
+### Set Device Name
+
+```javascript
+Skywatch.Device.updateDeviceName(deviceId, name);
+```
+
+| Property   | Type     | Required | Description        |
+| ---------- | -------- | -------- | ------------------ |
+| `deviceId` | `string` | YES      | Sensor id          |
+| `name`     | `string` | YES      | the name of Sensor |
 
 ### Lock Info
 
@@ -230,97 +247,17 @@ value=0 -> locked
 value=1 -> unlocked
 ```
 
-### Passcode List
+### Get Lock History
 
 ```javascript
-Skywatch.Lock.getPasscodeList(deviceId);
+Skywatch.Lock.getLockHistory(deviceId, startTime, endTime);
 ```
 
-| Property   | Type     | Required | Description |
-| ---------- | -------- | -------- | ----------- |
-| `deviceId` | `string` | YES      | Sensor id   |
-
-#### Example Output:
-
-```json
-[
-  {
-    "code": "46260013",
-    "alias": "#46260013",
-    "id": "8c69af",
-    "status": "success",
-    "timestamp": 1638160855,
-    "email_address": ""
-  },
-  {
-    "alias": "Testttt",
-    "code": "59023310",
-    "recurring": "1638374400-1641139199:0-36000:56",
-    "origin_recurring": "1638374400-1641139199:28800-64800:56",
-    "endless": "false",
-    "id": "d55956",
-    "status": "not_yet",
-    "timestamp": 1638411380,
-    "email_address": ""
-  },
-  {
-    "alias": "ScheduleTest",
-    "code": "21933305",
-    "schedule": "1640577960-1640581560",
-    "id": "f0df4c",
-    "status": "not_yet",
-    "timestamp": 1640577960,
-    "email_address": ""
-  }
-]
-```
-
-### Always Passcode
-
-```javascript
-Skywatch.Lock.createAlwaysPasscode(deviceId, name, email, passcode);
-```
-
-| Property   | Type     | Required | Description                         |
-| ---------- | -------- | -------- | ----------------------------------- |
-| `deviceId` | `string` | YES      | Sensor id                           |
-| `name`     | `string` | YES      | passcode name                       |
-| `email`    | `string` | Optional | Send passcode notification to eamil |
-| `passcode` | `string` | YES      | Passcode (4 - 8 digits)             |
-
-### Schedule Passcode
-
-```javascript
-Skywatch.Lock.createSchudlePasscode(
-  deviceId,
-  name,
-  email,
-  passcode,
-  startTime,
-  endTime,
-);
-```
-
-| Property    | Type     | Required | Description                                             |
-| ----------- | -------- | -------- | ------------------------------------------------------- |
-| `deviceId`  | `string` | YES      | Sensor id                                               |
-| `name`      | `string` | YES      | passcode name                                           |
-| `email`     | `string` | Optional | Send passcode notification to eamil                     |
-| `passcode`  | `string` | YES      | Passcode (4 - 8 digits)                                 |
-| `startTime` | `string` | YES      | Passcode start time (Timestamp format ex. `1640577960`) |
-| `entTime`   | `string` | YES      | Passcode end time (Timestamp format ex. `1640581560`)   |
-
-### Delete Passcode
-
-```javascript
-Skywatch.Lock.deletePasscode(deviceId, passcodeId, passcode);
-```
-
-| Property     | Type     | Required | Description             |
-| ------------ | -------- | -------- | ----------------------- |
-| `deviceId`   | `string` | YES      | Sensor id               |
-| `passcodeId` | `string` | YES      | Passcode id             |
-| `passcode`   | `string` | YES      | Passcode (4 - 8 digits) |
+| Property      | Type     | Required | Description |
+| ------------- | -------- | -------- | ----------- |
+| `doorlock_id` | `string` | YES      | Sensor id   |
+| `startTime`   | `string` | YES      | timestamp   |
+| `endTime`     | `string` | YES      | timestamp   |
 
 ### Open / Close Lock
 

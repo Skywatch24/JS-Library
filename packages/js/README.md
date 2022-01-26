@@ -69,6 +69,8 @@ Ex. Implement Skywatch library on node server, and then generate the POST API - 
 
 [Lock API Usage](/packages/js/doc/lock.md)
 
+[User API Usage](/packages/js/doc/user.md)
+
 ## License
 
 - This project is inspired by [video.js](https://www.videojs.com).

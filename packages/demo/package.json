@@ -1,17 +1,13 @@
 {
   "name": "@skywatch/demo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Library example",
   "keywords": [],
   "author": "mengpeilee <asdfg3865@gmail.com>",
   "license": "Apache-2.0",
-  "main": "lib/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
+  "private": false,
   "files": [
-    "lib"
+    "dist"
   ],
   "repository": {
     "type": "git",

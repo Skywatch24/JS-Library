@@ -16,6 +16,7 @@ Skywatch.ArchivesPlayer = require('./ArchivesPlayer').default;
 Skywatch.FlvPlayer = require('./FlvPlayer').default;
 Skywatch.Lock = require('./LockController').default;
 Skywatch.Device = require('./DeviceController').default;
+Skywatch.User = require('./UserController').default;
 
 window.Skywatch = Skywatch;
 

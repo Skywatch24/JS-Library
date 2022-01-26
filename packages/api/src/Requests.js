@@ -3,7 +3,15 @@ const qs = require('qs');
 const coreManager = require('./CoreManager');
 const constants = require('./Constants');
 
-const {API_KEY, SERVER_URL, LANG_SELECTOR} = constants;
+const {
+  API_KEY,
+  SERVER_URL,
+  LANG_SELECTOR,
+  ALWAYS_CODE,
+  ONETIME_CODE,
+  SCHEDULE_CODE,
+  RECURRING_CODE,
+} = constants;
 
 const getAuthStrings = () => {
   const token = coreManager.get(API_KEY);
@@ -111,6 +119,16 @@ const updateSensorStatus = async (deviceId, status) => {
   return res;
 };
 
+const updateDeviceName = async (deviceId, name) => {
+  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/settings`;
+  const params = {
+    'params[name]': name,
+  };
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 const getPasscodeList = async deviceId => {
   const url = `${coreManager.get(
     SERVER_URL,
@@ -120,41 +138,34 @@ const getPasscodeList = async deviceId => {
   return res;
 };
 
-const createAlwaysPasscode = async (deviceId, name, email = '', passcode) => {
-  const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
-
-  const userCode = {};
-  userCode.alias = name;
-  userCode.code = passcode;
-
-  let params = {
-    user_code: JSON.stringify(userCode),
-    multi_code: 1,
-    method_type: 'POST',
-  };
-
-  if (email !== '') params.email_address = email;
-
-  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
-
-  return res;
-};
-
-const createSchudlePasscode = async (
+const createPasscode = async (
   deviceId,
   name,
   email = '',
   passcode,
-  startTime,
-  endTime,
+  type,
+  startTime = '',
+  endTime = '',
+  startDate = '',
+  endDate = '',
+  week = '',
+  timezone = '',
 ) => {
   const url = `${coreManager.get(SERVER_URL)}/devices/${deviceId}/passcode`;
-  const scheduleTime = `${startTime}-${endTime}`;
 
   const userCode = {};
   userCode.alias = name;
   userCode.code = passcode;
-  userCode.schedule = scheduleTime;
+
+  if (type === SCHEDULE_CODE) {
+    userCode.schedule = `${startTime}-${endTime}`;
+  } else if (type === ONETIME_CODE) {
+    userCode.onetime = true;
+  } else if (type === RECURRING_CODE) {
+    userCode.recurring =
+      startDate + '-' + endDate + ':' + startTime + '-' + endTime + ':' + week;
+    userCode.timezone = timezone;
+  }
 
   let params = {
     user_code: JSON.stringify(userCode),
@@ -193,6 +204,81 @@ const getDeviceList = async () => {
   return res;
 };
 
+const getDeviceHistory = async (deviceId, startTime, endTime) => {
+  const url = `${coreManager.get(
+    SERVER_URL,
+  )}/devices/${deviceId}/history?start_time=${startTime}&end_time=${endTime}&${getAuthStrings()}`;
+  const res = await axios.get(url, {});
+
+  return res;
+};
+
+const getUserInfo = async () => {
+  const url = `${coreManager.get(SERVER_URL)}/user/info?${getAuthStrings()}`;
+  const res = await axios.get(url, {});
+
+  return res;
+};
+
+const getQRcodeList = async () => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing?${getAuthStrings()}`;
+  const res = await axios.get(url, {});
+
+  return res;
+};
+
+const addQRcodeAccess = async (
+  passcode,
+  name,
+  email = '',
+  deviceIds,
+  type,
+  startTime = '',
+  endTime = '',
+  startDate = '',
+  endDate = '',
+  week = '',
+  timezone = '',
+) => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing`;
+
+  let params = {
+    sharing_passcode: passcode,
+    sharing_name: name,
+    device_ids: JSON.stringify(deviceIds),
+    method_type: 'POST',
+  };
+
+  if (type === SCHEDULE_CODE) {
+    params.start_time = startTime;
+    params.end_time = endTime;
+  } else if (type === RECURRING_CODE) {
+    params.recurring =
+      startDate + '-' + endDate + ':' + startTime + '-' + endTime + ':' + week;
+    params.timezone = timezone;
+  } else if (type === ONETIME_CODE) {
+    params.onetime = true;
+  }
+
+  if (email !== '') params.email_address = email;
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
+const deleteQRcodeAccess = async sharingUid => {
+  const url = `${coreManager.get(SERVER_URL)}/sharing/${sharingUid}`;
+
+  const params = {
+    method_type: 'DELETE',
+  };
+
+  const res = await axios.post(url, qs.stringify(getAuthParams(params)), {});
+
+  return res;
+};
+
 module.exports = {
   getArchives,
   getFlvStream,
@@ -200,9 +286,14 @@ module.exports = {
   getCacheTime,
   getSensorStatus,
   updateSensorStatus,
+  updateDeviceName,
   getPasscodeList,
-  createAlwaysPasscode,
-  createSchudlePasscode,
+  createPasscode,
   deletePasscode,
   getDeviceList,
+  getDeviceHistory,
+  getUserInfo,
+  getQRcodeList,
+  addQRcodeAccess,
+  deleteQRcodeAccess,
 };
