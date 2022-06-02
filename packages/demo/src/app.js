@@ -9,7 +9,7 @@ const {Lock, Device, User} = Skywatch;
 const server_url =
   process.env.NODE_ENV === 'development'
     ? '/api/v2'
-    : 'https://beta.skywatch24.com/api/v2';
+    : 'https://service.skywatch24.com/api/v2';
 //const redirect_uri = window.location.origin;
 const redirect_uri =
   process.env.NODE_ENV === 'development'
@@ -18,12 +18,12 @@ const redirect_uri =
 const general_url =
   process.env.NODE_ENV === 'development'
     ? '/api/general'
-    : 'https://beta.skywatch24.com/api/general';
+    : 'https://service.skywatch24.com/api/general';
 
 const APP_ID = '123456';
 const APP_SECRET = 'DB419E28FC3BD38C7F577291A576E8E2';
 
-const oauth_url = `https://beta.skywatch24.com/oauth2?app_id=${APP_ID}&redirect_uri=${redirect_uri}`;
+const oauth_url = `https://service.skywatch24.com/oauth2?app_id=${APP_ID}&redirect_uri=${redirect_uri}`;
 
 const APP = () => {
   const [apiToken, setApiToken] = useState('');
