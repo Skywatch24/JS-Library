@@ -1,45 +1,54 @@
 import React, {useEffect, useState} from 'react';
-import JSONPretty from 'react-json-pretty';
 import Skywatch from '@skywatch/js';
-import oauthImg from './images/oauth.png';
-import './styles/app.css';
+import {MuiTabs, TabContainer} from './components';
+import {
+  Login,
+  GetToken,
+  InitToken,
+  DeviceList,
+  DeviceInfo,
+  GetPasscodes,
+  AddAlwaysPasscode,
+  AddSchedulePasscode,
+  DeletePasscode,
+  UpdateLockStatus,
+} from './steps';
+import {
+  oauth_url,
+  server_url,
+  general_url,
+  APP_ID,
+  APP_SECRET,
+  API_RESULT,
+  STEPS,
+  TABS,
+  STATUS_CODE,
+  EMPTY_STRING,
+} from './utils/constants';
 
 const {Lock, Device, User} = Skywatch;
 
-const server_url =
-  process.env.NODE_ENV === 'development'
-    ? '/api/v2'
-    : 'https://service.skywatch24.com/api/v2';
-//const redirect_uri = window.location.origin;
-const redirect_uri =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3000/'
-    : 'https://skywatch24.github.io/JS-Library/';
-const general_url =
-  process.env.NODE_ENV === 'development'
-    ? '/api/general'
-    : 'https://service.skywatch24.com/api/general';
-
-const APP_ID = '123456';
-const APP_SECRET = 'DB419E28FC3BD38C7F577291A576E8E2';
-
-const oauth_url = `https://service.skywatch24.com/oauth2?app_id=${APP_ID}&redirect_uri=${redirect_uri}`;
-
 const APP = () => {
-  const [apiToken, setApiToken] = useState('');
-  const [oauthCode, setOauthCode] = useState('');
-  const [deviceId, setDeviceId] = useState('');
+  const [oauthCode, setOauthCode] = useState(EMPTY_STRING);
+  const [getTokenResult, setGetTokenResult] = useState(EMPTY_STRING);
+  const [apiToken, setApiToken] = useState(EMPTY_STRING);
+  const [deviceId, setDeviceId] = useState(EMPTY_STRING);
   const [statusInfo, setStatusInfo] = useState({});
   const [deviceList, setDeviceList] = useState([]);
   const [passcodeList, setPasscodeList] = useState([]);
-  const [isUpdatedStatus, setIsUpdateStatus] = useState('');
-  const [isInitStatus, setIsInitStatus] = useState('');
+  const [addAlwaysCodeResult, setAddAlwaysCodeResult] = useState([]);
+  const [addScheduleCodeResult, setAddScheduleCodeResult] = useState([]);
+  const [deleteScheduleCodeResult, setDeleteScheduleCodeResult] = useState([]);
+  const [isUpdatedStatus, setIsUpdateStatus] = useState(EMPTY_STRING);
+  const [isInitStatus, setIsInitStatus] = useState(EMPTY_STRING);
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
-  const [passcodeName, setPasscodeName] = useState('');
-  const [passcodeId, setPasscodeId] = useState('');
-  const [passcode, setPasscode] = useState('');
-  const [email, setEmail] = useState('');
+  const [passcodeName, setPasscodeName] = useState(EMPTY_STRING);
+  const [passcodeId, setPasscodeId] = useState(EMPTY_STRING);
+  const [passcode, setPasscode] = useState(EMPTY_STRING);
+  const [email, setEmail] = useState(EMPTY_STRING);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [isApiProcessing, setIsApiProcessing] = useState(false);
 
   useEffect(() => {
     let search = window.location.search;
@@ -49,7 +58,196 @@ const APP = () => {
     }
   }, []);
 
+  const isCurrentTab = tab => {
+    return (
+      selectedTabIndex < Object.keys(TABS).length &&
+      Object.values(TABS)[selectedTabIndex].index === tab.index
+    );
+  };
+
+  const checkStepAvailable = step => {
+    if (isApiProcessing) {
+      return false;
+    }
+    switch (step.key) {
+      case STEPS.login.key:
+        return true;
+      case STEPS.getToken.key:
+        return (
+          APP_ID !== EMPTY_STRING &&
+          APP_SECRET !== EMPTY_STRING &&
+          oauthCode !== EMPTY_STRING
+        );
+      case STEPS.initToken.key:
+        return apiToken !== EMPTY_STRING;
+      case STEPS.deviceList.key:
+        return (
+          apiToken !== EMPTY_STRING && isInitStatus === API_RESULT.success.msg
+        );
+      case STEPS.lockInfo.key:
+      case STEPS.passcodeList.key:
+      case STEPS.addAlwaysCode.key:
+      case STEPS.addScheduleCode.key:
+      case STEPS.deletePasscode.key:
+      case STEPS.updateStatus.key:
+        return (
+          apiToken !== EMPTY_STRING &&
+          isInitStatus === API_RESULT.success.msg &&
+          deviceId !== EMPTY_STRING
+        );
+      default:
+        return true;
+    }
+  };
+
+  const renderOAuthTab = () => {
+    let show = isCurrentTab(TABS.oAuth);
+    return (
+      <>
+        {show && (
+          <>
+            <Login
+              oauthCode={oauthCode}
+              disabled={!checkStepAvailable(STEPS.login)}
+              onLoginClick={() => window.open(oauth_url)}
+            />
+            <GetToken
+              getTokenResult={getTokenResult}
+              disabled={!checkStepAvailable(STEPS.getToken)}
+              onGetAccessTokenClick={() =>
+                getAccessToken(APP_ID, APP_SECRET, oauthCode)
+              }
+            />
+            <InitToken
+              apiToken={apiToken}
+              isInitStatus={isInitStatus}
+              disabled={!checkStepAvailable(STEPS.initToken)}
+              initToken={() => initToken(server_url, apiToken)}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
+  const renderDevicesTab = () => {
+    let show = isCurrentTab(TABS.devices);
+    return (
+      <>
+        {show && (
+          <>
+            <DeviceList
+              deviceList={deviceList}
+              disabled={!checkStepAvailable(STEPS.deviceList)}
+              getDeviceList={getDeviceList}
+            />
+            <DeviceInfo
+              deviceList={deviceList}
+              deviceId={deviceId}
+              statusInfo={statusInfo}
+              disabled={!checkStepAvailable(STEPS.lockInfo)}
+              setDeviceId={setDeviceId}
+              getLockInfo={getLockInfo}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
+  const renderLockPasscodeTab = () => {
+    let show = isCurrentTab(TABS.lockPasscode);
+    return (
+      <>
+        {show && (
+          <>
+            <GetPasscodes
+              deviceId={deviceId}
+              passcodeList={passcodeList}
+              disabled={!checkStepAvailable(STEPS.passcodeList)}
+              getPasscodeList={() => getPasscodeList(deviceId)}
+            />
+            <AddAlwaysPasscode
+              deviceId={deviceId}
+              passcodeName={passcodeName}
+              passcode={passcode}
+              email={email}
+              addAlwaysCodeResult={addAlwaysCodeResult}
+              disabled={!checkStepAvailable(STEPS.addAlwaysCode)}
+              setPasscodeName={setPasscodeName}
+              setPasscode={setPasscode}
+              setEmail={setEmail}
+              createAlwaysPasscode={() => {
+                createAlwaysPasscode(deviceId, passcodeName, passcode, email);
+              }}
+            />
+            <AddSchedulePasscode
+              deviceId={deviceId}
+              passcodeName={passcodeName}
+              passcode={passcode}
+              email={email}
+              addScheduleCodeResult={addScheduleCodeResult}
+              disabled={!checkStepAvailable(STEPS.addScheduleCode)}
+              setPasscodeName={setPasscodeName}
+              setPasscode={setPasscode}
+              setEmail={setEmail}
+              onStartTimeChange={e => {
+                const timestamp = new Date(e.target.value).getTime() / 1000;
+                setStartTime(timestamp);
+              }}
+              onEndTimeChange={e => {
+                const timestamp = new Date(e.target.value).getTime() / 1000;
+                setEndTime(timestamp);
+              }}
+              createSchudlePasscode={() => {
+                createSchudlePasscode(
+                  deviceId,
+                  passcodeName,
+                  passcode,
+                  email,
+                  startTime,
+                  endTime,
+                );
+              }}
+            />
+            <DeletePasscode
+              deviceId={deviceId}
+              passcodeId={passcodeId}
+              passcode={passcode}
+              deleteScheduleCodeResult={deleteScheduleCodeResult}
+              disabled={!checkStepAvailable(STEPS.deletePasscode)}
+              setPasscodeId={setPasscodeId}
+              setPasscode={setPasscode}
+              deletePasscode={() => {
+                deletePasscode(deviceId, passcodeId, passcode);
+              }}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
+  const renderLockStatusTab = () => {
+    let show = isCurrentTab(TABS.lockStatus);
+    return (
+      <>
+        {show && (
+          <>
+            <UpdateLockStatus
+              deviceId={deviceId}
+              isUpdatedStatus={isUpdatedStatus}
+              disabled={!checkStepAvailable(STEPS.updateStatus)}
+              updateStatus={updateStatus}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
   const getAccessToken = (appId, appSecret, code) => {
+    setIsApiProcessing(true);
     const params = {
       app_id: appId,
       app_secret: appSecret,
@@ -68,238 +266,71 @@ const APP = () => {
       },
       body: query,
     })
-      .then(response => response.text())
-      .then(res => {
-        setApiToken(res);
+      .then(response => {
+        if (response.status === STATUS_CODE.STATUS_CODE_200_SUCCESS) {
+          return response.text();
+        } else {
+          return EMPTY_STRING;
+        }
+      })
+      .then(token => {
+        if (token !== EMPTY_STRING) {
+          setApiToken(token);
+          setGetTokenResult(token);
+        } else {
+          setApiToken(EMPTY_STRING);
+          setGetTokenResult(API_RESULT.fail.msg);
+        }
+        setIsApiProcessing(false);
       });
-  };
-
-  const renderOauth = () => {
-    return (
-      <>
-        <h2>Use Oauth 2.0 to get access token</h2>
-        <h3>Authorization URL</h3>
-        <div className="code">
-          service.skywatch24.com/oauth2?app_id='app_ip'&redirect_uri='redirect_uri'
-        </div>
-        <p />
-        When user grants authorization,the page will redirect to the
-        `redirect_url` and contain `code` in the url.
-        <p />
-        <button onClick={() => window.open(oauth_url)}>Login</button>
-        <h4>Authorization Code</h4>
-        <div className="code">{oauthCode}</div>
-        <h3>Exchange Access Token with Authorization code</h3>
-        <div className="code">
-          curl -X "POST"
-          "https://service.skywatch24.com/api/general/oauth_access_token.php" \
-          <br /> -H 'Content-Type:application/x-www-form-urlencoded;' \
-          <br /> --data-urlencode "app_id=xxxx" \
-          <br /> --data-urlencode "app_secret=xxxx" \
-          <br /> --data-urlencode "code=xxxx" \
-          <br /> --data-urlencode "method_type=POST"
-        </div>
-        <button onClick={() => getAccessToken(APP_ID, APP_SECRET, oauthCode)}>
-          Get Access Token
-        </button>
-        <h4>Access Token</h4>
-        <div className="code">{apiToken}</div>
-        <h3>Flow Chart</h3>
-        <img src={oauthImg} alt="Background" width="609" height="374" />
-        <br />
-      </>
-    );
   };
 
   const initToken = (url, token) => {
-    //Skywatch.initialize(url, 'OAUTH2-B942B9CBEB214C1228B65A79D4D14219');
-    Skywatch.initialize(url, token);
-    setIsInitStatus('success!');
-
-    //Lock.getQRcodeList().then(data => console.log(data));
-  };
-
-  const renderInitToken = () => {
-    return (
-      <>
-        <h2>Initialize</h2>
-        <div className="code">
-          import Skywatch from '@skywatch/js';
-          <br />
-          Skywatch.initialize('https://service.skywatch24.com/api/v2', 'token');
-        </div>
-        <label htmlFor="token">Enter a token:</label>
-        <br />
-        <input
-          name="token"
-          type="text"
-          value={apiToken}
-          onChange={e => setApiToken(e.target.value)}
-        />
-        <br />
-        <br />
-        <button onClick={() => initToken(server_url, apiToken)}>
-          Initialize
-        </button>
-        <h4>Result</h4>
-        <div className="code">{isInitStatus}</div>
-      </>
-    );
+    setIsApiProcessing(true);
+    if (url !== EMPTY_STRING && token !== EMPTY_STRING) {
+      Skywatch.initialize(url, token);
+      setIsInitStatus(API_RESULT.success.msg);
+      setIsApiProcessing(false);
+    } else {
+      setIsInitStatus(API_RESULT.fail.msg);
+      setIsApiProcessing(false);
+    }
   };
 
   const getDeviceList = () => {
+    setIsApiProcessing(true);
     Device.getInfo().then(data => {
       setDeviceList(data);
+      setIsApiProcessing(false);
     });
-  };
-
-  const renderDeviceList = () => {
-    return (
-      <>
-        <h3>Device List</h3>
-        <div className="code">Skywatch.Device.getInfo();</div>
-        <button onClick={() => getDeviceList()}>Get Device List</button>
-        <h4>Result</h4>
-        <JSONPretty className="code" data={deviceList}></JSONPretty>
-      </>
-    );
-  };
-
-  const renderDeviceInput = () => {
-    return (
-      <>
-        <h3>Door Lock:</h3>
-        <label htmlFor="device_id">Enter your device id:</label>
-        <br />
-        <input
-          name="device_id"
-          type="text"
-          value={deviceId}
-          onChange={e => setDeviceId(e.target.value)}
-        />
-      </>
-    );
   };
 
   const getLockInfo = deviceId => {
+    setIsApiProcessing(true);
     Lock.getInfo(deviceId).then(data => {
       setStatusInfo(data);
+      setIsApiProcessing(false);
     });
-  };
-
-  const renderLockInfo = () => {
-    return (
-      <>
-        <h4>Lock Info</h4>
-        <div className="code">Skywatch.Lock.getInfo(deviceId);</div>
-        <button onClick={() => getLockInfo(deviceId)}>Get Lock Info</button>
-        <h4>Result</h4>
-        <JSONPretty className="code" data={statusInfo}></JSONPretty>
-      </>
-    );
   };
 
   const getPasscodeList = deviceId => {
+    setIsApiProcessing(true);
     Lock.getPasscodeList(deviceId).then(data => {
       setPasscodeList(data);
+      setIsApiProcessing(false);
     });
-  };
-
-  const renderPasscodeList = () => {
-    return (
-      <>
-        <h4>Passcode List</h4>
-        <div className="code">Skywatch.Lock.getPasscodeList(deviceId);</div>
-        <button onClick={() => getPasscodeList(deviceId)}>
-          Get Passcode List
-        </button>
-        <h4>Result</h4>
-        <JSONPretty className="code" data={passcodeList}></JSONPretty>
-      </>
-    );
-  };
-
-  const updateStatus = (deviceId, status) => {
-    Lock.updateStatus(deviceId, status)
-      .then(data => {
-        console.log(data);
-        setIsUpdateStatus('success!');
-      })
-      .catch(err => {
-        console.log(err);
-        setIsUpdateStatus('failed!');
-      });
-  };
-
-  const renderUpdateStatus = () => {
-    return (
-      <>
-        <h4>Update Lock Status</h4>
-        <div className="code">
-          Skywatch.Lock.updateStatus(deviceId, status);
-        </div>
-        <button onClick={() => updateStatus(deviceId, '1')}>Lock</button>
-        <button onClick={() => updateStatus(deviceId, '0')}>Unlock</button>
-        <h4>Result</h4>
-        <div className="code">{isUpdatedStatus}</div>
-      </>
-    );
   };
 
   const createAlwaysPasscode = (deviceId, name, passcode, email) => {
+    setIsApiProcessing(true);
     Lock.createAlwaysPasscode(deviceId, name, passcode, email).then(data => {
-      setPasscode('');
-      setPasscodeName('');
-      setEmail('');
-      setPasscodeList(data.data);
+      if (data.result === API_RESULT.success.value) {
+        setAddAlwaysCodeResult(data.data);
+      } else {
+        setAddAlwaysCodeResult(data.data + '\n' + data.message);
+      }
+      setIsApiProcessing(false);
     });
-  };
-
-  const renderAddAlwaysCode = () => {
-    return (
-      <>
-        <h4>Add Always Passcode</h4>
-        <div className="code">
-          Skywatch.Lock.createAlwaysPasscde(deviceId, name, email, passcode);
-        </div>
-        <label htmlFor="passcode-name">Passcode name:</label>
-        <br />
-        <input
-          name="passcode-name"
-          value={passcodeName}
-          type="text"
-          onChange={e => setPasscodeName(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="passcode">Passcode (4 - 8 digits):</label>
-        <br />
-        <input
-          name="passcode"
-          type="text"
-          value={passcode}
-          onChange={e => setPasscode(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="email">Email:</label>
-        <br />
-        <input
-          name="email"
-          type="text"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-        <br />
-        <br />
-        <button
-          onClick={() => {
-            createAlwaysPasscode(deviceId, passcodeName, passcode, email);
-          }}>
-          Create Passcode
-        </button>
-      </>
-    );
   };
 
   const createSchudlePasscode = (
@@ -310,6 +341,7 @@ const APP = () => {
     startTime,
     endTime,
   ) => {
+    setIsApiProcessing(true);
     Lock.createSchudlePasscode(
       deviceId,
       name,
@@ -318,147 +350,62 @@ const APP = () => {
       endTime,
       email,
     ).then(data => {
-      setPasscode('');
-      setPasscodeName('');
-      setEmail('');
-      setPasscodeList(data.data);
+      if (data.result === API_RESULT.success.value) {
+        setAddScheduleCodeResult(data.data);
+      } else {
+        setAddScheduleCodeResult(data.data + '\n' + data.message);
+      }
+      setIsApiProcessing(false);
     });
-  };
-
-  const renderAddScheduleCode = () => {
-    return (
-      <>
-        <h4>Add Schedule Passcode</h4>
-        <div className="code">
-          Skywatch.Lock.createSchudlePasscode(deviceId, name, email, passcode,
-          startTime, endTime);
-        </div>
-        <label htmlFor="passcode-name">Passcode name:</label>
-        <br />
-        <input
-          name="passcode-name"
-          value={passcodeName}
-          type="text"
-          onChange={e => setPasscodeName(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="passcode">Passcode (4 - 8 digits):</label>
-        <br />
-        <input
-          name="passcode"
-          type="text"
-          value={passcode}
-          onChange={e => setPasscode(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="email">Email:</label>
-        <br />
-        <input
-          name="email"
-          type="text"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="start">Choose a start time:</label>
-        <br />
-        <input
-          type="datetime-local"
-          name="start"
-          onChange={e => {
-            const timestamp = new Date(e.target.value).getTime() / 1000;
-            setStartTime(timestamp);
-          }}></input>
-        <br />
-        <br />
-        <label htmlFor="end">Choose a end time:</label>
-        <br />
-        <input
-          type="datetime-local"
-          name="end"
-          onChange={e => {
-            const timestamp = new Date(e.target.value).getTime() / 1000;
-            setEndTime(timestamp);
-          }}></input>
-        <br />
-        <br />
-        <button
-          onClick={() => {
-            createSchudlePasscode(
-              deviceId,
-              passcodeName,
-              passcode,
-              email,
-              startTime,
-              endTime,
-            );
-          }}>
-          Create Passcode
-        </button>
-      </>
-    );
   };
 
   const deletePasscode = (deviceId, passcodeId, passcode) => {
+    setIsApiProcessing(true);
     Lock.deletePasscode(deviceId, passcodeId, passcode).then(data => {
-      setPasscode('');
-      setPasscodeId('');
-      setPasscodeList(data.data);
+      if (data.result === API_RESULT.success.value) {
+        setDeleteScheduleCodeResult(data.data);
+      } else {
+        setDeleteScheduleCodeResult(data.data + '\n' + data.message);
+      }
+      setIsApiProcessing(false);
     });
   };
 
-  const renderDeletePasscode = () => {
-    return (
-      <>
-        <h4>Delete Passcode</h4>
-        <div className="code">
-          Skywatch.Lock.deletePasscode = (deviceId, passcodeId, passcode);
-        </div>
-        <label htmlFor="passcode-id">Passcode id:</label>
-        <br />
-        <input
-          name="passcode-id"
-          value={passcodeId}
-          type="text"
-          onChange={e => setPasscodeId(e.target.value)}
-        />
-        <br />
-        <br />
-        <label htmlFor="passcode">Passcode:</label>
-        <br />
-        <input
-          name="passcode"
-          type="text"
-          value={passcode}
-          onChange={e => setPasscode(e.target.value)}
-        />
-        <br />
-        <br />
-        <button
-          onClick={() => {
-            deletePasscode(deviceId, passcodeId, passcode);
-          }}>
-          Delete Passcode
-        </button>
-      </>
-    );
+  const updateStatus = (deviceId, status) => {
+    setIsApiProcessing(true);
+    Lock.updateStatus(deviceId, status)
+      .then(data => {
+        console.log(data);
+        setIsApiProcessing(false);
+        setIsUpdateStatus(API_RESULT.success.msg);
+      })
+      .catch(err => {
+        setIsApiProcessing(false);
+        setIsUpdateStatus(API_RESULT.fail.msg + err);
+      });
+  };
+
+  const scrollToTop = () => {
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
   };
 
   return (
     <>
-      {renderOauth()}
-      {renderInitToken()}
-      {renderDeviceList()}
-      {renderDeviceInput()}
-      {renderLockInfo()}
-      {renderPasscodeList()}
-      {renderAddAlwaysCode()}
-      {renderAddScheduleCode()}
-      {renderDeletePasscode()}
-      {renderUpdateStatus()}
+      <MuiTabs
+        tabs={TABS}
+        selectedTabIndex={selectedTabIndex}
+        onSelectedTabChanged={index => {
+          setSelectedTabIndex(index);
+          scrollToTop();
+        }}
+      />
+      <TabContainer>
+        {renderOAuthTab()}
+        {renderDevicesTab()}
+        {renderLockPasscodeTab()}
+        {renderLockStatusTab()}
+      </TabContainer>
     </>
   );
 };
