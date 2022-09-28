@@ -3,6 +3,7 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
@@ -148,6 +149,7 @@ let Skywatch = {
 };
 const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   const now = Math.floor(new Date().getTime() / 1000);
+  const deviceIdRef = useRef();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(true);
@@ -176,8 +178,9 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
   );
 
   useEffect(() => {
-    init();
-  }, []);
+    deviceIdRef.current = deviceId;
+    reloadPlayer();
+  }, [deviceId]);
 
   useEffect(() => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
@@ -207,7 +210,11 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     isLive: () => isLive,
   }));
 
-  const init = () => {
+  const reloadPlayer = () => {
+    setIsLive(true);
+    setArchive(null);
+    setLoading(true);
+    Skywatch.archives = [];
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(
       () => {
@@ -323,11 +330,14 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     setRightTimestamp(end);
   };
 
-  const fetchAllInterval = function(deviceId, scope, archives) {
+  const fetchAllInterval = function(id, scope, archives) {
+    if (id !== deviceIdRef.current) {
+      return;
+    }
     const deferred = $.Deferred();
     const now = Math.floor(new Date().getTime() / 1000);
 
-    Requests.getCacheTime(now, deviceId).then(res => {
+    Requests.getCacheTime(now, id).then(res => {
       if (res.timestamp) {
         setCacheTime(parseInt(res.timestamp, 10));
       } else {
@@ -337,7 +347,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     });
     const current_timestamp = Math.round(new Date().getTime() / 1000);
     fetchNextInterval(
-      deviceId,
+      id,
       scope,
       archives,
       deferred,
@@ -350,7 +360,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
 
   // TODO: get next archive video in advance
   const fetchNextInterval = async function(
-    deviceId,
+    id,
     scope,
     archives,
     deferred,
@@ -358,6 +368,9 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
     start_timestamp = false,
     next_url = false,
   ) {
+    if (id !== deviceIdRef.current) {
+      return;
+    }
     const one_month_sec = 86400 * 30;
 
     let temp_archives_start_time = 0;
@@ -388,7 +401,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
 
     try {
       const {data} = await Requests.getArchivesByRange(
-        deviceId,
+        id,
         scope,
         temp_archives_start_time,
         temp_archives_end_time,
@@ -407,7 +420,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
         Skywatch._current_clould_archive_request_timer = setTimeout(function() {
           if (typeof data.next_url !== 'undefined') {
             fetchNextInterval(
-              deviceId,
+              id,
               scope,
               archives,
               deferred,
@@ -416,7 +429,7 @@ const CameraView = forwardRef(({deviceId, renderLoading, controls}, ref) => {
               data.next_url,
             );
           } else {
-            fetchNextInterval(deviceId, scope, archives, deferred);
+            fetchNextInterval(id, scope, archives, deferred);
           }
         }, 1000);
         return deferred;

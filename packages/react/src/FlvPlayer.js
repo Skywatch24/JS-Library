@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import flvjs from 'flv.js';
 import {Requests} from '@skywatch/api';
@@ -12,37 +12,47 @@ const FlvPlayer = ({
   onReady,
 }) => {
   const containerRef = useRef(null);
+  const [player, setPlayer] = useState(null);
   useEffect(() => {
-    const initPlayer = async () => {
-      const res = await Requests.getFlvStream(deviceId);
-      if (res.data && flvjs.isSupported() && containerRef.current) {
-        const videoEl = containerRef.current.querySelector('video');
-        const flvPlayer = flvjs.createPlayer({
-          type: 'flv',
-          url: res.data,
-          config: {
-            enableWorker: true,
-            enableStashBuffer: false,
-            stashInitialSize: 128,
-          },
-        });
-        flvPlayer.attachMediaElement(videoEl);
-        flvPlayer.load();
-        flvPlayer.play().then(() => onReady());
-        flvPlayer.on(flvjs.Events.ERROR, (errType, errDetail) => {
-          console.log(errType, errDetail);
-        });
+    if (deviceId !== '') {
+      initPlayer();
+    }
+  }, [deviceId]);
 
-        onPlayerInit && onPlayerInit(flvPlayer);
-      }
-      return () => {
-        onPlayerDispose && onPlayerDispose(null);
-        flvPlayer.destroy();
-      };
+  const initPlayer = async () => {
+    if (player) {
+      onPlayerDispose && onPlayerDispose(null);
+      player.destroy();
+      setPlayer(null);
+    }
+    const res = await Requests.getFlvStream(deviceId);
+    if (res.data && flvjs.isSupported() && containerRef.current) {
+      const videoEl = containerRef.current.querySelector('video');
+      const flvPlayer = flvjs.createPlayer({
+        type: 'flv',
+        url: res.data,
+        config: {
+          enableWorker: true,
+          enableStashBuffer: false,
+          stashInitialSize: 128,
+        },
+      });
+      flvPlayer.attachMediaElement(videoEl);
+      flvPlayer.load();
+      flvPlayer.play().then(() => onReady());
+      flvPlayer.on(flvjs.Events.ERROR, (errType, errDetail) => {
+        console.log(errType, errDetail);
+      });
+
+      setPlayer(flvPlayer);
+      onPlayerInit && onPlayerInit(flvPlayer);
+    }
+    return () => {
+      onPlayerDispose && onPlayerDispose(null);
+      flvPlayer.destroy();
+      setPlayer(null);
     };
-
-    initPlayer();
-  }, []);
+  };
 
   return (
     <div className="player" ref={containerRef}>
