@@ -16,6 +16,18 @@ export const APP_SECRET = 'DB419E28FC3BD38C7F577291A576E8E2';
 
 export const oauth_url = `https://service.skywatch24.com/oauth2?app_id=${APP_ID}&redirect_uri=${redirect_uri}`;
 
+export const DEVICE_TYPE = {
+  gateway: 'gateway',
+  sensor: 'sensor',
+  camera: 'camera',
+};
+export const MODEL_IDS_LOCK = {
+  63: 'door_lock',
+  83: 'power_lock_up_to_lock',
+  84: 'power_lock_up_to_unlock',
+  97: 'card_reader',
+};
+
 export const EMPTY_STRING = '';
 
 export const STATUS_CODE = {
@@ -37,6 +49,8 @@ export const STEPS = {
   addScheduleCode: {key: 'addScheduleCode'},
   deletePasscode: {key: 'deletePasscode'},
   updateStatus: {key: 'updateStatus'},
+  cameraInfo: {key: 'cameraInfo'},
+  reactCameraView: {key: 'reactCameraView'},
 };
 
 export const TABS = {
@@ -59,5 +73,10 @@ export const TABS = {
     index: 3,
     name: 'Lock Status',
     title: "Update lock's status",
+  },
+  camera: {
+    index: 4,
+    name: 'Camera',
+    title: 'Camera stream',
   },
 };

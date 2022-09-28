@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import JSONPretty from 'react-json-pretty';
 import {
@@ -9,8 +9,9 @@ import {
   Result,
   MuiAutocomplete,
 } from '../components';
+import {DEVICE_TYPE, MODEL_IDS_LOCK} from '../utils/constants';
 
-const DeviceInfo = ({
+const DeviceInfoLock = ({
   deviceList,
   deviceId,
   statusInfo,
@@ -18,6 +19,18 @@ const DeviceInfo = ({
   setDeviceId,
   getLockInfo,
 }) => {
+  const [lockList, setLockList] = useState([]);
+
+  useEffect(() => {
+    setLockList(
+      deviceList.filter(
+        device =>
+          device.device_type === DEVICE_TYPE.sensor &&
+          MODEL_IDS_LOCK[device.model_id],
+      ),
+    );
+  }, [deviceList]);
+
   const getOptionLabel = device => {
     return 'id:' + device.id + ', name:' + device.name;
   };
@@ -29,7 +42,7 @@ const DeviceInfo = ({
       <MuiAutocomplete
         id="device-list"
         label="Slect a lock device"
-        options={deviceList}
+        options={lockList}
         value={deviceId}
         getOptionLabel={getOptionLabel}
         onChange={(evevnt, value, reason) => setDeviceId(value.id)}
@@ -44,7 +57,7 @@ const DeviceInfo = ({
   );
 };
 
-DeviceInfo.defaultProps = {
+DeviceInfoLock.defaultProps = {
   deviceList: [],
   deviceId: '',
   statusInfo: {},
@@ -53,7 +66,7 @@ DeviceInfo.defaultProps = {
   getLockInfo: () => {},
 };
 
-DeviceInfo.propTypes = {
+DeviceInfoLock.propTypes = {
   deviceList: PropTypes.array.isRequired,
   deviceId: PropTypes.string.isRequired,
   statusInfo: PropTypes.object.isRequired,
@@ -62,4 +75,4 @@ DeviceInfo.propTypes = {
   getLockInfo: PropTypes.func.isRequired,
 };
 
-export {DeviceInfo};
+export {DeviceInfoLock};

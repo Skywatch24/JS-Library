@@ -6,12 +6,14 @@ import {
   GetToken,
   InitToken,
   DeviceList,
-  DeviceInfo,
+  DeviceInfoLock,
   GetPasscodes,
   AddAlwaysPasscode,
   AddSchedulePasscode,
   DeletePasscode,
   UpdateLockStatus,
+  DeviceInfoCamera,
+  ReactCameraView,
 } from './steps';
 import {
   oauth_url,
@@ -34,6 +36,8 @@ const APP = () => {
   const [apiToken, setApiToken] = useState(EMPTY_STRING);
   const [deviceId, setDeviceId] = useState(EMPTY_STRING);
   const [statusInfo, setStatusInfo] = useState({});
+  const [cameraId, setCameraId] = useState(EMPTY_STRING);
+  const [cameraStatusInfo, setCameraStatusInfo] = useState({});
   const [deviceList, setDeviceList] = useState([]);
   const [passcodeList, setPasscodeList] = useState([]);
   const [addAlwaysCodeResult, setAddAlwaysCodeResult] = useState([]);
@@ -95,6 +99,13 @@ const APP = () => {
           isInitStatus === API_RESULT.success.msg &&
           deviceId !== EMPTY_STRING
         );
+      case STEPS.cameraInfo.key:
+      case STEPS.reactCameraView.key:
+        return (
+          apiToken !== EMPTY_STRING &&
+          isInitStatus === API_RESULT.success.msg &&
+          cameraId !== EMPTY_STRING
+        );
       default:
         return true;
     }
@@ -141,7 +152,7 @@ const APP = () => {
               disabled={!checkStepAvailable(STEPS.deviceList)}
               getDeviceList={getDeviceList}
             />
-            <DeviceInfo
+            <DeviceInfoLock
               deviceList={deviceList}
               deviceId={deviceId}
               statusInfo={statusInfo}
@@ -239,6 +250,30 @@ const APP = () => {
               isUpdatedStatus={isUpdatedStatus}
               disabled={!checkStepAvailable(STEPS.updateStatus)}
               updateStatus={updateStatus}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
+  const renderReactCameraComponents = () => {
+    let show = isCurrentTab(TABS.camera);
+    return (
+      <>
+        {show && (
+          <>
+            <DeviceInfoCamera
+              deviceList={deviceList}
+              cameraId={cameraId}
+              statusInfo={cameraStatusInfo}
+              disabled={!checkStepAvailable(STEPS.cameraInfo)}
+              setCameraId={setCameraId}
+              getCameraInfo={getCameraInfo}
+            />
+            <ReactCameraView
+              cameraId={cameraId}
+              disabled={!checkStepAvailable(STEPS.reactCameraView)}
             />
           </>
         )}
@@ -385,6 +420,14 @@ const APP = () => {
       });
   };
 
+  const getCameraInfo = cameraId => {
+    setIsApiProcessing(true);
+    Lock.getInfo(cameraId).then(data => {
+      setCameraStatusInfo(data);
+      setIsApiProcessing(false);
+    });
+  };
+
   const scrollToTop = () => {
     document.body.scrollTop = 0; // For Safari
     document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -405,6 +448,7 @@ const APP = () => {
         {renderDevicesTab()}
         {renderLockPasscodeTab()}
         {renderLockStatusTab()}
+        {renderReactCameraComponents()}
       </TabContainer>
     </>
   );
