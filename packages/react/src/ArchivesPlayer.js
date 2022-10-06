@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import videojs from 'video.js';
 import PropTypes from 'prop-types';
 import 'video.js/dist/video-js.min.css';
@@ -26,42 +26,54 @@ const ArchivesPlayer = ({
   onReady,
 }) => {
   const containerRef = useRef(null);
+  const [player, setPlayer] = useState(null);
+  const [lastArchiveId, setLastArchiveId] = useState('');
 
   useEffect(() => {
-    const initPlayer = async () => {
-      const res = await Requests.getArchives(
-        deviceId,
-        archiveId,
-        smart_ff.toString(),
-      );
-      if (res.data && containerRef.current) {
-        const videoEl = containerRef.current.querySelector('video');
-        const player = videojs(videoEl, {
-          ...defaultPlayerOptions,
-          ...playerOptions,
-          sources: [
-            {
-              src: res.data,
-            },
-          ],
-        });
+    if (deviceId !== '' && archiveId !== lastArchiveId) {
+      initPlayer();
+      setLastArchiveId(archiveId);
+    }
+  }, [deviceId, onPlayerInit, onPlayerDispose, playerOptions, archiveId, seek]);
 
-        player.currentTime(seek);
+  const initPlayer = async () => {
+    if (player) {
+      onPlayerDispose && onPlayerDispose(null);
+      player.dispose();
+      setPlayer(null);
+    }
+    const res = await Requests.getArchives(
+      deviceId,
+      archiveId,
+      smart_ff.toString(),
+    );
+    if (res.data && containerRef.current) {
+      const videoEl = containerRef.current.querySelector('video');
+      const videojsPlayer = videojs(videoEl, {
+        ...defaultPlayerOptions,
+        ...playerOptions,
+        sources: [
+          {
+            src: res.data,
+          },
+        ],
+      });
 
-        onPlayerInit && onPlayerInit(player);
+      videojsPlayer.currentTime(seek);
 
-        // // for debug purpose
-        // window.player = player;
+      onPlayerInit && onPlayerInit(videojsPlayer);
+      setPlayer(videojsPlayer);
 
-        return () => {
-          onPlayerDispose && onPlayerDispose(null);
-          player.dispose();
-        };
-      }
-    };
+      // // for debug purpose
+      // window.player = videojsPlayer;
 
-    initPlayer();
-  }, [onPlayerInit, onPlayerDispose, playerOptions, archiveId, seek]);
+      return () => {
+        onPlayerDispose && onPlayerDispose(null);
+        videojsPlayer.dispose();
+        setPlayer(null);
+      };
+    }
+  };
 
   return (
     <div className="player" ref={containerRef}>
