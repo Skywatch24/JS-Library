@@ -71,6 +71,24 @@ const getFlvStream = async deviceId => {
   return res;
 };
 
+const getHlsStream = async deviceId => {
+  const dateTime = Date.now();
+  const timestamp = Math.floor(dateTime / 1000);
+  const params = {
+    lang: coreManager.get(LANG_SELECTOR),
+    warnup: 1,
+    _: timestamp,
+  };
+  const res = await axios.get(
+    `${coreManager.get(SERVER_URL)}/cameras/${deviceId}/hlsstream`,
+    {
+      params: getAuthParams(params),
+    },
+  );
+
+  return res;
+};
+
 const getArchivesByRange = async (deviceId, scope, start_time, end_time) => {
   const params = {
     scope,
@@ -282,6 +300,7 @@ const deleteQRcodeAccess = async sharingUid => {
 module.exports = {
   getArchives,
   getFlvStream,
+  getHlsStream,
   getArchivesByRange,
   getCacheTime,
   getSensorStatus,

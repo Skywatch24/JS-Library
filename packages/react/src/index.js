@@ -1,5 +1,6 @@
 import ArchivesPlayer from './ArchivesPlayer';
 import FlvPlayer from './FlvPlayer';
+import HlsPlayer from './HlsPlayer';
 import CameraView from './CameraView';
 import {CameraViewWebComponent} from './web-components';
 import {CoreManager, Constants} from '@skywatch/api';
@@ -15,6 +16,7 @@ export {
   initialize,
   ArchivesPlayer,
   FlvPlayer,
+  HlsPlayer,
   CameraView,
   CameraViewWebComponent,
 };
