@@ -1,11 +1,11 @@
 "use strict";
 
-require("core-js/modules/web.dom-collections.iterator.js");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+require("core-js/modules/web.dom-collections.iterator.js");
 
 require("core-js/modules/es.promise.js");
 
@@ -19,11 +19,11 @@ var _api = require("@skywatch/api");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-const FlvPlayer = _ref => {
+const FlvPlayer = (_ref) => {
   let {
     deviceId,
     onPlayerInit,
@@ -33,40 +33,52 @@ const FlvPlayer = _ref => {
     onReady
   } = _ref;
   const containerRef = (0, _react.useRef)(null);
+  const [player, setPlayer] = (0, _react.useState)(null);
   (0, _react.useEffect)(() => {
-    const initPlayer = async () => {
-      const res = await _api.Requests.getFlvStream(deviceId);
+    if (deviceId !== '') {
+      initPlayer();
+    }
+  }, [deviceId]);
 
-      if (res.data && _flv.default.isSupported() && containerRef.current) {
-        const videoEl = containerRef.current.querySelector('video');
+  const initPlayer = async () => {
+    if (player) {
+      onPlayerDispose && onPlayerDispose(null);
+      player.destroy();
+      setPlayer(null);
+    }
 
-        const flvPlayer = _flv.default.createPlayer({
-          type: 'flv',
-          url: res.data,
-          config: {
-            enableWorker: true,
-            enableStashBuffer: false,
-            stashInitialSize: 128
-          }
-        });
+    const res = await _api.Requests.getFlvStream(deviceId);
 
-        flvPlayer.attachMediaElement(videoEl);
-        flvPlayer.load();
-        flvPlayer.play().then(() => onReady());
-        flvPlayer.on(_flv.default.Events.ERROR, (errType, errDetail) => {
-          console.log(errType, errDetail);
-        });
-        onPlayerInit && onPlayerInit(flvPlayer);
-      }
+    if (res.data && _flv.default.isSupported() && containerRef.current) {
+      const videoEl = containerRef.current.querySelector('video');
 
-      return () => {
-        onPlayerDispose && onPlayerDispose(null);
-        flvPlayer.destroy();
-      };
+      const flvPlayer = _flv.default.createPlayer({
+        type: 'flv',
+        url: res.data,
+        config: {
+          enableWorker: true,
+          enableStashBuffer: false,
+          stashInitialSize: 128
+        }
+      });
+
+      flvPlayer.attachMediaElement(videoEl);
+      flvPlayer.load();
+      flvPlayer.play().then(() => onReady());
+      flvPlayer.on(_flv.default.Events.ERROR, (errType, errDetail) => {
+        console.log(errType, errDetail);
+      });
+      setPlayer(flvPlayer);
+      onPlayerInit && onPlayerInit(flvPlayer);
+    }
+
+    return () => {
+      onPlayerDispose && onPlayerDispose(null);
+      flvPlayer.destroy();
+      setPlayer(null);
     };
+  };
 
-    initPlayer();
-  }, []);
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "player",
     ref: containerRef

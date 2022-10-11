@@ -13,8 +13,6 @@ require("core-js/modules/es.array.sort.js");
 
 require("core-js/modules/es.promise.js");
 
-require("core-js/modules/es.regexp.exec.js");
-
 require("core-js/modules/es.string.split.js");
 
 var _react = _interopRequireWildcard(require("react"));
@@ -37,11 +35,11 @@ var _Constants = require("./Constants");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -171,6 +169,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     controls
   } = _ref;
   const now = Math.floor(new Date().getTime() / 1000);
+  const deviceIdRef = (0, _react.useRef)();
   const [player, setPlayer] = (0, _react.useState)(null);
   const [loading, setLoading] = (0, _react.useState)(true);
   const [_isLive, setIsLive] = (0, _react.useState)(true);
@@ -193,8 +192,9 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
   const [cacheTime, setCacheTime] = (0, _react.useState)(0);
   const isVisible = (0, _hooks.usePageVisibility)(() => document.hidden ? onBlur() : onFocus());
   (0, _react.useEffect)(() => {
-    init();
-  }, []);
+    deviceIdRef.current = deviceId;
+    reloadPlayer();
+  }, [deviceId]);
   (0, _react.useEffect)(() => {
     onChangeTimeAndScale(scale, leftTimestamp, rightTimestamp);
   }, [scale, leftTimestamp, rightTimestamp]);
@@ -219,7 +219,11 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     isLive: () => _isLive
   }));
 
-  const init = () => {
+  const reloadPlayer = () => {
+    setIsLive(true);
+    setArchive(null);
+    setLoading(true);
+    Skywatch.archives = [];
     renderScaleIndicator();
     fetchAllInterval(deviceId, 'CloudArchives', Skywatch.archives).progress(() => {
       if (controls) {
@@ -324,12 +328,16 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     setRightTimestamp(end);
   };
 
-  const fetchAllInterval = function fetchAllInterval(deviceId, scope, archives) {
+  const fetchAllInterval = function fetchAllInterval(id, scope, archives) {
+    if (id !== deviceIdRef.current) {
+      return;
+    }
+
     const deferred = _jquery.default.Deferred();
 
     const now = Math.floor(new Date().getTime() / 1000);
 
-    _api.Requests.getCacheTime(now, deviceId).then(res => {
+    _api.Requests.getCacheTime(now, id).then(res => {
       if (res.timestamp) {
         setCacheTime(parseInt(res.timestamp, 10));
       } else {
@@ -340,15 +348,20 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     });
 
     const current_timestamp = Math.round(new Date().getTime() / 1000);
-    fetchNextInterval(deviceId, scope, archives, deferred, current_timestamp, false, false);
+    fetchNextInterval(id, scope, archives, deferred, current_timestamp, false, false);
     return deferred;
   }; // TODO: get next archive video in advance
 
 
-  const fetchNextInterval = async function fetchNextInterval(deviceId, scope, archives, deferred) {
+  const fetchNextInterval = async function fetchNextInterval(id, scope, archives, deferred) {
     let end_timestamp = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     let start_timestamp = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
     let next_url = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
+
+    if (id !== deviceIdRef.current) {
+      return;
+    }
+
     const one_month_sec = 86400 * 30;
     let temp_archives_start_time = 0;
     let temp_archives_end_time = 0;
@@ -380,7 +393,7 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     try {
       const {
         data
-      } = await _api.Requests.getArchivesByRange(deviceId, scope, temp_archives_start_time, temp_archives_end_time);
+      } = await _api.Requests.getArchivesByRange(id, scope, temp_archives_start_time, temp_archives_end_time);
 
       if (data.stop === 'true') {
         if (scope == 'CloudArchives') {
@@ -395,9 +408,9 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
         Skywatch.archives = [...Skywatch.archives, ...data.archives];
         Skywatch._current_clould_archive_request_timer = setTimeout(function () {
           if (typeof data.next_url !== 'undefined') {
-            fetchNextInterval(deviceId, scope, archives, deferred, false, false, data.next_url);
+            fetchNextInterval(id, scope, archives, deferred, false, false, data.next_url);
           } else {
-            fetchNextInterval(deviceId, scope, archives, deferred);
+            fetchNextInterval(id, scope, archives, deferred);
           }
         }, 1000);
         return deferred;
@@ -919,8 +932,8 @@ const CameraView = /*#__PURE__*/(0, _react.forwardRef)((_ref, ref) => {
     if (typeof archive.length === 'undefined' // &&
     // this._camera.get('model_id') == '61'
     ) {
-      length = 60;
-    } else {
+        length = 60;
+      } else {
       length = parseInt(archive.length);
     }
 
