@@ -1487,8 +1487,8 @@ const CameraView = forwardRef(
             {loading && renderLoading()}
             {isVisible &&
               (isLive ? (
-                streamType === STREAM_TYPE.flv ? (
-                  <FlvPlayer
+                streamType === STREAM_TYPE.hls ? (
+                  <HlsPlayer
                     key={liveCounter}
                     deviceId={deviceId}
                     onPlayerInit={setPlayer}
@@ -1498,7 +1498,7 @@ const CameraView = forwardRef(
                     controls={false}
                   />
                 ) : (
-                  <HlsPlayer
+                  <FlvPlayer
                     key={liveCounter}
                     deviceId={deviceId}
                     onPlayerInit={setPlayer}
@@ -1664,7 +1664,7 @@ CameraView.defaultProps = {
 
 CameraView.propTypes = {
   deviceId: PropTypes.string.isRequired,
-  streamType: PropTypes.string.isRequired,
+  streamType: PropTypes.string,
   renderLoading: PropTypes.func,
   controls: PropTypes.bool,
 };
