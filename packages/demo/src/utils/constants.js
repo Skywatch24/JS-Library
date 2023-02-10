@@ -26,6 +26,7 @@ export const MODEL_IDS_LOCK = {
   83: 'power_lock_up_to_lock',
   84: 'power_lock_up_to_unlock',
   97: 'card_reader',
+  99: 'card_reader_with_sensor',
 };
 
 export const EMPTY_STRING = '';
