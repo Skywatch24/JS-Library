@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef} from 'react';
 import PropTypes from 'prop-types';
 import {CameraView} from '@skywatch/react';
 import {StepContainer, Subtitle, Description} from '../components';
