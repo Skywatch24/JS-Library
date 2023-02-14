@@ -25,13 +25,13 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "gh-pages": "^3.2.3",
-    "react-json-pretty": "^2.2.0",
-    "prop-types": "^15.7.2",
-    "@skywatch/react": "^1.2.6",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@material-ui/core": "^4.12.4",
     "@material-ui/lab": "^4.0.0-alpha.61",
-    "@emotion/react": "^11.10.4",
-    "@emotion/styled": "^11.10.4"
+    "@skywatch/react": "^1.2.6",
+    "gh-pages": "^3.2.3",
+    "prop-types": "^15.7.2",
+    "react-json-pretty": "^2.2.0"
   }
 }
