@@ -1,11 +1,11 @@
 {
   "name": "@skywatch/js",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Skywatch JavaScript Library",
   "copyright": "Copyright Skywatch, Inc. <https://www.service.skywatch24.com/>",
   "keywords": [],
   "license": "Apache-2.0",
-  "author": "mengpeilee <asdfg3865@gmail.com>",
+  "author": "Skywatch <support@skywatch24.com>",
   "main": "lib/index.js",
   "private": false,
   "files": [
@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/Skywatch24/JS-Library#readme",
   "dependencies": {
-    "@skywatch/api": "^1.3.2",
-    "@skywatch/react": "^1.2.5",
+    "@skywatch/api": "^1.3.3",
+    "@skywatch/react": "^1.2.6",
     "flv.js": "^1.5.0",
     "video.js": "^7.11.4"
   }
